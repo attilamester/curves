@@ -148,31 +148,7 @@ public class PlayGround extends JPanel  {
 			gr.fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
 			
 		}
-		/*****************************************
-		 * 
-		 * CIRCLE TESTING
-		 * 
-		 */
-		int r = 20;
-		double i = 5;
-		double j = 2;
-		double k = Math.sqrt( r * r / Math.hypot(i, j));
-		Point2D.Double center = new Point2D.Double(500,500);
-		Point2D.Double startPoint = new Point2D.Double(
-			center.getX() + i * k,
-			center.getY() + j * k
-		);
-		Point2D.Double nextPoint = new Point2D.Double(0,0);
-		gr.fillOval((int)center.getX(), (int)center.getY(), 5,5);
-		AffineTransform rot = AffineTransform.getRotateInstance(Math.toRadians(45), 500,500);
 		
-		for(int q = 0; q < 4; ++q) {
-			rot.transform(startPoint, nextPoint);		
-			gr.fillOval((int)nextPoint.getX(), (int)nextPoint.getY(), 5,5);
-		}
-		
-		
-		/************************************************/
 		g.drawImage(img, 0, 0, null);
 		
 	}
@@ -230,35 +206,71 @@ public class PlayGround extends JPanel  {
 			center.getX() + i * k,
 			center.getY() + j * k
 		);
-		Point2D.Double nextPoint = null;
 		
-		AffineTransform rot = AffineTransform.getRotateInstance(Math.toRadians(20), curves[z].getX(), curves[z].getY());
-		rot.transform(startPoint, nextPoint);
-		return false;
-		
-		/*
-		int paintedColor, red, green, blue;
-		red = green = blue = 0;
-		try {
-			paintedColor = img.getRGB((int)curves[i].getX(), (int)curves[i].getY());
-			red   = (paintedColor & 0x00ff0000) >> 16;
-			green = (paintedColor & 0x0000ff00) >> 8;
-			blue  = (paintedColor & 0x000000ff);
-		} catch (ArrayIndexOutOfBoundsException e) {			
+		if (!pointIsOk(startPoint, curves[z])) {
 			return true;
 		}
 		
+		int alpha = 30;
+		int limit = 90;
+		int nr = limit / alpha;
+		AffineTransform rot = AffineTransform.getRotateInstance(Math.toRadians(alpha), curves[z].getX(), curves[z].getY());
+		Point2D.Double nextPoint = new Point2D.Double(startPoint.getX(), startPoint.getY());
 		
-		Color defColor = GameController.PLAYGROUND_BACKGROUND;
-		
-		if (paintedColor != defColor.getRGB() /*&& paintedColor != curves[i].getColor().getRGB()) {			
-			return true;	
+		/**
+		 * Clockwise direction check
+		 */
+		for (int ii = 0; ii < nr; ++ii) {
+			rot.transform(nextPoint, nextPoint);
+			if (!pointIsOk(nextPoint, curves[z])) {
+				return true;
+			}
 		}
-		
-		//Point2D.Double middle = new Point2D.Double(arg0, arg1)
-		
+		rot.setToRotation(-alpha, curves[z].getX(), curves[z].getY());
+		nextPoint.setLocation(startPoint);
+		/**
+		 * Counter - Clockwise direction check
+		 */
+		for (int ii = 0; ii < nr; ++ii) {
+			rot.transform(nextPoint, nextPoint);
+			if (!pointIsOk(nextPoint, curves[z])) {
+				return true;
+			}
+		}		
 		return false;
-		*/
+		
+	}
+	
+	private boolean pointIsOk(Point2D.Double point, Curve curve) {
+		/**
+		 * red   = (paintedColor & 0x00ff0000) >> 16;
+		 * green = (paintedColor & 0x0000ff00) >> 8;
+		 * blue  = (paintedColor & 0x000000ff);
+		 */
+		
+		/**
+		 * INSIDE PREVIOUS PAINTED CIRCLE => IGNORE IT
+		 */
+		System.out.println(
+				curve.getOldX() + " - " + curve.getX()
+				);
+		
+		if( Math.hypot(point.getX() - curve.getOldX(), point.getY() - curve.getOldY()) <= 
+			Math.pow(curve.getRadius(), 2)) {
+			return true;
+		}	
+		
+		int paintedColor;
+		try {
+			paintedColor = img.getRGB((int)point.getX(), (int)point.getY());			
+		} catch (ArrayIndexOutOfBoundsException e) {			
+			return false;
+		}		
+		if (paintedColor != GameController.PLAYGROUND_BACKGROUND.getRGB()) {			
+			return false;	
+		}
+		System.out.println("a");
+		return true;
 	}
 	
 }

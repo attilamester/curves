@@ -152,7 +152,7 @@ public class CurveWindow extends JFrame {
 		timer_eraseDirections.setInitialDelay(3001);
 		timer_eraseDirections.setRepeats(false);
 		timer_paintDirections.start();
-		//timer_eraseDirections.start();
+		timer_eraseDirections.start();
 		
 	}
 }
