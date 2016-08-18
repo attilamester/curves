@@ -45,13 +45,23 @@ public class PlayGround extends JPanel  {
 			colors[i] = new Color(rnd.nextInt(200) + 50, rnd.nextInt(200) + 50, rnd.nextInt(200) + 50);
 			
 		int padding = Main.screenSize.width / 5;
+		
 		Direction dir = new Direction();
-		dir.setI(rnd.nextDouble() * 2.5);
-		dir.setJ(Math.sqrt(2.5 - dir.getI()));
-	
-		for (int i = 0; i < players; ++i) {			
+		byte multiplier = 1;
+		
+		for (int i = 0; i < players; ++i) {
+			if(rnd.nextBoolean())
+				multiplier *= -1;
+			dir.setI(rnd.nextDouble() * GameController.DEFAULT_CURVE_SPEED * multiplier);
 			
-			curves[i] = new Curve( randBetween(padding, Main.screenSize.width - padding), randBetween(padding, Main.screenSize.height - padding), GameController.DEFAULT_THICK, 3, colors[i], dir);			
+			if(rnd.nextBoolean())
+				multiplier *= -1;
+			dir.setJ( Math.sqrt( 
+				Math.pow(GameController.DEFAULT_CURVE_SPEED, 2) - 
+				Math.pow(dir.getI(), 2)
+			) * multiplier);
+		
+			curves[i] = new Curve( randBetween(padding, Main.screenSize.width - padding), randBetween(padding, Main.screenSize.height - padding), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors[i], dir);			
 			curveControllers[i] = new CurveController(curves[i]);
 		}
 		
@@ -196,6 +206,8 @@ public class PlayGround extends JPanel  {
 	}
 	
 	private boolean crashedToSomething(Curve[] curves, int z) {
+		System.out.println("Checking for: " + curves[z].getX() + " ; " + curves[z].getY());
+		
 		
 		int r = curves[z].getRadius();
 		double i = curves[z].getDirection().getI();
@@ -206,7 +218,7 @@ public class PlayGround extends JPanel  {
 			center.getX() + i * k,
 			center.getY() + j * k
 		);
-		
+		System.out.println("\tChecking: " + startPoint.getX() + " ; " + startPoint.getY());
 		if (!pointIsOk(startPoint, curves[z])) {
 			return true;
 		}
@@ -217,11 +229,14 @@ public class PlayGround extends JPanel  {
 		AffineTransform rot = AffineTransform.getRotateInstance(Math.toRadians(alpha), curves[z].getX(), curves[z].getY());
 		Point2D.Double nextPoint = new Point2D.Double(startPoint.getX(), startPoint.getY());
 		
+		
+		
 		/**
 		 * Clockwise direction check
 		 */
 		for (int ii = 0; ii < nr; ++ii) {
 			rot.transform(nextPoint, nextPoint);
+			System.out.println("\tChecking: " + nextPoint.getX() + " ; " + nextPoint.getY());
 			if (!pointIsOk(nextPoint, curves[z])) {
 				return true;
 			}
@@ -233,6 +248,7 @@ public class PlayGround extends JPanel  {
 		 */
 		for (int ii = 0; ii < nr; ++ii) {
 			rot.transform(nextPoint, nextPoint);
+			System.out.println("\tChecking: " + nextPoint.getX() + " ; " + nextPoint.getY());
 			if (!pointIsOk(nextPoint, curves[z])) {
 				return true;
 			}
@@ -251,12 +267,10 @@ public class PlayGround extends JPanel  {
 		/**
 		 * INSIDE PREVIOUS PAINTED CIRCLE => IGNORE IT
 		 */
-		System.out.println(
-				curve.getOldX() + " - " + curve.getX()
-				);
-		
-		if( Math.hypot(point.getX() - curve.getOldX(), point.getY() - curve.getOldY()) <= 
-			Math.pow(curve.getRadius(), 2)) {
+		if( Math.sqrt( Math.hypot(point.getX() - curve.getOldX(), point.getY() - curve.getOldY()) ) <= 
+			curve.getRadius() - 0.01
+				) {
+			System.out.println("INSIDE OLD CIRCLE");
 			return true;
 		}	
 		
@@ -267,9 +281,9 @@ public class PlayGround extends JPanel  {
 			return false;
 		}		
 		if (paintedColor != GameController.PLAYGROUND_BACKGROUND.getRGB()) {			
-			return false;	
+			return false;
 		}
-		System.out.println("a");
+		System.out.println("OUT OF CIRCLE OK");
 		return true;
 	}
 	

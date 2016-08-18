@@ -270,15 +270,40 @@ public class ConfigPanel extends JFrame {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				BufferedImage img = null;
-				try {  
-					//String name = "images/key_" + (char)code + ".png";
-					String name = "images\\key_A2.png";
+				try {
+					String name = "images\\key_notfound.png";
+					if (code >= (int)'A' && code <= (int)'Z') {
+						name = "images\\key_" + (char)code + ".png";
+					} else if (code >= 96 && code <= 105) {
+						name = "images\\key_" + (code - 96) + ".png";
+					} else if (code >= 48 && code <= 57) {
+						name = "images\\key_" + (code - 48) + ".png";
+					} else {
+						switch (code) {
+							case 13: name = "images\\key_enter.png"; break;
+							case 16: name = "images\\key_shift.png"; break;
+							case 17: name = "images\\key_ctrl.png"; break;
+							case 18: name = "images\\key_alt.png"; break;
+							case 32: name = "images\\key_space.png"; break;
+							
+							case 37: name = "images\\key_left.png"; break;
+							case 38: name = "images\\key_up.png"; break;
+							case 39: name = "images\\key_right.png"; break;
+							case 40: name = "images\\key_down.png"; break;
+							
+							case 111: name = "images\\key_divide.png"; break;
+							case 106: name = "images\\key_multiply.png"; break;
+							case 107: name = "images\\key_plus.png"; break;
+							case 109: name = "images\\key_minus.png"; break;
+							
+							default: name = "images\\key_notfound.png"; break;
+						}
+					}
+					
 					System.out.println(name);
 					img = ImageIO.read(new File(name));
-					setText("");
-				} catch (IOException ex) {
-					System.out.println(ex.getMessage());
-				}
+					
+				} catch (IOException ex) {}
 				g.drawImage(img, 0, 0, 50, 25,  null);			
 
 			}
