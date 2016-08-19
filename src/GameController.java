@@ -14,7 +14,7 @@ public class GameController {
 	public static final int FRAME_SIZE_Y = Main.screenSize.height;
 	public static final int DEFAULT_THICK = 4;
 	public static final Color DEFAULT_COLOR = Color.BLUE;
-	public static final double DEFAULT_CURVE_SPEED = 0.8;
+	public static final double DEFAULT_CURVE_SPEED = 1.5;
 	public static final double DEFAULT_CURVE_ANGLE = 1.5;
 	public static final Color PLAYGROUND_BACKGROUND = new Color(30, 30, 30);
 	public static final int PLAYGROUND_BORDER_WIDTH = 8;

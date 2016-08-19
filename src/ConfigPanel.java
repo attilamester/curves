@@ -236,14 +236,16 @@ public class ConfigPanel extends JFrame {
 				this.label = label;
 				this.listening = false;
 				this.hasSpecChar = false;
+				this.code = -1;
 								
 				addFocusListener(this);
 				addKeyListener(new KeyAdapter() {
 					@Override
 					public void keyPressed(KeyEvent e) {
 						if (listening) {
-							code = e.getKeyCode();							
-							setText(Character.toString((char)code));
+							setText("");
+							code = e.getKeyCode();
+							repaint();
 						}
 					}
 				});
@@ -257,8 +259,7 @@ public class ConfigPanel extends JFrame {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-				System.out.println("lost");
+				this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));				
 				listening = false;
 			}
 
@@ -270,6 +271,10 @@ public class ConfigPanel extends JFrame {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				BufferedImage img = null;
+				if (code == -1) {					
+					return;
+				}
+					
 				try {
 					String name = "images\\key_notfound.png";
 					if (code >= (int)'A' && code <= (int)'Z') {
@@ -298,13 +303,11 @@ public class ConfigPanel extends JFrame {
 							
 							default: name = "images\\key_notfound.png"; break;
 						}
-					}
-					
+					}					
 					System.out.println(name);
 					img = ImageIO.read(new File(name));
-					
+					g.drawImage(img, 0, 0, 50, 25,  null);					
 				} catch (IOException ex) {}
-				g.drawImage(img, 0, 0, 50, 25,  null);			
 
 			}
 		}
