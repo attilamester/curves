@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class CurveWindow extends JFrame {
@@ -30,6 +32,7 @@ public class CurveWindow extends JFrame {
 	private JMenu mainMenu;
 	private JMenuItem newGameItem;
 	
+	private JPanel namesPane;
 	private PlayGround playGround;
 	private ConfigPanel configPanel;
 	
@@ -56,7 +59,10 @@ public class CurveWindow extends JFrame {
 		mainMenu.add(newGameItem);
 		menuBar.add(mainMenu);
 		setJMenuBar(menuBar);
-			
+		
+		
+		ctrl = null;
+		
 		/******************************************************************
 		 * 
 		 * WINDOW PROPERTIES
@@ -124,10 +130,13 @@ public class CurveWindow extends JFrame {
 		
 	}
 	
-	public void createPlayGround(int players, List<Control> ctrl) {
+	public void createPlayGround(int players, List<Control> ctrl, List<String> names) {
 		
 		this.ctrl = ctrl;
 		this.playGround = new PlayGround(players, ctrl);
+		
+		addPlayerNames(names);
+		
 		this.contentPane.add(playGround, BorderLayout.CENTER);		
 		this.newGameItem.setEnabled(false);
 		this.revalidate();
@@ -153,6 +162,15 @@ public class CurveWindow extends JFrame {
 		timer_eraseDirections.setRepeats(false);
 		timer_paintDirections.start();
 		timer_eraseDirections.start();
-		
+	}
+	
+	private void addPlayerNames(List<String> names) {
+		namesPane = new JPanel();
+		namesPane.setLayout(new GridLayout(1, names.size()));
+		for(String name : names) {
+			namesPane.add(new PlayerStatus(name));  
+		}
+		this.contentPane.add(namesPane, BorderLayout.NORTH);
+		this.revalidate();
 	}
 }
