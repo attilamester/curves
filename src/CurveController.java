@@ -44,30 +44,10 @@ public class CurveController extends Thread{
 				else if(curve.isRightPressed())
 					curve.turnRight();
 				
-				
 				curve.setOldX(curve.getX());
 				curve.setOldY(curve.getY());
 				curve.setX(curve.getX() + curve.getDirection().getI());
 				curve.setY(curve.getY() + curve.getDirection().getJ());
-				
-				/*
-				if (count == startWhole){
-					
-					int delay = rnd.nextInt(3000) + 1000;
-					timer.setInitialDelay(delay);
-					timer.restart();
-					System.out.println(delay);
-					//curve.setColor(GameController.PLAYGROUND_BACKGROUND);
-					//setDashStart();
-					
-				} else if (count == endWhole){
-					curve.setColor(original);
-					setDashStop();					
-					count = 0;
-				}
-				
-				++count;
-				*/
 			}
 		});
 		
@@ -79,18 +59,24 @@ public class CurveController extends Thread{
 		});
 		dashStopper.setRepeats(false);
 		
-		dashStarter = new Timer(rnd.nextInt(10000) + 3000, new ActionListener() {
+		dashStarter = new Timer(rnd.nextInt(1000) + 3000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				curve.setPaused(true);
 				curve.setPausedX(curve.getX());
 				curve.setPausedY(curve.getY());
 				
-				int dashStop = rnd.nextInt(500) + 50;
+				double v = curve.calcSpeed() / delay; // speed in: <px / ms>
+				double d = 6 * curve.getRadius(); // 3 * circle diameter
+				double t = d / v;
+				
+				System.out.println("\t\tv: " + v + " d: " +  d  + " t: " + t );
+				
+				int dashStop = rnd.nextInt((int)t) + (int)(t);
 				dashStopper.setInitialDelay(dashStop);							
 				dashStopper.start();
 				
-				dashStarter.setDelay(dashStop + rnd.nextInt(10000) + 500);
+				dashStarter.setDelay(dashStop + rnd.nextInt(1000) + 500);
 			}
 		});
 	}

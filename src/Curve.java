@@ -126,7 +126,9 @@ public class Curve {
 		this.pausedY = pausedY;
 	}
 
-
+	public double calcSpeed() {
+		return Math.hypot(direction.getI(), direction.getJ());
+	}
 	/*******************************************************
 	 * 
 	 * TURN

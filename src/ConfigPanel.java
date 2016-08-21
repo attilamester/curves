@@ -235,7 +235,7 @@ public class ConfigPanel extends JFrame {
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
-				ConfigPanel.this.curveWindow.createPlayGround((int)playerCount.getValue(), ctrl, names);		
+				ConfigPanel.this.curveWindow.createPlayGround((int)playerCount.getValue(), ctrl, names);	
 			}
 		});
 	    

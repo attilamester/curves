@@ -11,6 +11,11 @@ public class Direction {
 	
 	public Direction() {}
 
+	@Override
+	public String toString() {
+		return "Direction [i=" + i + ", j=" + j + "]";
+	}
+
 	public double getI() {
 		return i;
 	}
