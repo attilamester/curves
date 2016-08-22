@@ -1,9 +1,15 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
+import java.awt.image.ImageProducer;
+import java.awt.image.RGBImageFilter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +17,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class PlayGround extends JPanel  {
@@ -31,7 +38,7 @@ public class PlayGround extends JPanel  {
 	
 	private Random rnd = new Random();
 	
-	public PlayGround(int players, List<Control> controls) {
+	public PlayGround(int players, List<Control> controls, List<Color> colors) {
 		
 		this.players = players;
 		this.controls = controls;
@@ -39,11 +46,11 @@ public class PlayGround extends JPanel  {
 		curves = new Curve[players];
 		curveControllers = new CurveController[players];
 		
-		
+		/*
 		Color[] colors = new Color[players];
 		for (int i = 0; i < players; ++i)
 			colors[i] = new Color(rnd.nextInt(200) + 50, rnd.nextInt(200) + 50, rnd.nextInt(200) + 50);
-			
+			*/
 		int padding = Main.screenSize.width / 5;
 		
 		Direction dir = new Direction();
@@ -60,7 +67,7 @@ public class PlayGround extends JPanel  {
 				Math.pow(GameController.DEFAULT_CURVE_SPEED, 2) - 
 				Math.pow(dir.getI(), 2)
 			) * multiplier);
-			curves[i] = new Curve( randBetween(padding, Main.screenSize.width - padding), randBetween(padding, Main.screenSize.height - padding), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors[i], dir);			
+			curves[i] = new Curve( randBetween(padding, Main.screenSize.width - padding), randBetween(padding, Main.screenSize.height - padding), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
 			curveControllers[i] = new CurveController(curves[i]);
 		}
 		
@@ -133,24 +140,47 @@ public class PlayGround extends JPanel  {
 		for (int i = 0; i < players; ++i) {		
 			
 			int r = curves[i].getRadius();
-			
+			int color = curves[i].getColor().getRGB(); 
 			BufferedImage direction =  null;
+			BufferedImage finalImg = null;
 			try {
-				direction = ImageIO.read(new File("images\\direction.png"));
+				direction = ImageIO.read(new File("images\\direction.png"));				
 			} catch (IOException e) {}
 			
-			double rotationRequired = Math.atan(
-					curves[i].getDirection().getJ() /
-					curves[i].getDirection().getI()
-			) + Math.PI / 2;
+			ImageFilter filter =  new RGBImageFilter() {
+				@Override
+				public int filterRGB(final int x, final int y, final int rgb) {
+					return (rgb >> 24 == 0x00) ? 0 : color;					
+				}
+			};			
+			ImageProducer ip = new FilteredImageSource(direction.getSource(),filter);
+			finalImg = toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
+			/** 
+			 *  ___________>   oX  v0
+			 *  \alpha
+			 *   \
+			 *    \
+			 *    _\|  v1
+			 *     
+			 * 
+			 * v1 * v0 = |v1| * |v0| * cos alpha
+			 * 
+			 * =>
+			 * 
+			 * alpha = arccos(v1 * v0 / || ||)
+			 */
+			double rotationRequired = Math.acos(
+					curves[i].getDirection().getI() /
+					curves[i].calcSpeed()
+			) * Math.signum(curves[i].getDirection().getJ()) + Math.PI / 2;
 			AffineTransform tx = new AffineTransform();
-			double scale = 0.08;			
+			double scale = 75.0 / direction.getWidth();		
 			tx.translate(curves[i].getX()  - direction.getWidth() * scale / 2, curves[i].getY() - direction.getHeight() * scale);
 			tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
 			tx.scale(scale, scale);
 			
 			Graphics2D g2d = (Graphics2D) gr;
-			g2d.drawImage(direction, tx, null);
+			g2d.drawImage(finalImg, tx, null);
 			
 			gr.setColor(curves[i].getColor());
 			gr.fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
@@ -159,6 +189,17 @@ public class PlayGround extends JPanel  {
 		
 		g.drawImage(img, 0, 0, null);
 		
+	}
+	
+	public static BufferedImage toBufferedImage(Image image) { 
+		if (image instanceof BufferedImage) return (BufferedImage) image;
+
+		image = new ImageIcon(image).getImage(); 
+		BufferedImage bimage = new BufferedImage(image.getWidth(null),image.getHeight(null), BufferedImage.TYPE_INT_ARGB); 
+		Graphics g = bimage.createGraphics(); 
+		g.drawImage(image,0,0,null); 
+		g.dispose(); 
+		return bimage; 
 	}
 	
 	public void eraseArrows() {

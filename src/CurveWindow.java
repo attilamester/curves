@@ -16,7 +16,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 public class CurveWindow extends JFrame {
 	
@@ -81,9 +80,6 @@ public class CurveWindow extends JFrame {
 		addMenuListeners();
 		
 	}
-	public PlayGround getPlayGround() {
-		return playGround;
-	}
 	
 	public void addWindowListeners() {
 		this.addKeyListener(new KeyAdapter() {
@@ -130,12 +126,12 @@ public class CurveWindow extends JFrame {
 		
 	}
 	
-	public void createPlayGround(int players, List<Control> ctrl, List<String> names) {
+	public void createPlayGround(int players, List<Control> ctrl, List<String> names, List<Color> colors) {
 		
 		this.ctrl = ctrl;
-		this.playGround = new PlayGround(players, ctrl);
+		this.playGround = new PlayGround(players, ctrl, colors);
 		
-		addPlayerNames(names);
+		addPlayerNames(names, colors);
 		
 		this.contentPane.add(playGround, BorderLayout.CENTER);		
 		this.newGameItem.setEnabled(false);
@@ -143,10 +139,13 @@ public class CurveWindow extends JFrame {
 		
 		this.playGround.repaint();
 		
+		control.setDisplayRefresherPlayGround(playGround);
+		
+		/*
 		Timer timer_paintDirections = new Timer(1, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				control.setDisplayRefresherPlayGround(playGround);
+				
 				control.startGame();
 			}
 		});
@@ -156,21 +155,37 @@ public class CurveWindow extends JFrame {
 				playGround.eraseArrows();
 			}
 		});
-		timer_paintDirections.setInitialDelay(3000);
+		timer_paintDirections.setInitialDelay(3001);
 		timer_paintDirections.setRepeats(false);
-		timer_eraseDirections.setInitialDelay(3001);
+		timer_eraseDirections.setInitialDelay(3000);
 		timer_eraseDirections.setRepeats(false);
 		timer_paintDirections.start();
 		timer_eraseDirections.start();
+		*/
 	}
-	
-	private void addPlayerNames(List<String> names) {
-		namesPane = new JPanel();
-		namesPane.setLayout(new GridLayout(1, names.size()));
-		for(String name : names) {
-			namesPane.add(new PlayerStatus(name));  
+		
+	private void addPlayerNames(List<String> names, List<Color> colors) {
+		namesPane = new JPanel(new GridLayout(1, names.size()));
+		namesPane.setPreferredSize(new Dimension(Main.screenSize.width, 30));
+		ListIterator iterNames  = names.listIterator();
+		ListIterator iterColors = colors.listIterator();
+		while(iterNames.hasNext()) {
+			String name = (String)iterNames.next();
+			Color color = (Color)iterColors.next();
+			namesPane.add(new PlayerStatus(name, color));
 		}
+			  
+		
 		this.contentPane.add(namesPane, BorderLayout.NORTH);
 		this.revalidate();
 	}
+	
+	public GameController getControl() {
+		return control;
+	}
+	
+	public PlayGround getPlayGround() {
+		return playGround;
+	}
+	
 }

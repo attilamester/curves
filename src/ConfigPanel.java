@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -41,6 +42,7 @@ public class ConfigPanel extends JFrame {
 	
 	private Container contentPane;
 	
+	private Random rnd;
 	
 	private JLabel speedLabel;
 	private JLabel angleLabel;
@@ -64,6 +66,7 @@ public class ConfigPanel extends JFrame {
 	public ConfigPanel(CurveWindow curveWindow) {
 		super("New Game");
 		this.curveWindow = curveWindow;
+		this.rnd = new Random();
 		
 		contentPane = this.getContentPane();
 		contentPane.setLayout(new BorderLayout());
@@ -79,6 +82,10 @@ public class ConfigPanel extends JFrame {
 		this.setVisible(true);
 	}
 	
+	public Random getRnd() {
+		return rnd;
+	}
+
 	private void addItems() {
 		
 		addSpeedSlider();
@@ -142,7 +149,7 @@ public class ConfigPanel extends JFrame {
 				int nr = (int)playerCount.getValue();				
 				if (nr > players.size()) {
 					playersPane.setLayout(new GridLayout(nr, 1));
-					PlayerConfigRow row = new PlayerConfigRow();
+					PlayerConfigRow row = new PlayerConfigRow(rnd);
 					players.add(row);
 					playersPane.add(row);					
 					playersPane.revalidate();
@@ -183,7 +190,7 @@ public class ConfigPanel extends JFrame {
 		this.playersPane.setLayout(new GridLayout(nr, 1));
 		this.players = new ArrayList<>();
 		for (int i = 0; i < nr; ++i) {
-			PlayerConfigRow row = new PlayerConfigRow();
+			PlayerConfigRow row = new PlayerConfigRow(rnd);
 			this.players.add(row);
 			this.playersPane.add(row);
 		}
@@ -215,19 +222,22 @@ public class ConfigPanel extends JFrame {
 		});
 		
 		/*************************************************************************
+		 * 
 		 * START GAME
 		 * 
-		 */
+		 *************************************************************************/
 		this.start.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				List<Control> ctrl = new ArrayList<Control>();
 				List<String> names = new ArrayList<String>();
+				List<Color> colors = new ArrayList<Color>();
 				for (Component c : playersPane.getComponents()) {
 					PlayerConfigRow ref = (PlayerConfigRow) c;
 //					ctrl.add(new Control(ref.getLeft(), ref.getRight()));
 					ctrl.add(new Control(65,83));
 					names.add(ref.getName());
+					colors.add(ref.getColor());
 				}
 				setVisible(false);
 				dispose();
@@ -235,7 +245,9 @@ public class ConfigPanel extends JFrame {
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
-				ConfigPanel.this.curveWindow.createPlayGround((int)playerCount.getValue(), ctrl, names);	
+				ConfigPanel.this.curveWindow.createPlayGround((int)playerCount.getValue(), ctrl, names, colors);
+				
+				CountDown cnt = new CountDown(curveWindow, "Round 1");
 			}
 		});
 	    
@@ -247,7 +259,7 @@ public class ConfigPanel extends JFrame {
 			
 			private String placeHolder;
 			private Color placeHolderColor;
-			private boolean placeHolderShown; 
+			private boolean placeHolderShown;
 			
 			public TextFieldPlaceholder(String placeHolder, Color c) {
 				super(placeHolder);
@@ -365,15 +377,20 @@ public class ConfigPanel extends JFrame {
 		}
 		
 		public TextFieldPlaceholder name;
+		public Color color;
 		public DetectControlButton leftCtrl;
 		public DetectControlButton rightCtrl;
 		
-		public PlayerConfigRow() {
+		public PlayerConfigRow(Random rnd) {
 			setLayout(new FlowLayout());
 			
-			name = new TextFieldPlaceholder("Player's name", Color.GRAY);			
+			color = new Color(rnd.nextInt(200) + 50, rnd.nextInt(200) + 50, rnd.nextInt(200) + 50);
+			
+			name = new TextFieldPlaceholder("Player's name", color);			
 			leftCtrl = new DetectControlButton("LEFT");
 			rightCtrl = new DetectControlButton("RIGHT");
+			
+			
 			
 			add(name);
 			add(leftCtrl);
@@ -390,6 +407,10 @@ public class ConfigPanel extends JFrame {
 		
 		public int getRight() {
 			return rightCtrl.getCode();
+		}
+		
+		public Color getColor() {
+			return color;
 		}
 	}
 }

@@ -12,15 +12,15 @@ public class PlayerStatus extends JPanel{
 	private JLabel scoreLabel;
 	private int score;
 	
-	public PlayerStatus(String name) {
+	public PlayerStatus(String name, Color c) {
 		if (name.length() == 0)
 			name = "#noName";
 		nameLabel = new JLabel(name);
 		nameLabel.setMinimumSize(new Dimension(300, 30));
 		nameLabel.setHorizontalAlignment(JLabel.LEFT);
-		nameLabel.setBorder(BorderFactory.createLineBorder(Color.CYAN, 2, true));
+		nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 		nameLabel.setOpaque(true);
-		nameLabel.setBackground(Color.CYAN);
+		nameLabel.setBackground(c);
 		nameLabel.setForeground(Color.WHITE);
 		
 		scoreLabel = new JLabel("0 pt");

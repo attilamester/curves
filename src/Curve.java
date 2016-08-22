@@ -129,6 +129,10 @@ public class Curve {
 	public double calcSpeed() {
 		return Math.hypot(direction.getI(), direction.getJ());
 	}
+	
+	public double getM() {
+		return direction.getJ() / direction.getI();
+	}
 	/*******************************************************
 	 * 
 	 * TURN
