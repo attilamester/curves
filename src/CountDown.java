@@ -22,7 +22,8 @@ public class CountDown extends JFrame{
 		this.curveWindow = curveWindow;
 		
 		contentPane = this.getContentPane();
-		contentPane.setBackground(new Color(38, 38, 38));
+		contentPane.setBackground(new Color(0, 0, 0, 0));
+		//setBackground(new Color(0, 0, 0, 0));
 		
 		addItems(label);
 		
@@ -39,15 +40,15 @@ public class CountDown extends JFrame{
 	private void addItems(String title) {		
 		JLabel label = new JLabel( new ImageIcon( new ImageIcon("images\\loading.gif").getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
 		countDownLabel = new JLabel("5", SwingConstants.CENTER);
-		countDownLabel.setOpaque(true);
+		//countDownLabel.setOpaque(true);
 		countDownLabel.setForeground(Color.WHITE);
-		countDownLabel.setBackground(new Color(0,0,0,0));
+		countDownLabel.setBackground(new Color(0,0,0,1));
 		countDownLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
 		JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-		titleLabel.setOpaque(true);
+		//titleLabel.setOpaque(true);
 		titleLabel.setForeground(Color.WHITE);
-		titleLabel.setBackground(new Color(0,0,0,0));
+		//titleLabel.setBackground(new Color(0,0,0,0));
 		titleLabel.setFont(new Font("Calibri", Font.BOLD, 20)); 
 		
 		contentPane.add(titleLabel, BorderLayout.NORTH);

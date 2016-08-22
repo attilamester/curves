@@ -174,7 +174,7 @@ public class PlayGround extends JPanel  {
 					curves[i].calcSpeed()
 			) * Math.signum(curves[i].getDirection().getJ()) + Math.PI / 2;
 			AffineTransform tx = new AffineTransform();
-			double scale = 75.0 / direction.getWidth();		
+			double scale = 50.0 / direction.getWidth();		
 			tx.translate(curves[i].getX()  - direction.getWidth() * scale / 2, curves[i].getY() - direction.getHeight() * scale);
 			tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
 			tx.scale(scale, scale);
