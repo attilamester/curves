@@ -18,7 +18,7 @@ public class PlayerStatus extends JPanel{
 		
 		if (name.length() == 0)
 			name = "#noName";
-		nameLabel = new JLabel("<html><body style='text-shadow:1px 1px 5px black'>" + name + "</body></html>");
+		nameLabel = new JLabel(name);
 		//nameLabel.setMinimumSize(new Dimension(300, 30));
 		nameLabel.setHorizontalAlignment(JLabel.LEFT);
 		nameLabel.setVerticalAlignment(JLabel.CENTER);
@@ -32,6 +32,8 @@ public class PlayerStatus extends JPanel{
 		scoreLabel.setFont(new Font("Calibri", Font.PLAIN, 15));
 		scoreLabel.setMinimumSize(new Dimension(30, 30));
 		scoreLabel.setVerticalAlignment(JLabel.CENTER);
+		scoreLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		scoreLabel.setForeground(Color.WHITE);
 		this.add(nameLabel);
 		this.add(scoreLabel);
 	}

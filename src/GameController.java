@@ -3,6 +3,7 @@ import java.awt.Dimension;
 
 public class GameController {
 	
+	private LandingWindow landingWindow;
 	private CurveWindow curveWindow;
 	private DisplayRefresher displayRefresher;
 	
@@ -22,6 +23,7 @@ public class GameController {
 	
 	
 	public GameController() {
+		
 		
 		curveWindow = new CurveWindow(this);
 		displayRefresher = new DisplayRefresher();
