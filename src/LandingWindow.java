@@ -73,7 +73,12 @@ public class LandingWindow extends JFrame{
 				}
 				@Override
 				public void mousePressed(MouseEvent e) {					
-					setBorder(BorderFactory.createMatteBorder(0, 10, 0, 0, Color.red));					
+					setBackground(getBackground());
+					setForeground(Color.BLACK);
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {								
+					setForeground(Color.WHITE);
 				}
 			});
 		}
