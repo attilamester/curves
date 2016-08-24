@@ -33,8 +33,7 @@ public class CurveWindow extends JFrame {
 	
 	private JPanel namesPane;
 	private PlayGround playGround;
-	private ConfigPanel configPanel;
-	
+		
 	private List<Control> ctrl; 
 	
 	public CurveWindow(GameController control) {

@@ -24,9 +24,9 @@ public class GameController {
 	
 	public GameController() {
 		
-		
-		curveWindow = new CurveWindow(this);
-		displayRefresher = new DisplayRefresher();
+		landingWindow = new LandingWindow();
+		//curveWindow = new CurveWindow(this);
+		//displayRefresher = new DisplayRefresher();
 		
 	}
 		
