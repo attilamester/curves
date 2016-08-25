@@ -3,23 +3,30 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 
-public class LandingWindow extends JFrame{
+public class LandingWindow extends JFrame {
 	
 	Container contentPane;
 	
 	LandingButton newGame;
 	LandingButton highScores;
 	LandingButton settings;
+	
+	/*************************************************************
+	 * 
+	 * OUTER REFERENCES
+	 * 
+	 *************************************************************/
+	
+	
 	
 	public LandingWindow() {
 		
@@ -35,6 +42,8 @@ public class LandingWindow extends JFrame{
 		contentPane.add(highScores);
 		contentPane.add(settings);
 		
+		addActions();
+		
 		this.setSize(400, 450);		
 		this.setResizable(false);
 		this.setBounds(Main.screenSize.width / 2 - this.getWidth() / 2, Main.screenSize.height / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
@@ -42,23 +51,39 @@ public class LandingWindow extends JFrame{
 		getRootPane().setBorder(new LineBorder(new Color(30, 30, 30), 5));
 		this.setVisible(true);
 		Main.setCloseOnEsc(this);
+	
 	}
+	/*************************************************************
+	 * 
+	 * MAIN MENU ACTIONS
+	 * 
+	 *************************************************************/
+	private void addActions() {
+		newGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LandingWindow.this.setContentPane(new ConfigPanel().getContentPane());
+			}
+		});
+	}
+	
 	
 	/*************************************************************
 	 * 
 	 * NESTED CLASSES
 	 * 
 	 *************************************************************/
-	private class LandingButton extends JButton {
+	private class LandingButton extends JLabel {
 		
 		public LandingButton(String label, Color bg) {
-			super(label);
-			setFocusPainted(false);			
+			super(label, JLabel.CENTER);
+			setOpaque(true);
 			setBackground(bg);
 			setFont(new Font("Caibri", Font.PLAIN, 30));
 			setForeground(Color.WHITE);
-			setMargin(new Insets(20, 50, 200, 20));
+			//setMargin(new Insets(20, 50, 200, 20));
 			setBorder(new LineBorder(new Color(30, 30, 30), 10));
+			
 			
 			addMouseListener(new MouseAdapter() {
 				@Override
@@ -70,16 +95,7 @@ public class LandingWindow extends JFrame{
 				public void mouseExited(MouseEvent e) {					
 					setBackground(getBackground().brighter());
 					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-				}
-				@Override
-				public void mousePressed(MouseEvent e) {					
-					setBackground(getBackground());
-					setForeground(Color.BLACK);
-				}
-				@Override
-				public void mouseReleased(MouseEvent e) {								
-					setForeground(Color.WHITE);
-				}
+				}								
 			});
 		}
 	}

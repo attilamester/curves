@@ -114,12 +114,11 @@ public class CurveWindow extends JFrame {
 	    });
 	}
 	
-	public void addMenuListeners() {
-		CurveWindow ref = this;
+	public void addMenuListeners() {		
 		newGameItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ConfigPanel cfg = new ConfigPanel(ref);
+				ConfigPanel cfg = new ConfigPanel(CurveWindow.this);
 			}
 		});
 		
