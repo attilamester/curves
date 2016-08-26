@@ -29,7 +29,7 @@ public class CountDown extends JFrame{
 		
 		this.setContentPane(contentPane);
 		this.setSize(170, 170);
-		this.setBounds(Main.screenSize.width / 2 - this.getWidth() / 2, Main.screenSize.height / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
+		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
@@ -68,7 +68,7 @@ public class CountDown extends JFrame{
 					dispose();
 					
 					curveWindow.getPlayGround().eraseArrows();					
-					curveWindow.getControl().startGame();
+					curveWindow.startGame();
 				}
 				countDownLabel.setText(Integer.toString(--nr));
 			}

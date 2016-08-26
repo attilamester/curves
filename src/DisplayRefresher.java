@@ -9,7 +9,9 @@ public class DisplayRefresher extends Thread {
 	private int delay;
 	private Timer timer;
 	
-	public DisplayRefresher() {
+	public DisplayRefresher(PlayGround playGround) {
+		this.playGround = playGround;
+		
 		delay = 5;
 		timer = new Timer(delay, new ActionListener() {
 			@Override
@@ -39,15 +41,5 @@ public class DisplayRefresher extends Thread {
 			
 			timer.start();
 		}*/
-	}
-
-	public PlayGround getPlayGround() {
-		return playGround;
-	}
-
-	public void setPlayGround(PlayGround playGround) {
-		this.playGround = playGround;
-	}
-
-	
+	}	
 }

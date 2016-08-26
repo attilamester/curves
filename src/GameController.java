@@ -1,18 +1,20 @@
 import java.awt.Color;
-import java.awt.Dimension;
 
 public class GameController {
 	
-	private LandingWindow landingWindow;
-	private CurveWindow curveWindow;
-	private DisplayRefresher displayRefresher;
+	public LandingWindow landingWindow;
 	
-	/*
+	private CurveWindow curveWindow;
+	private ConfigPanel configPanel;	
+	
+	/***********************************************************************
+	 * 
 	 * Game constants
-	 */
+	 * 
+	 ************************************************************************/
 	public static boolean finished;
-	public static final int FRAME_SIZE_X = Main.screenSize.width;
-	public static final int FRAME_SIZE_Y = Main.screenSize.height;
+	public static final int FRAME_SIZE_X = Main.SCREEN_WIDTH;
+	public static final int FRAME_SIZE_Y = Main.SCREEN_HEIGHT;
 	public static final int DEFAULT_THICK = 4;
 	public static final Color DEFAULT_COLOR = Color.BLUE;
 	public static final Color PLAYGROUND_BACKGROUND = new Color(30, 30, 30);
@@ -20,29 +22,26 @@ public class GameController {
 	public static double DEFAULT_CURVE_SPEED;
 	public static double DEFAULT_CURVE_ANGLE = 3;
 	
-	
-	
+		
 	public GameController() {
 		
-		landingWindow = new LandingWindow();
-		curveWindow = new CurveWindow(this);
-		displayRefresher = new DisplayRefresher();
+		configPanel = new ConfigPanel();
 		
+		landingWindow = new LandingWindow(configPanel);
+		
+		
+		configPanel.setSize(landingWindow.getContentPane().getWidth(), landingWindow.getContentPane().getHeight());
+		configPanel.setLandingWindow(landingWindow);
 	}
 		
 	public void startGame() {
 		
-		curveWindow.getPlayGround().startGame();
-		displayRefresher.start();
+		curveWindow.startGame();	
 		
 	}
 	
 	public void endGame() {
 		
-	}
-	
-	public void setDisplayRefresherPlayGround(PlayGround pl) {
-		displayRefresher.setPlayGround(pl);
 	}
 	
 }	

@@ -14,21 +14,24 @@ import javax.swing.border.LineBorder;
 
 public class LandingWindow extends JFrame {
 	
-	Container contentPane;
+	private Container contentPane;
+	private Container defaultContent;
 	
-	LandingButton newGame;
-	LandingButton highScores;
-	LandingButton settings;
+	private LandingButton newGame;
+	private LandingButton highScores;
+	private LandingButton settings;
 	
 	/*************************************************************
 	 * 
 	 * OUTER REFERENCES
 	 * 
 	 *************************************************************/
+	private ConfigPanel configPanel;
 	
 	
-	
-	public LandingWindow() {
+	public LandingWindow(ConfigPanel configPanel) {
+		
+		this.configPanel = configPanel;
 		
 		contentPane = this.getContentPane();
 		contentPane.setLayout(new GridLayout(3, 1));
@@ -44,14 +47,20 @@ public class LandingWindow extends JFrame {
 		
 		addActions();
 		
-		this.setSize(400, 450);		
+		defaultContent = contentPane;
+		
+		this.setSize(Main.LANDING_WIDTH, Main.LANDING_HEIGHT);		
 		this.setResizable(false);
-		this.setBounds(Main.screenSize.width / 2 - this.getWidth() / 2, Main.screenSize.height / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
+		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);		
-		getRootPane().setBorder(new LineBorder(new Color(30, 30, 30), 5));
+		//getRootPane().setBorder(new LineBorder(new Color(30, 30, 30), 5));
 		this.setVisible(true);
 		Main.setCloseOnEsc(this);
+					
+	}
 	
+	public Container getDefaultContent() {
+		return this.defaultContent;
 	}
 	/*************************************************************
 	 * 
@@ -59,10 +68,12 @@ public class LandingWindow extends JFrame {
 	 * 
 	 *************************************************************/
 	private void addActions() {
-		newGame.addActionListener(new ActionListener() {
+		newGame.addMouseListener(new MouseAdapter() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				LandingWindow.this.setContentPane(new ConfigPanel().getContentPane());
+			public void mouseClicked(MouseEvent e) {				
+				LandingWindow.this.setContentPane(configPanel);							 
+				contentPane.revalidate();
+				contentPane.repaint();
 			}
 		});
 	}
@@ -95,7 +106,12 @@ public class LandingWindow extends JFrame {
 				public void mouseExited(MouseEvent e) {					
 					setBackground(getBackground().brighter());
 					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-				}								
+				}
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					setBackground(getBackground().brighter());
+					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				}
 			});
 		}
 	}

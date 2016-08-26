@@ -3,9 +3,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -21,24 +18,33 @@ public class CurveWindow extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private GameController control;
 	private Container contentPane;
 	
-	/**
-	 * MENU BAR
-	 */
+	/******************************************************************
+	 * 
+	 * Menu bar
+	 *  
+	 ******************************************************************/
+	
 	private JMenuBar menuBar;
 	private JMenu mainMenu;
 	private JMenuItem newGameItem;
 	
 	private JPanel namesPane;
-	private PlayGround playGround;
-		
-	private List<Control> ctrl; 
 	
-	public CurveWindow(GameController control) {
+	private PlayGround playGround;
+	private DisplayRefresher displayRefresher;
+	/******************************************************************
+	 * 
+	 * ESSENTIALS
+	 *  
+	 ******************************************************************/
+	private List<Control> ctrl;
+	private List<String> names;
+	private List<Color> colors;
+	
+	public CurveWindow (int players, List<Control> ctrl, List<String> names, List<Color> colors) {
 		super("Get the hang of it! ");
-		this.control = control;
 		
 		contentPane = this.getContentPane();
 		
@@ -58,23 +64,40 @@ public class CurveWindow extends JFrame {
 		menuBar.add(mainMenu);
 		setJMenuBar(menuBar);
 		
+		/******************************************************************
+		 * 
+		 * CONTENT
+		 *  
+		 ******************************************************************/
 		
-		ctrl = null;
+		this.ctrl = ctrl;
+		this.names = names;
+		this.colors = colors;
+		
+		this.playGround = new PlayGround(players, ctrl, colors);		
+		
+		this.addPlayerNames(names, colors);		
+		this.contentPane.add(playGround, BorderLayout.CENTER);
+		this.revalidate();
+		this.playGround.repaint();
+		
+		this.newGameItem.setEnabled(false);
+		
+		this.displayRefresher = new DisplayRefresher(this.playGround);
 		
 		/******************************************************************
 		 * 
 		 * WINDOW PROPERTIES
 		 * 
-		 ******************************************************************/
-		this.setContentPane(contentPane);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setBounds(0,0,screenSize.width, screenSize.height);
-		//this.setBounds(0, 0, 500, 500);
+		 ******************************************************************/		
+		this.setBounds(0,0,Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 		this.setResizable(false);
-		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	    this.setAlwaysOnTop(true);
+		this.setVisible(true);
 	    
+		
 		addWindowListeners();
 		addMenuListeners();
 		
@@ -114,30 +137,13 @@ public class CurveWindow extends JFrame {
 	    });
 	}
 	
-	public void addMenuListeners() {		
-		newGameItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ConfigPanel cfg = new ConfigPanel(CurveWindow.this);
-			}
-		});
+	public void addMenuListeners() {
+		
 		
 	}
 	
 	public void createPlayGround(int players, List<Control> ctrl, List<String> names, List<Color> colors) {
 		
-		this.ctrl = ctrl;
-		this.playGround = new PlayGround(players, ctrl, colors);
-		
-		addPlayerNames(names, colors);
-		
-		this.contentPane.add(playGround, BorderLayout.CENTER);		
-		this.newGameItem.setEnabled(false);
-		this.revalidate();
-		
-		this.playGround.repaint();
-		
-		control.setDisplayRefresherPlayGround(playGround);
 		
 		/*
 		Timer timer_paintDirections = new Timer(1, new ActionListener() {
@@ -164,22 +170,21 @@ public class CurveWindow extends JFrame {
 		
 	private void addPlayerNames(List<String> names, List<Color> colors) {
 		namesPane = new JPanel(new GridLayout(1, names.size()));
-		namesPane.setPreferredSize(new Dimension(Main.screenSize.width, 30));
-		ListIterator iterNames  = names.listIterator();
-		ListIterator iterColors = colors.listIterator();
+		namesPane.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, 30));
+		ListIterator<String> iterNames  = names.listIterator();
+		ListIterator<Color> iterColors = colors.listIterator();
 		while(iterNames.hasNext()) {
 			String name = (String)iterNames.next();
 			Color color = (Color)iterColors.next();
 			namesPane.add(new PlayerStatus(name, color));
-		}
-			  
-		
+		} 		
 		this.contentPane.add(namesPane, BorderLayout.NORTH);
-		this.revalidate();
+		
 	}
 	
-	public GameController getControl() {
-		return control;
+	public void startGame() {
+		this.playGround.startGame();
+		this.displayRefresher.start();
 	}
 	
 	public PlayGround getPlayGround() {

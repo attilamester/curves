@@ -1,7 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -23,7 +22,6 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,11 +34,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class ConfigPanel extends JFrame {
-
-	private CurveWindow curveWindow;
-	
-	private Container contentPane;
+public class ConfigPanel extends JPanel {
 	
 	private Random rnd;
 	
@@ -63,24 +57,24 @@ public class ConfigPanel extends JFrame {
 	private JButton start;
 	private JButton cancel;
 	
-	public ConfigPanel(CurveWindow curveWindow) {
-		super("New Game");
-		this.curveWindow = curveWindow;
+	private LandingWindow landingWindow;
+	
+	
+	public ConfigPanel() {
+		
 		this.rnd = new Random();
 		
-		contentPane = this.getContentPane();
-		contentPane.setLayout(new BorderLayout());
-		
-		this.setSize(300, 350);
-		this.setBounds(Main.screenSize.width / 2 - this.getWidth() / 2, Main.screenSize.height / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
-		this.setUndecorated(true);
-		this.setAlwaysOnTop(true);
-		//getRootPane().setBorder(new EmptyBorder(10, 10, 10, 10)));
+		this.setLayout(new BorderLayout());		
+		this.setSize(Main.LANDING_WIDTH, 400);		
 		
 		addItems();
-		
-		this.setVisible(true);
+				
 	}
+	
+	public void setLandingWindow(LandingWindow landingWindow) {
+		this.landingWindow = landingWindow;
+	}
+
 	
 	public Random getRnd() {
 		return rnd;
@@ -95,9 +89,9 @@ public class ConfigPanel extends JFrame {
 		addMiddleContent();
 		addBottomButtons();
 		
-		contentPane.add(topPane,    BorderLayout.NORTH);
-		contentPane.add(scrollPane, BorderLayout.CENTER);
-		contentPane.add(buttonsPane,BorderLayout.SOUTH);
+		add(topPane,    BorderLayout.NORTH);
+		add(scrollPane, BorderLayout.CENTER);
+		add(buttonsPane,BorderLayout.SOUTH);
 	}
 	
 	private void addSpeedSlider() {
@@ -216,8 +210,9 @@ public class ConfigPanel extends JFrame {
 		this.cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				dispose();
+				landingWindow.setContentPane(landingWindow.getDefaultContent());							 
+				landingWindow.getContentPane().revalidate();
+				landingWindow.getContentPane().repaint();
 			}
 		});
 		
@@ -240,13 +235,12 @@ public class ConfigPanel extends JFrame {
 					colors.add(ref.getColor());
 				}
 				setVisible(false);
-				dispose();
+				//dispose(); for old JFrame conception
 				
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
-				ConfigPanel.this.curveWindow.createPlayGround((int)playerCount.getValue(), ctrl, names, colors);
-				
+				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);			
 				CountDown cnt = new CountDown(curveWindow, "Round 1");
 			}
 		});

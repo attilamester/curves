@@ -51,7 +51,7 @@ public class PlayGround extends JPanel  {
 		for (int i = 0; i < players; ++i)
 			colors[i] = new Color(rnd.nextInt(200) + 50, rnd.nextInt(200) + 50, rnd.nextInt(200) + 50);
 			*/
-		int padding = Main.screenSize.width / 5;
+		int padding = GameController.FRAME_SIZE_X / 5;
 		
 		Direction dir = new Direction();
 		byte multiplier = 1;
@@ -67,23 +67,20 @@ public class PlayGround extends JPanel  {
 				Math.pow(GameController.DEFAULT_CURVE_SPEED, 2) - 
 				Math.pow(dir.getI(), 2)
 			) * multiplier);
-			curves[i] = new Curve( randBetween(padding, Main.screenSize.width - padding), randBetween(padding, Main.screenSize.height - padding), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
+			curves[i] = new Curve( randBetween(padding, GameController.FRAME_SIZE_X - padding), randBetween(padding, GameController.FRAME_SIZE_Y - padding), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
 			curveControllers[i] = new CurveController(curves[i]);
 		}
 		
 		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
 	}
-	
-	public void setCurves(Curve[] curves) {
-		//this.curves = curves;
-	}
-	
+		
+	/*
 	private void resizeImage() {
 		BufferedImage tmp = new BufferedImage(this.getWidth(),this.getHeight(),BufferedImage.TYPE_INT_ARGB);
 		tmp.getGraphics().drawImage(img, 0, 0, null);
 		img = tmp;
 		gr = img.getGraphics();
-	}
+	}*/
 	
 	@Override
 	public void paintComponent(Graphics g) {
