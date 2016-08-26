@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -12,6 +13,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +24,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +34,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -42,6 +47,10 @@ public class ConfigPanel extends JPanel {
 	private JLabel angleLabel;
 	private JLabel playerNrLabel;
 	
+	/**
+	 * Content - to CENTER of contentPane
+	 */
+	private JPanel contentPane;
 	private JPanel topPane;
 	private JPanel playersPane;
 	private JPanel buttonsPane;
@@ -54,8 +63,7 @@ public class ConfigPanel extends JPanel {
 	private JSpinner playerCount;
 	private List<PlayerConfigRow> players;
 	
-	private JButton start;
-	private JButton cancel;
+	private JLabel start;	
 	
 	private LandingWindow landingWindow;
 	
@@ -89,9 +97,13 @@ public class ConfigPanel extends JPanel {
 		addMiddleContent();
 		addBottomButtons();
 		
-		add(topPane,    BorderLayout.NORTH);
-		add(scrollPane, BorderLayout.CENTER);
-		add(buttonsPane,BorderLayout.SOUTH);
+		contentPane = new JPanel(new BorderLayout());
+		contentPane.add(topPane,    BorderLayout.NORTH);
+		contentPane.add(scrollPane, BorderLayout.CENTER);
+		contentPane.add(buttonsPane,BorderLayout.SOUTH);
+		
+		Main.addBackPane(this);
+		add(contentPane, BorderLayout.CENTER);
 	}
 	
 	private void addSpeedSlider() {
@@ -178,8 +190,7 @@ public class ConfigPanel extends JPanel {
 	}
 	
 	private void addMiddleContent() {
-		this.playersPane = new JPanel();
-		this.playersPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
+		this.playersPane = new JPanel();		
 		int nr = (int)playerCount.getValue();
 		this.playersPane.setLayout(new GridLayout(nr, 1));
 		this.players = new ArrayList<>();
@@ -189,41 +200,40 @@ public class ConfigPanel extends JPanel {
 			this.playersPane.add(row);
 		}
 		this.scrollPane = new JScrollPane(this.playersPane);
+		this.playersPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
+		this.scrollPane.getViewport().setBackground(GameController.PLAYGROUND_BACKGROUND);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 	}
 	
 	private void addBottomButtons() {
 		this.buttonsPane = new JPanel();
-		buttonsPane.setBackground(new Color(120, 190, 210));
+		buttonsPane.setBackground(Color.CYAN);
 		
-		this.start = new JButton("START");
-		start.setBackground(Color.WHITE);
-		start.setForeground(Color.GREEN);
-		
-		this.cancel = new JButton("Cancel");
-		cancel.setBackground(Color.WHITE);
-		cancel.setForeground(Color.RED);
+		this.start = new JLabel(new ImageIcon("images\\startBg.png"));
+		start.setBackground(new Color(0,0,0,0));
+		start.setOpaque(false);
 		
 		this.buttonsPane.add(start);
-		this.buttonsPane.add(cancel);
-		
-		this.cancel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				landingWindow.setContentPane(landingWindow.getDefaultContent());							 
-				landingWindow.getContentPane().revalidate();
-				landingWindow.getContentPane().repaint();
-			}
-		});
-		
+				
 		/*************************************************************************
 		 * 
 		 * START GAME
 		 * 
-		 *************************************************************************/
-		this.start.addActionListener(new ActionListener() {
+		 *************************************************************************/		
+		this.start.addMouseListener(new MouseAdapter() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void mouseEntered(MouseEvent e) {										
+				start.setBackground(new Color(0,0,0,0));
+				start.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				start.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+			@Override
+			public void mouseClicked(MouseEvent e) {				
+				start.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				
 				List<Control> ctrl = new ArrayList<Control>();
 				List<String> names = new ArrayList<String>();
 				List<Color> colors = new ArrayList<Color>();
@@ -241,7 +251,7 @@ public class ConfigPanel extends JPanel {
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
 				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);			
-				CountDown cnt = new CountDown(curveWindow, "Round 1");
+				CountDown cnt = new CountDown(curveWindow, "Round 1");				
 			}
 		});
 	    
@@ -262,9 +272,9 @@ public class ConfigPanel extends JPanel {
 				this.addFocusListener(this);
 				this.placeHolderColor = c;				
 				
-				this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1, true));
+				this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1, true));
 				this.setPreferredSize(new Dimension(150, 25));
-				this.setBackground(Color.WHITE);
+				this.setOpaque(false);
 				this.setForeground(placeHolderColor);				
 				this.setFont(new Font("Calibri", Font.ITALIC, 18));
 				
@@ -272,8 +282,7 @@ public class ConfigPanel extends JPanel {
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
-				this.setForeground(Color.BLACK);
+				this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));				
 				if (this.getText().isEmpty()) {
 					super.setText("");
 					this.placeHolderShown = false;
@@ -282,9 +291,8 @@ public class ConfigPanel extends JPanel {
 			
 			@Override
 			public void focusLost(FocusEvent e) {
-				this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-				if (this.getText().isEmpty()) {
-					this.setForeground(Color.GRAY);
+				this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
+				if (this.getText().isEmpty()) {					
 					super.setText(placeHolder);
 					this.placeHolderShown = true;
 				}
@@ -302,12 +310,13 @@ public class ConfigPanel extends JPanel {
 			private boolean hasSpecChar;
 			private int code;
 
-			public DetectControlButton(String label) {
+			public DetectControlButton(String label, Color col) {
 				super(label);
 				super.setEditable(false);
 				this.setPreferredSize(new Dimension(50, 25));		
-				this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-				this.setFont(new Font("Calibri", Font.BOLD, 15));
+				this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));				
+				this.setOpaque(false);
+				this.setForeground(col);
 				
 				this.label = label;
 				this.listening = false;
@@ -329,14 +338,14 @@ public class ConfigPanel extends JPanel {
 
 			@Override
 			public void focusGained(FocusEvent e) {
-				this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+				this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
 				listening = true;
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
 				if (code == -1)
-					this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+					this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
 				else
 					this.setBorder(BorderFactory.createLineBorder(new Color(0,0,0,0)));				
 				listening = false;
@@ -381,10 +390,10 @@ public class ConfigPanel extends JPanel {
 			color = new Color(rnd.nextInt(200) + 50, rnd.nextInt(200) + 50, rnd.nextInt(200) + 50);
 			
 			name = new TextFieldPlaceholder("Player's name", color);			
-			leftCtrl = new DetectControlButton("LEFT");
-			rightCtrl = new DetectControlButton("RIGHT");
+			leftCtrl = new DetectControlButton(" LEFT", color);
+			rightCtrl = new DetectControlButton(" RIGHT", color);
 			
-			
+			setBackground(GameController.PLAYGROUND_BACKGROUND);
 			
 			add(name);
 			add(leftCtrl);

@@ -12,48 +12,46 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-public class CountDown extends JFrame{
+public class CountDown extends JFrame {
 	
-	CurveWindow curveWindow;
-	Container contentPane;
-	JLabel countDownLabel;
+	private CurveWindow curveWindow;
+	private Container contentPane;
+	private JLabel countDownLabel;
 	
 	public CountDown(CurveWindow curveWindow, String label) {
 		this.curveWindow = curveWindow;
 		
-		contentPane = this.getContentPane();
-		contentPane.setBackground(new Color(0, 0, 0, 0));
-		//setBackground(new Color(0, 0, 0, 0));
+		this.contentPane = this.getContentPane();
+		contentPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		
 		addItems(label);
-		
-		this.setContentPane(contentPane);
-		this.setSize(170, 170);
+
+		this.setSize(200, 200);
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
+		curveWindow.setAlwaysOnTop(false);
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 		
 		startCountDown();
 	}
 	
-	private void addItems(String title) {		
-		JLabel label = new JLabel( new ImageIcon( new ImageIcon("images\\loading.gif").getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
+	private void addItems(String title) {
+		ImageIcon icon = new ImageIcon("images\\loading10.gif");
+		JLabel label = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
 		countDownLabel = new JLabel("5", SwingConstants.CENTER);
-		//countDownLabel.setOpaque(true);
+		countDownLabel.setOpaque(false);
 		countDownLabel.setForeground(Color.WHITE);
-		countDownLabel.setBackground(new Color(0,0,0,1));
 		countDownLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
 		JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-		//titleLabel.setOpaque(true);
-		titleLabel.setForeground(Color.WHITE);
-		//titleLabel.setBackground(new Color(0,0,0,0));
+		titleLabel.setOpaque(false);
+		titleLabel.setForeground(Color.WHITE);		
 		titleLabel.setFont(new Font("Calibri", Font.BOLD, 20)); 
 		
-		contentPane.add(titleLabel, BorderLayout.NORTH);
-		contentPane.add(label, BorderLayout.CENTER);
-		contentPane.add(countDownLabel, BorderLayout.SOUTH);
+		this.contentPane.add(titleLabel, BorderLayout.NORTH);
+		this.contentPane.add(label, BorderLayout.CENTER);
+		this.contentPane.add(countDownLabel, BorderLayout.SOUTH);
 	}
 	
 	private void startCountDown() {

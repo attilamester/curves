@@ -3,11 +3,10 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
@@ -30,6 +29,7 @@ public class LandingWindow extends JFrame {
 	
 	
 	public LandingWindow(ConfigPanel configPanel) {
+		super("Get the hang of it!");
 		
 		this.configPanel = configPanel;
 		
@@ -53,7 +53,7 @@ public class LandingWindow extends JFrame {
 		this.setResizable(false);
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);		
-		//getRootPane().setBorder(new LineBorder(new Color(30, 30, 30), 5));
+		this.setIconImage(new ImageIcon("images\\icon.png").getImage());
 		this.setVisible(true);
 		Main.setCloseOnEsc(this);
 					

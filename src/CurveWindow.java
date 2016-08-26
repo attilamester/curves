@@ -8,11 +8,14 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 
 public class CurveWindow extends JFrame {
 	
@@ -56,12 +59,18 @@ public class CurveWindow extends JFrame {
 		 * Menu bar
 		 *  
 		 ******************************************************************/
+		UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.WHITE, 1));
 		menuBar = new JMenuBar();
 		mainMenu = new JMenu("Options");
 		newGameItem = new JMenuItem("New game");
 		
 		mainMenu.add(newGameItem);
 		menuBar.add(mainMenu);
+		
+		menuBar.setBackground(GameController.PLAYGROUND_BACKGROUND);
+		menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
+		mainMenu.setForeground(Color.WHITE);
+		
 		setJMenuBar(menuBar);
 		
 		/******************************************************************
@@ -95,6 +104,7 @@ public class CurveWindow extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    this.setAlwaysOnTop(true);
+	    this.setUndecorated(true);
 		this.setVisible(true);
 	    
 		
