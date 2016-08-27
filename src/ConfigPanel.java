@@ -207,7 +207,7 @@ public class ConfigPanel extends JPanel {
 	
 	private void addBottomButtons() {
 		this.buttonsPane = new JPanel();
-		buttonsPane.setBackground(Color.CYAN);
+		buttonsPane.setBackground(Colors.BACK_PANE);
 		
 		this.start = new JLabel(new ImageIcon("images\\startBg.png"));
 		start.setBackground(new Color(0,0,0,0));
@@ -239,18 +239,16 @@ public class ConfigPanel extends JPanel {
 				List<Color> colors = new ArrayList<Color>();
 				for (Component c : playersPane.getComponents()) {
 					PlayerConfigRow ref = (PlayerConfigRow) c;
-					ctrl.add(new Control(ref.getLeft(), ref.getRight()));
-					//ctrl.add(new Control(65,83));
+					//ctrl.add(new Control(ref.getLeft(), ref.getRight()));
+					ctrl.add(new Control(65,83));
 					names.add(ref.getName());
 					colors.add(ref.getColor());
 				}
-				setVisible(false);
-				//dispose(); for old JFrame conception
 				
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
-				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);			
+				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);	
 				CountDown cnt = new CountDown(curveWindow, "Round 1");				
 			}
 		});

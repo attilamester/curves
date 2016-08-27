@@ -24,8 +24,8 @@ public class PlayGround extends JPanel  {
 
 	private static final long serialVersionUID = 1L;
 	
-	private BufferedImage img;
-	private Graphics gr;
+	private BufferedImage commonImg;
+	private Graphics commonImgGr;
 	
 	private byte[] pixels;
 	/*
@@ -82,12 +82,20 @@ public class PlayGround extends JPanel  {
 		gr = img.getGraphics();
 	}*/
 	
+	/***********************************************************
+	 * 
+	 * PAINT PAINT PAINT PAINT PAINT PAINT PAINT PAINT
+	 * 
+	 ***********************************************************/
+	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (img == null) {
+		if (commonImg == null) {
 			this.initPaint(g);			
 		} else {
+			
+			g.drawImage(commonImg, 0, 0, null);
 			
 			for (int i = 0; i < players; ++i ) {
 				
@@ -99,40 +107,44 @@ public class PlayGround extends JPanel  {
 				if (outOfBorderBounds(x, y, padding)) {					
 					System.out.println("Player " + (i+1) + " out of borders");
 					GameController.finished = true;
-					g.drawImage(img, 0, 0, null);
 					return;
 				}
 				if (crashedToSomething(curves, i)) {
 					System.out.println("Player " + (i+1) + " crashed");
 					GameController.finished = true;
-					g.drawImage(img, 0, 0, null);
 					return;
 				}
 								
 				if (curves[i].isPaused() && 
 						Math.hypot(x - curves[i].getPausedX(), y - curves[i].getPausedY()) >=  r
 					) {
-					gr.setColor(GameController.PLAYGROUND_BACKGROUND);
-					gr.fillOval((int)curves[i].getOldX() - r, (int)curves[i].getOldY() - r, 2 * r, 2 * r);
+					commonImgGr.setColor(GameController.PLAYGROUND_BACKGROUND);
+					commonImgGr.fillOval((int)curves[i].getOldX() - r, (int)curves[i].getOldY() - r, 2 * r, 2 * r);
 				}
 				
-				gr.setColor(curves[i].getColor());
-				gr.fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
+				curves[i].getImg().getGraphics().setColor(curves[i].getColor());
+				curves[i].getImg().getGraphics().fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
 				
+				g.drawImage(curves[i].getImg(), 0, 0, null);
 			}
-		
-			g.drawImage(img, 0, 0, null);
+			
 		}
 		
 	}
 	
+	/***********************************************************
+	 * 
+	 * INIT DIRECTION PAINTING
+	 * 
+	 ***********************************************************/
+	
 	public void initPaint(Graphics g) {
-		this.img = new BufferedImage(this.getWidth(),this.getHeight(),BufferedImage.TYPE_INT_ARGB);
+		this.commonImg = new BufferedImage(this.getWidth(),this.getHeight(),BufferedImage.TYPE_INT_ARGB);
 		//pixels = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
-		gr = img.getGraphics();
-		gr.setColor(GameController.PLAYGROUND_BACKGROUND);
-		gr.fillRect(0, 0, this.getWidth(), this.getHeight());
-		g.drawImage(img, 0, 0, null);
+		commonImgGr = commonImg.getGraphics();
+		commonImgGr.setColor(GameController.PLAYGROUND_BACKGROUND);
+		commonImgGr.fillRect(0, 0, this.getWidth(), this.getHeight());
+		g.drawImage(commonImg, 0, 0, null);
 		
 		for (int i = 0; i < players; ++i) {		
 			
@@ -176,15 +188,15 @@ public class PlayGround extends JPanel  {
 			tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
 			tx.scale(scale, scale);
 			
-			Graphics2D g2d = (Graphics2D) gr;
+			Graphics2D g2d = (Graphics2D) commonImgGr;
 			g2d.drawImage(finalImg, tx, null);
 			
-			gr.setColor(curves[i].getColor());
-			gr.fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
+			commonImgGr.setColor(curves[i].getColor());
+			commonImgGr.fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
 			
 		}
 		
-		g.drawImage(img, 0, 0, null);
+		g.drawImage(commonImg, 0, 0, null);
 		
 	}
 	
@@ -200,15 +212,15 @@ public class PlayGround extends JPanel  {
 	}
 	
 	public void eraseArrows() {
-		gr = img.getGraphics();
-		gr.setColor(GameController.PLAYGROUND_BACKGROUND);
-		gr.fillRect(0, 0, this.getWidth(), this.getHeight());
-		this.getGraphics().drawImage(img, 0, 0, null);
+		commonImgGr = commonImg.getGraphics();
+		commonImgGr.setColor(GameController.PLAYGROUND_BACKGROUND);
+		commonImgGr.fillRect(0, 0, this.getWidth(), this.getHeight());
+		this.getGraphics().drawImage(commonImg, 0, 0, null);
 	}
 	
 	
 	public Graphics getGr() {
-		return gr;
+		return commonImgGr;
 	}
 	public void startGame() {
 		for(int i = 0; i < players; ++i) {
@@ -335,7 +347,7 @@ public class PlayGround extends JPanel  {
 		
 		int paintedColor;
 		try {
-			paintedColor = img.getRGB((int)point.getX(), (int)point.getY());			
+			paintedColor = commonImg.getRGB((int)point.getX(), (int)point.getY());			
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("out of bounds");
 			return false;

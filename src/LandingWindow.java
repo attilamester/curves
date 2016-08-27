@@ -37,9 +37,9 @@ public class LandingWindow extends JFrame {
 		contentPane.setLayout(new GridLayout(3, 1));
 		contentPane.setBackground(new Color(30, 30, 30));
 		
-		newGame = new LandingButton("New Game", Color.green);
-		highScores = new LandingButton("High scores", new Color(150, 187, 160));
-		settings = new LandingButton("Settings", Color.CYAN);
+		newGame = new LandingButton("New Game", Colors.MAIN_COLORS[0]);
+		highScores = new LandingButton("High scores", Colors.MAIN_COLORS[1]);
+		settings = new LandingButton("Settings", Colors.MAIN_COLORS[2]);
 		
 		contentPane.add(newGame);
 		contentPane.add(highScores);

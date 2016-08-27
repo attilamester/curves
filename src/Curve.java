@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 public class Curve {
 	
@@ -18,6 +19,7 @@ public class Curve {
 	private double pausedX;
 	private double pausedY;
 
+	private BufferedImage img;
 	
 	public Curve(double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		
@@ -31,6 +33,8 @@ public class Curve {
 		
 		this.leftIsPressed = false;
 		this.rightIsPressed = false;
+		
+		this.img = new BufferedImage(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, BufferedImage.TYPE_INT_ARGB);
 	}
 	
 	public double getX() {
@@ -133,6 +137,11 @@ public class Curve {
 	public double getM() {
 		return direction.getJ() / direction.getI();
 	}
+	
+	public BufferedImage getImg() {
+		return img;
+	}
+
 	/*******************************************************
 	 * 
 	 * TURN

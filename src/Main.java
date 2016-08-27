@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
@@ -27,7 +28,7 @@ public class Main {
 	public static final int LANDING_WIDTH  = 400;
 	public static final int LANDING_HEIGHT = 450;
 	
-	public static void setCloseOnEsc(JFrame c) {		
+	public static void setCloseOnEsc(JFrame c) {
 		c.addKeyListener(new KeyAdapter() {
 	    	@Override
 	    	public void keyPressed(KeyEvent e) {	    		
@@ -38,16 +39,16 @@ public class Main {
 		});		
 	}
 	
-	public static void addBackPane(JPanel panel) {		
+	public static void addBackPane(JPanel panel) {
 		JLabel back = new JLabel(new ImageIcon("images\\back.png"));		
 		back.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				
+				back.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			}
 			@Override
 			public void mouseExited(MouseEvent e) {				
-				
+				back.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
 			@Override
 			public void mouseClicked(MouseEvent e) {				
@@ -58,7 +59,7 @@ public class Main {
 		});
 		
 		JPanel backPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		backPane.setBackground(Color.CYAN);
+		backPane.setBackground(Colors.BACK_PANE);
 		backPane.setSize(panel.getWidth(), 50);
 		backPane.add(back);
 		

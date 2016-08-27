@@ -37,7 +37,7 @@ public class CountDown extends JFrame {
 	}
 	
 	private void addItems(String title) {
-		ImageIcon icon = new ImageIcon("images\\loading10.gif");
+		ImageIcon icon = new ImageIcon("images\\loading.gif");
 		JLabel label = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
 		countDownLabel = new JLabel("5", SwingConstants.CENTER);
 		countDownLabel.setOpaque(false);
@@ -64,7 +64,7 @@ public class CountDown extends JFrame {
 					count.stop();
 					setVisible(false);
 					dispose();
-					
+					curveWindow.setAlwaysOnTop(true);
 					curveWindow.getPlayGround().eraseArrows();					
 					curveWindow.startGame();
 				}
