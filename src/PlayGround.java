@@ -97,6 +97,7 @@ public class PlayGround extends JPanel  {
 			
 			g.drawImage(commonImg, 0, 0, null);
 			
+			
 			for (int i = 0; i < players; ++i ) {
 				
 				int x = (int)curves[i].getX();
@@ -118,18 +119,20 @@ public class PlayGround extends JPanel  {
 				if (curves[i].isPaused() && 
 						Math.hypot(x - curves[i].getPausedX(), y - curves[i].getPausedY()) >=  r
 					) {
-					commonImgGr.setColor(GameController.PLAYGROUND_BACKGROUND);
-					commonImgGr.fillOval((int)curves[i].getOldX() - r, (int)curves[i].getOldY() - r, 2 * r, 2 * r);
+					curves[i].getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+					curves[i].getGr().fillOval((int)curves[i].getOldX() - r, (int)curves[i].getOldY() - r, 2 * r, 2 * r);
 				}
 				
-				curves[i].getImg().getGraphics().setColor(curves[i].getColor());
-				curves[i].getImg().getGraphics().fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
+				curves[i].getGr().setColor(curves[i].getColor());
+				curves[i].getGr().fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
+				
+				
 				
 				g.drawImage(curves[i].getImg(), 0, 0, null);
 			}
 			
+			
 		}
-		
 	}
 	
 	/***********************************************************
@@ -161,7 +164,7 @@ public class PlayGround extends JPanel  {
 				public int filterRGB(final int x, final int y, final int rgb) {
 					return (rgb >> 24 == 0x00) ? 0 : color;					
 				}
-			};			
+			};
 			ImageProducer ip = new FilteredImageSource(direction.getSource(),filter);
 			finalImg = toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
 			/** 
@@ -260,6 +263,8 @@ public class PlayGround extends JPanel  {
 		+ "\nCenter of new circle:" + curves[z].getX() + " " + curves[z].getY()
 			);
 */
+		if (curves[z].isPaused())
+			return false;
 		System.out.println(curves[z].getDirection());
 		int r = curves[z].getRadius();
 		double i = curves[z].getDirection().getI();

@@ -107,7 +107,7 @@ public class ConfigPanel extends JPanel {
 	}
 	
 	private void addSpeedSlider() {
-		Color bg = new Color(160, 30, 120);
+		Color bg = Colors.MAIN_COLORS[0];
 		
 		this.speedSlider = new JSlider(JSlider.HORIZONTAL, 1, 500, 100);
 		speedSlider.setBackground(bg);
@@ -121,7 +121,7 @@ public class ConfigPanel extends JPanel {
 	}
 	
 	private void addAngleSlider() {
-		Color bg = new Color(20, 150, 120);
+		Color bg = Colors.MAIN_COLORS[1];
 		
 		this.angleSlider = new JSlider(JSlider.HORIZONTAL, 10, 40, 20);
 		angleSlider.setBackground(bg);
@@ -135,7 +135,7 @@ public class ConfigPanel extends JPanel {
 	}
 	
 	private void addNumberSpinner() {
-		Color bg = new Color(120, 30, 160);
+		Color bg = Colors.MAIN_COLORS[2];
 		
 		SpinnerModel model = new SpinnerNumberModel(1, 1, 10, 1);
 		this.playerCount = new JSpinner(model);

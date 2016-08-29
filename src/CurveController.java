@@ -59,7 +59,7 @@ public class CurveController extends Thread{
 		});
 		dashStopper.setRepeats(false);
 		
-		dashStarter = new Timer(rnd.nextInt(1000) + 3000, new ActionListener() {
+		dashStarter = new Timer(rnd.nextInt(10000)+3000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				curve.setPaused(true);
