@@ -38,7 +38,7 @@ public class Curve {
 		this.leftIsPressed = false;
 		this.rightIsPressed = false;
 		
-		this.img = new BufferedImage(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, BufferedImage.TYPE_INT_ARGB);
+		this.img = new BufferedImage(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, BufferedImage.TYPE_INT_ARGB);		
 		this.gr = this.img.getGraphics();
 	}
 	

@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
@@ -23,11 +22,9 @@ import javax.swing.JPanel;
 public class PlayGround extends JPanel  {
 
 	private static final long serialVersionUID = 1L;
-	
-	private BufferedImage commonImg;
-	private Graphics commonImgGr;
-	
-	private byte[] pixels;
+
+	private Random rnd = new Random();
+	private PlaygroundImage playgroundImg;
 	/*
 	 * Explicite playground
 	 */
@@ -36,7 +33,7 @@ public class PlayGround extends JPanel  {
 	public CurveController[] curveControllers;
 	private List<Control> controls;
 	
-	private Random rnd = new Random();
+	
 	
 	public PlayGround(int players, List<Control> controls, List<Color> colors) {
 		
@@ -70,8 +67,9 @@ public class PlayGround extends JPanel  {
 			curves[i] = new Curve( randBetween(padding, GameController.FRAME_SIZE_X - padding), randBetween(padding, GameController.FRAME_SIZE_Y - padding), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
 			curveControllers[i] = new CurveController(curves[i]);
 		}
-		
+				
 		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
+	
 	}
 		
 	/*
@@ -91,11 +89,11 @@ public class PlayGround extends JPanel  {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (commonImg == null) {
-			this.initPaint(g);			
+		if (this.playgroundImg == null) {
+			this.playgroundImg = new PlaygroundImage(this.getWidth(), this.getHeight());			
 		} else {
 			
-			g.drawImage(commonImg, 0, 0, null);
+			g.drawImage(this.playgroundImg.getImg(), 0, 0, null);
 			
 			
 			for (int i = 0; i < players; ++i ) {
@@ -142,12 +140,8 @@ public class PlayGround extends JPanel  {
 	 ***********************************************************/
 	
 	public void initPaint(Graphics g) {
-		this.commonImg = new BufferedImage(this.getWidth(),this.getHeight(),BufferedImage.TYPE_INT_ARGB);
-		//pixels = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
-		commonImgGr = commonImg.getGraphics();
-		commonImgGr.setColor(GameController.PLAYGROUND_BACKGROUND);
-		commonImgGr.fillRect(0, 0, this.getWidth(), this.getHeight());
-		g.drawImage(commonImg, 0, 0, null);
+		
+		g.drawImage(this.playgroundImg.getImg(), 0, 0, null);
 		
 		for (int i = 0; i < players; ++i) {		
 			
@@ -187,19 +181,19 @@ public class PlayGround extends JPanel  {
 			) * Math.signum(curves[i].getDirection().getJ()) + Math.PI / 2;
 			AffineTransform tx = new AffineTransform();
 			double scale = 50.0 / direction.getWidth();		
-			tx.translate(curves[i].getX()  - direction.getWidth() * scale / 2, curves[i].getY() - direction.getHeight() * scale);
-			tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
-			tx.scale(scale, scale);
+			//tx.translate(curves[i].getX()  - direction.getWidth() * scale / 2, curves[i].getY() - direction.getHeight() * scale);
+			//tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
+			//tx.scale(scale, scale);
 			
-			Graphics2D g2d = (Graphics2D) commonImgGr;
-			g2d.drawImage(finalImg, tx, null);
 			
-			commonImgGr.setColor(curves[i].getColor());
-			commonImgGr.fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
+			this.playgroundImg.gr2DDrawImage(finalImg, tx, null);
+			
+			this.playgroundImg.grSetColor(curves[i].getColor());
+			this.playgroundImg.grFillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
 			
 		}
 		
-		g.drawImage(commonImg, 0, 0, null);
+		g.drawImage(this.playgroundImg.getImg(), 0, 0, null);
 		
 	}
 	
@@ -215,16 +209,16 @@ public class PlayGround extends JPanel  {
 	}
 	
 	public void eraseArrows() {
-		commonImgGr = commonImg.getGraphics();
-		commonImgGr.setColor(GameController.PLAYGROUND_BACKGROUND);
-		commonImgGr.fillRect(0, 0, this.getWidth(), this.getHeight());
-		this.getGraphics().drawImage(commonImg, 0, 0, null);
+		this.playgroundImg.setGr(this.playgroundImg.getGraphics());
+		this.playgroundImg.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+		this.playgroundImg.getGr().fillRect(0, 0, this.getWidth(), this.getHeight());
+		this.getGraphics().drawImage(this.playgroundImg, 0, 0, null);
 	}
 	
-	
+	/*
 	public Graphics getGr() {
-		return commonImgGr;
-	}
+		return this.playgroundImg.getGr();
+	}*/
 	public void startGame() {
 		for(int i = 0; i < players; ++i) {
 			curveControllers[i].start();
@@ -352,7 +346,7 @@ public class PlayGround extends JPanel  {
 		
 		int paintedColor;
 		try {
-			paintedColor = commonImg.getRGB((int)point.getX(), (int)point.getY());			
+			paintedColor = this.playgroundImg.getRGB((int)point.getX(), (int)point.getY());			
 		} catch (ArrayIndexOutOfBoundsException e) {
 			System.out.println("out of bounds");
 			return false;
