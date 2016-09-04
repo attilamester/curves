@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
@@ -24,7 +25,7 @@ public class PlayGround extends JPanel  {
 	private static final long serialVersionUID = 1L;
 
 	private Random rnd = new Random();
-	private PlaygroundImage playgroundImg;
+	private volatile BaseImageLayer playgroundImg;
 	/*
 	 * Explicite playground
 	 */
@@ -69,7 +70,6 @@ public class PlayGround extends JPanel  {
 		}
 				
 		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
-	
 	}
 		
 	/*
@@ -90,46 +90,14 @@ public class PlayGround extends JPanel  {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if (this.playgroundImg == null) {
-			this.playgroundImg = new PlaygroundImage(this.getWidth(), this.getHeight());			
+			this.playgroundImg = new BaseImageLayer(this.getWidth(), this.getHeight(), GameController.PLAYGROUND_BACKGROUND);
+			for (int i = 0; i < players; ++i)
+				curveControllers[i].setBaseImg(this.playgroundImg);
+			this.initPaint(g);
 		} else {
 			
 			g.drawImage(this.playgroundImg.getImg(), 0, 0, null);
-			
-			
-			for (int i = 0; i < players; ++i ) {
-				
-				int x = (int)curves[i].getX();
-				int y = (int)curves[i].getY();
-				int r = curves[i].getRadius();
-				int padding = r + GameController.PLAYGROUND_BORDER_WIDTH;
-				
-				if (outOfBorderBounds(x, y, padding)) {					
-					System.out.println("Player " + (i+1) + " out of borders");
-					GameController.finished = true;
-					return;
-				}
-				if (crashedToSomething(curves, i)) {
-					System.out.println("Player " + (i+1) + " crashed");
-					GameController.finished = true;
-					return;
-				}
-								
-				if (curves[i].isPaused() && 
-						Math.hypot(x - curves[i].getPausedX(), y - curves[i].getPausedY()) >=  r
-					) {
-					curves[i].getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
-					curves[i].getGr().fillOval((int)curves[i].getOldX() - r, (int)curves[i].getOldY() - r, 2 * r, 2 * r);
-				}
-				
-				curves[i].getGr().setColor(curves[i].getColor());
-				curves[i].getGr().fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
-				
-				
-				
-				g.drawImage(curves[i].getImg(), 0, 0, null);
-			}
-			
-			
+
 		}
 	}
 	
@@ -140,11 +108,9 @@ public class PlayGround extends JPanel  {
 	 ***********************************************************/
 	
 	public void initPaint(Graphics g) {
-		
 		g.drawImage(this.playgroundImg.getImg(), 0, 0, null);
-		
-		for (int i = 0; i < players; ++i) {		
-			
+		System.out.println("initPaint");
+		for (int i = 0; i < players; ++i) {
 			int r = curves[i].getRadius();
 			int color = curves[i].getColor().getRGB(); 
 			BufferedImage direction =  null;
@@ -156,7 +122,7 @@ public class PlayGround extends JPanel  {
 			ImageFilter filter =  new RGBImageFilter() {
 				@Override
 				public int filterRGB(final int x, final int y, final int rgb) {
-					return (rgb >> 24 == 0x00) ? 0 : color;					
+					return (rgb >> 24 == 0x00) ? 0 : color;
 				}
 			};
 			ImageProducer ip = new FilteredImageSource(direction.getSource(),filter);
@@ -181,15 +147,19 @@ public class PlayGround extends JPanel  {
 			) * Math.signum(curves[i].getDirection().getJ()) + Math.PI / 2;
 			AffineTransform tx = new AffineTransform();
 			double scale = 50.0 / direction.getWidth();		
-			//tx.translate(curves[i].getX()  - direction.getWidth() * scale / 2, curves[i].getY() - direction.getHeight() * scale);
-			//tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
-			//tx.scale(scale, scale);
+			tx.translate(curves[i].getX()  - direction.getWidth() * scale / 2, curves[i].getY() - direction.getHeight() * scale);
+			tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
+			tx.scale(scale, scale);
 			
 			
+			/*
 			this.playgroundImg.gr2DDrawImage(finalImg, tx, null);
-			
 			this.playgroundImg.grSetColor(curves[i].getColor());
 			this.playgroundImg.grFillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
+			*/
+			((Graphics2D)this.playgroundImg.getGr()).drawImage(finalImg, tx, null);
+			this.playgroundImg.getGr().setColor(curves[i].getColor());
+			this.playgroundImg.getGr().fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r	);
 			
 		}
 		
@@ -209,10 +179,10 @@ public class PlayGround extends JPanel  {
 	}
 	
 	public void eraseArrows() {
-		this.playgroundImg.setGr(this.playgroundImg.getGraphics());
+		this.playgroundImg.setGr(this.playgroundImg.getGr());
 		this.playgroundImg.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
 		this.playgroundImg.getGr().fillRect(0, 0, this.getWidth(), this.getHeight());
-		this.getGraphics().drawImage(this.playgroundImg, 0, 0, null);
+		this.getGraphics().drawImage(this.playgroundImg.getImg(), 0, 0, null);
 	}
 	
 	/*
@@ -241,123 +211,10 @@ public class PlayGround extends JPanel  {
 	public int randBetween(int a, int b) {
 		return this.rnd.nextInt(b - a) + a;
 	}
-	/**************************************************************
-	 * 
-	 * COLLISION and BORDER
-	 * 
-	 **************************************************************/
-	private boolean outOfBorderBounds(int x, int y, int padding) {
-		return (x < padding  || y < padding || x > this.getWidth() - padding  || y > this.getHeight() - padding); 
-	}
 	
-	private boolean crashedToSomething(Curve[] curves, int z) {
-		//System.out.println("Checking for: " + curves[z].getX() + " ; " + curves[z].getY());
-		/*System.out.println(
-		 "\nCenter of old circle:" + curves[z].getOldX() + " " + curves[z].getOldY()
-		+ "\nCenter of new circle:" + curves[z].getX() + " " + curves[z].getY()
-			);
-*/
-		if (curves[z].isPaused())
-			return false;
-		System.out.println(curves[z].getDirection());
-		int r = curves[z].getRadius();
-		double i = curves[z].getDirection().getI();
-		double j = curves[z].getDirection().getJ();
-		double k = r / Math.hypot(
-			curves[z].getX() - curves[z].getOldX(), 
-			curves[z].getY() - curves[z].getOldY() 
-		);
-		
-		Point2D.Double center = new Point2D.Double(curves[z].getX(), curves[z].getY());
-		Point2D.Double startPoint = new Point2D.Double(
-			center.getX() + (curves[z].getX() - curves[z].getOldX()) * k,
-			center.getY() + (curves[z].getY() - curves[z].getOldY()) * k
-		);
-		System.out.println("\tChecking: " + startPoint.getX() + " ; " + startPoint.getY());
-		if (!pointIsOk(startPoint, curves[z])) {
-			return true;
-		}
-		
-		return false;
-		
-		/*
-		
-		int alpha = 30;
-		int limit = 30;
-		int nr = limit / alpha;
-		AffineTransform rot = AffineTransform.getRotateInstance(Math.toRadians(alpha), curves[z].getX(), curves[z].getY());
-		Point2D.Double nextPoint = new Point2D.Double(startPoint.getX(), startPoint.getY());
-		
-		//////
-		   //
-		  // Clockwise direction check
-		 //
-		//////
-			
-		for (int ii = 0; ii < nr; ++ii) {
-			rot.transform(nextPoint, nextPoint);
-			System.out.println("\tChecking: " + nextPoint.getX() + " ; " + nextPoint.getY());
-			if (!pointIsOk(nextPoint, curves[z])) {
-				return true;
-			}
-		}
-		rot.setToRotation(-alpha, curves[z].getX(), curves[z].getY());
-		nextPoint.setLocation(startPoint);
-		
-		//////
-		   // 
-		  // Counter - Clockwise direction check
-		 //
-		//////
-
-		for (int ii = 0; ii < nr; ++ii) {
-			rot.transform(nextPoint, nextPoint);
-			System.out.println("\tChecking: " + nextPoint.getX() + " ; " + nextPoint.getY());
-			if (!pointIsOk(nextPoint, curves[z])) {
-				return true;
-			}
-		}
-			
-		return false;
-		
-		*/	
-	}
 	
-	private boolean pointIsOk(Point2D.Double point, Curve curve) {
-		/**
-		 * red   = (paintedColor & 0x00ff0000) >> 16;
-		 * green = (paintedColor & 0x0000ff00) >> 8;
-		 * blue  = (paintedColor & 0x000000ff);
-		 */
-		
-		/**
-		 * INSIDE PREVIOUS PAINTED CIRCLE => IGNORE IT
-		 */
-		if( Math.hypot(point.getX() - curve.getOldX(), point.getY() - curve.getOldY()) <= 
-			curve.getRadius()
-				) {
-			System.out.println("INSIDE OLD CIRCLE:\n\t" + "Point:" + point.getX() + " " + point.getY()
-				+ "\n\tCenter of old circle:" + curve.getOldX() + " " + curve.getOldY()
-				+ "\n\tCenter of new circle:" + curve.getX() + " " + curve.getY()
-				+ "\n\tR:" + curve.getRadius()
-					); 
-			return true;
-		}	
-		
-		int paintedColor;
-		try {
-			paintedColor = this.playgroundImg.getRGB((int)point.getX(), (int)point.getY());			
-		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("out of bounds");
-			return false;
-		}		
-		if (paintedColor != GameController.PLAYGROUND_BACKGROUND.getRGB()) {			
-			System.out.println("already colored here");
-			return false;
-		}
-		System.out.println("OUT OF CIRCLE OK");
-		return true;
-	}
+	
+	
 	
 }
 

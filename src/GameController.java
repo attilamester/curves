@@ -4,7 +4,7 @@ public class GameController {
 	
 	public LandingWindow landingWindow;
 	
-	private CurveWindow curveWindow;
+	//private CurveWindow curveWindow;
 	private ConfigPanel configPanel;	
 	
 	/***********************************************************************
@@ -36,7 +36,7 @@ public class GameController {
 		
 	public void startGame() {
 		
-		curveWindow.startGame();	
+		//curveWindow.startGame();	
 		
 	}
 	

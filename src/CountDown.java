@@ -39,7 +39,7 @@ public class CountDown extends JFrame {
 	private void addItems(String title) {
 		ImageIcon icon = new ImageIcon("images\\loading.gif");
 		JLabel label = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
-		countDownLabel = new JLabel("5", SwingConstants.CENTER);
+		countDownLabel = new JLabel("1", SwingConstants.CENTER);
 		countDownLabel.setOpaque(false);
 		countDownLabel.setForeground(Color.WHITE);
 		countDownLabel.setFont(new Font("Calibri", Font.BOLD, 20));

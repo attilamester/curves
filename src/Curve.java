@@ -20,10 +20,8 @@ public class Curve {
 	private double pausedX;
 	private double pausedY;
 
-	private BufferedImage img;
-	private Graphics gr;
-	
-	
+	private ImageLayer curveLayer;
+	private ImageLayer dashLayer;
 
 	public Curve(double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		
@@ -38,8 +36,8 @@ public class Curve {
 		this.leftIsPressed = false;
 		this.rightIsPressed = false;
 		
-		this.img = new BufferedImage(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, BufferedImage.TYPE_INT_ARGB);		
-		this.gr = this.img.getGraphics();
+		this.curveLayer = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
+		this.dashLayer  = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
 	}
 	
 	public double getX() {
@@ -143,13 +141,25 @@ public class Curve {
 		return direction.getJ() / direction.getI();
 	}
 	
-	public BufferedImage getImg() {
-		return img;
+	public ImageLayer getCurveLayer() {
+		return this.curveLayer;
 	}
+	
+	public ImageLayer getDashLayer() {
+		return this.dashLayer;
+	}
+	
+	public void setDashLayer(ImageLayer dashLayer) {
+		this.dashLayer = dashLayer;
+	}
+	
+	public void resetDashLayer() {
+		this.dashLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+		this.dashLayer.getGr().fillRect(0, 0, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);
+		//this.dashLayer = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
+	}
+	
 
-	public Graphics getGr() {
-		return gr;
-	}
 	/*******************************************************
 	 * 
 	 * TURN

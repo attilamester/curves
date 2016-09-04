@@ -5,9 +5,15 @@ import java.util.Random;
 
 import javax.swing.Timer;
 
-public class CurveController extends Thread{
+public class CurveController implements Runnable {
+	
+	private volatile Thread control;
+	private volatile boolean suspended;
+	
 	
 	private Curve curve;
+	private BaseImageLayer baseImg;
+	
 	private Random rnd;
 	private int startWhole;
 	private int endWhole;
@@ -22,6 +28,7 @@ public class CurveController extends Thread{
 	
 	public CurveController(Curve curve) {
 		this.curve = curve;
+		
 		original = curve.getColor();
 		count = 0;
 		rnd = new Random();
@@ -29,7 +36,7 @@ public class CurveController extends Thread{
 		this.setDashStart();
 		this.setDashStop();
 		
-		delay = 5;
+		delay = 10;
 		timer = new Timer(delay, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -48,6 +55,8 @@ public class CurveController extends Thread{
 				curve.setOldY(curve.getY());
 				curve.setX(curve.getX() + curve.getDirection().getI());
 				curve.setY(curve.getY() + curve.getDirection().getJ());
+				
+				baseImg.drawCurveHead(curve);
 			}
 		});
 		
@@ -59,7 +68,7 @@ public class CurveController extends Thread{
 		});
 		dashStopper.setRepeats(false);
 		
-		dashStarter = new Timer(rnd.nextInt(10000)+3000, new ActionListener() {
+		dashStarter = new Timer(rnd.nextInt(1000)+0, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				curve.setPaused(true);
@@ -74,13 +83,36 @@ public class CurveController extends Thread{
 				
 				int dashStop = rnd.nextInt((int)t) + (int)(t);
 				dashStopper.setInitialDelay(dashStop);							
-				dashStopper.start();
+				//dashStopper.start();
 				
 				dashStarter.setDelay(dashStop + rnd.nextInt(1000) + 500);
 			}
 		});
 	}
-		
+	
+	public void start() {
+		this.control = new Thread(this);
+		this.suspended = false;
+		control.start();
+	}
+	
+	public void stop() {
+		Thread tmp = control;
+		control = null;
+		tmp.interrupt();
+	}
+	
+	public void suspend() {
+		this.suspended = true;
+	}
+	
+	public void resume() {
+		synchronized(this) {
+			this.suspended = false;
+			notifyAll();
+		}
+	}
+	
 	@Override
 	public void run() {
 		
@@ -123,5 +155,8 @@ public class CurveController extends Thread{
 		endWhole = rnd.nextInt(10) + startWhole + 10;
 	}
 	
-	
+	public void setBaseImg(BaseImageLayer baseImg) {
+		this.baseImg = baseImg;
+	}
+
 }
