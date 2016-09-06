@@ -12,7 +12,7 @@ public class CurveController implements Runnable {
 	
 	
 	private Curve curve;
-	private BaseImageLayer baseImg;
+	//private BaseImageLayer baseImg;
 	
 	private Random rnd;
 	private int startWhole;
@@ -56,7 +56,7 @@ public class CurveController implements Runnable {
 				curve.setX(curve.getX() + curve.getDirection().getI());
 				curve.setY(curve.getY() + curve.getDirection().getJ());
 				
-				baseImg.drawCurveHead(curve);
+//				baseImg.drawCurveHead(curve);
 			}
 		});
 		
@@ -83,7 +83,7 @@ public class CurveController implements Runnable {
 				
 				int dashStop = rnd.nextInt((int)t) + (int)(t);
 				dashStopper.setInitialDelay(dashStop);							
-				//dashStopper.start();
+				dashStopper.start();
 				
 				dashStarter.setDelay(dashStop + rnd.nextInt(1000) + 500);
 			}
@@ -155,8 +155,8 @@ public class CurveController implements Runnable {
 		endWhole = rnd.nextInt(10) + startWhole + 10;
 	}
 	
-	public void setBaseImg(BaseImageLayer baseImg) {
+	/*public void setBaseImg(BaseImageLayer baseImg) {
 		this.baseImg = baseImg;
-	}
+	}/*/
 
 }

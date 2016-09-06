@@ -61,8 +61,13 @@ public class CurveWindow extends JFrame {
 		 ******************************************************************/
 		UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.WHITE, 1));
 		menuBar = new JMenuBar();
+		
 		mainMenu = new JMenu("Options");
 		newGameItem = new JMenuItem("New game");
+		
+		
+		JMenu stopMenu = new JMenu("<html><div>sa</div></html>");
+		mainMenu.add(stopMenu);
 		
 		mainMenu.add(newGameItem);
 		menuBar.add(mainMenu);
@@ -70,6 +75,7 @@ public class CurveWindow extends JFrame {
 		menuBar.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
 		mainMenu.setForeground(Color.WHITE);
+		
 		
 		setJMenuBar(menuBar);
 		
@@ -89,8 +95,6 @@ public class CurveWindow extends JFrame {
 		this.contentPane.add(playGround, BorderLayout.CENTER);
 		this.revalidate();
 		this.playGround.repaint();
-		
-		this.newGameItem.setEnabled(false);
 		
 		this.displayRefresher = new DisplayRefresher(this.playGround);
 		

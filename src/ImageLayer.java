@@ -11,7 +11,7 @@ public class ImageLayer {
 		this.img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);		
 		this.gr = img.getGraphics();
 		if (defaultColor != null) {
-			this.gr.setColor(GameController.PLAYGROUND_BACKGROUND);
+			this.gr.setColor(defaultColor);
 			this.gr.fillRect(0, 0, width, height);
 		}
 	}

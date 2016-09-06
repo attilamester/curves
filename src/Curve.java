@@ -1,6 +1,8 @@
+import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
+import java.awt.Composite;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 
 public class Curve {
 	
@@ -21,7 +23,7 @@ public class Curve {
 	private double pausedY;
 
 	private ImageLayer curveLayer;
-	private ImageLayer dashLayer;
+	//private ImageLayer dashLayer;
 
 	public Curve(double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		
@@ -37,7 +39,7 @@ public class Curve {
 		this.rightIsPressed = false;
 		
 		this.curveLayer = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
-		this.dashLayer  = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
+		//this.dashLayer  = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
 	}
 	
 	public double getX() {
@@ -144,19 +146,30 @@ public class Curve {
 	public ImageLayer getCurveLayer() {
 		return this.curveLayer;
 	}
-	
-	public ImageLayer getDashLayer() {
-		return this.dashLayer;
-	}
-	
-	public void setDashLayer(ImageLayer dashLayer) {
-		this.dashLayer = dashLayer;
-	}
-	
+		
+	// nem akar menni a jo egnek se :(  :/
 	public void resetDashLayer() {
-		this.dashLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
-		this.dashLayer.getGr().fillRect(0, 0, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);
+		/*Graphics2D gr = (Graphics2D)this.dashLayer.getGr();
+		
+		gr.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 1f));
+		gr.fill(new Rectangle2D.Double(0, 0, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y));
+		
+		gr.setComposite(defaultComposite);
+		//gr.setBackground(new Color(50,0,0,0));
+		//gr.setColor(Color.green);
+		//gr.clearRect(0, 0, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);
 		//this.dashLayer = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
+		//this.dashLayer.getGr().clearRect(0, 0, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);
+		
+		//gr.fill(new Rectangle2D.Double(0,0,GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y));
+		//gr.setComposite(defaultComposite);
+		/*
+		Graphics2D gr2D = this.dashLayer.getImg().createGraphics();
+		gr2D.setBackground(new Color(0,0,0,0));
+		gr2D.setComposite(AlphaComposite.Clear);
+		gr2D.clearRect(0, 0, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);
+		*/
+		
 	}
 	
 

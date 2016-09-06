@@ -249,7 +249,7 @@ public class ConfigPanel extends JPanel {
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
 				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);	
-				CountDown cnt = new CountDown(curveWindow, "Round 1");				
+				CountDownModal cnt = new CountDownModal(curveWindow, 1, null);				
 			}
 		});
 	    

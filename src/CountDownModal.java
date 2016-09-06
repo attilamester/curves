@@ -9,22 +9,23 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-public class CountDown extends JFrame {
+public class CountDownModal extends JFrame {
 	
 	private CurveWindow curveWindow;
 	private Container contentPane;
 	private JLabel countDownLabel;
 	
-	public CountDown(CurveWindow curveWindow, String label) {
+	public CountDownModal(CurveWindow curveWindow, int round, String title) {
 		this.curveWindow = curveWindow;
 		
 		this.contentPane = this.getContentPane();
 		contentPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		
-		addItems(label);
+		addItems(title, round);
 
 		this.setSize(200, 200);
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
@@ -36,22 +37,35 @@ public class CountDown extends JFrame {
 		startCountDown();
 	}
 	
-	private void addItems(String title) {
+	private void addItems(String title, int round) {
 		ImageIcon icon = new ImageIcon("images\\loading.gif");
-		JLabel label = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
+		JLabel loading = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
+		JLabel roundLabel = new JLabel("Round " + Integer.toString(round) + " in ");
+		roundLabel.setOpaque(false);
+		roundLabel.setForeground(Color.WHITE);
+		roundLabel.setFont(new Font("Calibri", Font.BOLD, 20));
+		
 		countDownLabel = new JLabel("1", SwingConstants.CENTER);
 		countDownLabel.setOpaque(false);
-		countDownLabel.setForeground(Color.WHITE);
+		countDownLabel.setForeground(Color.RED);
 		countDownLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
-		JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-		titleLabel.setOpaque(false);
-		titleLabel.setForeground(Color.WHITE);		
-		titleLabel.setFont(new Font("Calibri", Font.BOLD, 20)); 
+		JPanel nextRoundPane = new JPanel();
+		nextRoundPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		
-		this.contentPane.add(titleLabel, BorderLayout.NORTH);
-		this.contentPane.add(label, BorderLayout.CENTER);
-		this.contentPane.add(countDownLabel, BorderLayout.SOUTH);
+		nextRoundPane.add(roundLabel);
+		nextRoundPane.add(countDownLabel);
+		
+		
+		if (title != null && title.length() > 0) {
+			JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+			titleLabel.setOpaque(false);
+			titleLabel.setForeground(Color.WHITE);		
+			titleLabel.setFont(new Font("Calibri", Font.BOLD, 20));
+			this.contentPane.add(titleLabel, BorderLayout.NORTH);
+		}
+		this.contentPane.add(loading, BorderLayout.CENTER);
+		this.contentPane.add(nextRoundPane, BorderLayout.SOUTH);
 	}
 	
 	private void startCountDown() {
