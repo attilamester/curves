@@ -89,7 +89,7 @@ public class CurveWindow extends JFrame {
 		this.names = names;
 		this.colors = colors;
 		
-		this.playGround = new PlayGround(players, ctrl, colors);		
+		this.playGround = new PlayGround(this, players, names, ctrl, colors);		
 		
 		this.addPlayerNames(names, colors);		
 		this.contentPane.add(playGround, BorderLayout.CENTER);

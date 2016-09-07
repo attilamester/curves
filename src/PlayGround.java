@@ -12,6 +12,7 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -26,29 +27,38 @@ public class PlayGround extends JPanel  {
 
 	private Random rnd = new Random();
 	
+	private CurveWindow curveWindow; // JUST for countDown needed
+	
 	private ImageLayer backgroundLayer;
 	private ImageLayer curvesLayer;
 	private ImageLayer extrasLayer;
 	
 	private ImageLayer compressedLayer;
 	
-	private int defaultLayerColor;
+	private int defaultLayerColor;	
 	
 	/*
 	 * Explicite playground
 	 */
-	public int players;
-	public Curve[] curves;
-	public CurveController[] curveControllers;
+	private int players;
+	private List<String> names;
+	private Curve[] curves;
+	private CurveController[] curveControllers;
 	private List<Control> controls;
 	
+	private List<String> playersStillAlive;
+	private int round;
 	
 	
-	public PlayGround(int players, List<Control> controls, List<Color> colors) {
+	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls, List<Color> colors) {
+		
+		this.curveWindow = curveWindow;
 		
 		this.players = players;
 		this.controls = controls;
-
+		this.playersStillAlive = new ArrayList<String>(names);
+		this.round = 1;
+		
 		curves = new Curve[players];
 		curveControllers = new CurveController[players];
 		
@@ -103,7 +113,7 @@ public class PlayGround extends JPanel  {
 			this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
 			this.extrasLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
 			
-			this.defaultLayerColor = this.curvesLayer.getImg().getRGB(0, 0);  
+			this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();  
 					
 			this.initPaint(g);
 		} else {
@@ -118,17 +128,13 @@ public class PlayGround extends JPanel  {
 				int padding = r + GameController.PLAYGROUND_BORDER_WIDTH;
 				
 				if (outOfBorderBounds(x, y, padding)) {
-					g.drawImage(curvesLayer.getImg(), 0, 0, null);
-					
-					//CountDownModal endRound = new CountDownModal(this);
-					
-					GameController.finished = true;
+					g.drawImage(curvesLayer.getImg(), 0, 0, null);					
+					managePlayerDeath(i);
 					return;
 				}
 				if (crashedToSomething(curves[i])) {
-					g.drawImage(curvesLayer.getImg(), 0, 0, null);
-					System.out.println("Player crashed");
-					GameController.finished = true;
+					g.drawImage(curvesLayer.getImg(), 0, 0, null);					
+					managePlayerDeath(i);
 					return;
 				}
 				
@@ -251,6 +257,21 @@ public class PlayGround extends JPanel  {
 		
 	}
 	
+	private void managePlayerDeath(int player) {
+		
+		this.curveControllers[player].stop();
+		
+		String name = this.names.get(player);
+		
+		this.playersStillAlive.remove(this.names.get(player));
+		
+		if (this.playersStillAlive.size() == 1) {
+			
+			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, "Player " + this.playersStillAlive.get(0) + " wins this round.");
+			GameController.finished = true;
+		}
+	}
+	
 	/***************************************************************************************************************************************************************
 	 * 
 	 * COLLISION and BORDER
@@ -353,7 +374,7 @@ public class PlayGround extends JPanel  {
 				+ "\n\tR:" + curve.getRadius()
 					); */
 			return true;
-		}	
+		}
 		
 		int paintedColor;
 		try {
@@ -362,16 +383,16 @@ public class PlayGround extends JPanel  {
 			System.out.println("out of bounds");
 			return false;
 		}		
-		for (int i = 0; i < players; ++i)
+		/*for (int i = 0; i < players; ++i)
 			if (curves[i].getColor().getRGB() == paintedColor) {
 				System.out.println("already colored here" + (i+1));
 				return false;
-			}
-		/* canot check deault color, layer is uninitialized, alpha channel, etc
-		 * if (paintedColor != this.defaultLayerColor) {			
+			}*/
+		// canot check deault color, layer is uninitialized, alpha channel, etc
+		 if (paintedColor != this.defaultLayerColor) {			
 			System.out.println("already colored here");
 			return false;
-		}*/
+		}
 		System.out.println("OUT OF CIRCLE OK");
 		return true;
 	}

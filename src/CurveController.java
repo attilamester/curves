@@ -40,8 +40,8 @@ public class CurveController implements Runnable {
 		timer = new Timer(delay, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				if (GameController.finished) {
+												
+				if (GameController.finished || control == null) {
 					timer.stop();
 					return;
 				}
@@ -56,7 +56,7 @@ public class CurveController implements Runnable {
 				curve.setX(curve.getX() + curve.getDirection().getI());
 				curve.setY(curve.getY() + curve.getDirection().getJ());
 				
-//				baseImg.drawCurveHead(curve);
+				
 			}
 		});
 		
@@ -97,9 +97,9 @@ public class CurveController implements Runnable {
 	}
 	
 	public void stop() {
-		Thread tmp = control;
-		control = null;
+		Thread tmp = control;		
 		tmp.interrupt();
+		control = null;
 	}
 	
 	public void suspend() {
