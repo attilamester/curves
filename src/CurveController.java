@@ -97,9 +97,10 @@ public class CurveController implements Runnable {
 	}
 	
 	public void stop() {
-		Thread tmp = control;		
+		/*Thread tmp = control;
 		tmp.interrupt();
-		control = null;
+		control = null;*/
+		timer.stop();
 	}
 	
 	public void suspend() {

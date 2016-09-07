@@ -155,32 +155,6 @@ public class CurveWindow extends JFrame {
 		
 		
 	}
-	
-	public void createPlayGround(int players, List<Control> ctrl, List<String> names, List<Color> colors) {
-		
-		
-		/*
-		Timer timer_paintDirections = new Timer(1, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				control.startGame();
-			}
-		});
-		Timer timer_eraseDirections = new Timer(1, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				playGround.eraseArrows();
-			}
-		});
-		timer_paintDirections.setInitialDelay(3001);
-		timer_paintDirections.setRepeats(false);
-		timer_eraseDirections.setInitialDelay(3000);
-		timer_eraseDirections.setRepeats(false);
-		timer_paintDirections.start();
-		timer_eraseDirections.start();
-		*/
-	}
 		
 	private void addPlayerNames(List<String> names, List<Color> colors) {
 		namesPane = new JPanel(new GridLayout(1, names.size()));
@@ -203,6 +177,10 @@ public class CurveWindow extends JFrame {
 	
 	public PlayGround getPlayGround() {
 		return playGround;
+	}
+
+	public DisplayRefresher getDisplayRefresher() {
+		return displayRefresher;
 	}
 	
 }

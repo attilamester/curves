@@ -41,5 +41,9 @@ public class DisplayRefresher extends Thread {
 			
 			timer.start();
 		}*/
-	}	
+	}
+	
+	public void stopRefresher() {
+		timer.stop();
+	}
 }

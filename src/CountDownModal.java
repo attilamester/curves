@@ -19,13 +19,13 @@ public class CountDownModal extends JFrame {
 	private Container contentPane;
 	private JLabel countDownLabel;
 	
-	public CountDownModal(CurveWindow curveWindow, int round, String title) {
+	public CountDownModal(CurveWindow curveWindow, int round, String winner) {
 		this.curveWindow = curveWindow;
 		
 		this.contentPane = this.getContentPane();
 		contentPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		
-		addItems(title, round);
+		addItems(winner, round);
 
 		this.setSize(200, 200);
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
@@ -37,7 +37,7 @@ public class CountDownModal extends JFrame {
 		startCountDown();
 	}
 	
-	private void addItems(String title, int round) {
+	private void addItems(String winner, int round) {
 		ImageIcon icon = new ImageIcon("images\\loading.gif");
 		JLabel loading = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
 		JLabel roundLabel = new JLabel("Round " + Integer.toString(round) + " in ");
@@ -57,8 +57,8 @@ public class CountDownModal extends JFrame {
 		nextRoundPane.add(countDownLabel);
 		
 		
-		if (title != null && title.length() > 0) {
-			JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+		if (winner != null && winner.length() > 0) {
+			JLabel titleLabel = new JLabel("<html><span style='color:red'>" + winner + "</span> wins this round</html>", SwingConstants.CENTER);
 			titleLabel.setOpaque(false);
 			titleLabel.setForeground(Color.WHITE);		
 			titleLabel.setFont(new Font("Calibri", Font.BOLD, 20));

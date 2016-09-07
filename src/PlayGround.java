@@ -56,11 +56,13 @@ public class PlayGround extends JPanel  {
 		
 		this.players = players;
 		this.controls = controls;
+		this.names = new ArrayList<String>(names);
 		this.playersStillAlive = new ArrayList<String>(names);
 		this.round = 1;
 		
 		curves = new Curve[players];
 		curveControllers = new CurveController[players];
+
 		
 		/*
 		Color[] colors = new Color[players];
@@ -260,14 +262,15 @@ public class PlayGround extends JPanel  {
 	private void managePlayerDeath(int player) {
 		
 		this.curveControllers[player].stop();
-		
-		String name = this.names.get(player);
-		
+
 		this.playersStillAlive.remove(this.names.get(player));
 		
 		if (this.playersStillAlive.size() == 1) {
-			
-			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, "Player " + this.playersStillAlive.get(0) + " wins this round.");
+			this.curveWindow.getDisplayRefresher().stopRefresher();
+			String winner = this.playersStillAlive.get(0);
+			if (winner.isEmpty())
+				winner = "Player " + Integer.toString(player);
+			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner);
 			GameController.finished = true;
 		}
 	}
