@@ -34,7 +34,7 @@ public class CountDownModal extends JDialog {
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 		
-		startCountDown();
+		startCountDown(round);
 	}
 	
 	private void addItems(String winner, int round) {
@@ -67,7 +67,7 @@ public class CountDownModal extends JDialog {
 		this.contentPane.add(nextRoundPane, BorderLayout.SOUTH);
 	}
 	
-	private void startCountDown() {
+	private void startCountDown(int round) {
 		Timer count = new Timer(1000, null);
 		count.addActionListener(new ActionListener() {
 			@Override
@@ -79,7 +79,10 @@ public class CountDownModal extends JDialog {
 					dispose();
 					curveWindow.setAlwaysOnTop(true);
 					curveWindow.getPlayGround().eraseArrows();					
-					curveWindow.startGame();
+					if (round == 1)
+						curveWindow.startGame();
+					else
+						curveWindow.restartGame();
 				}
 				countDownLabel.setText(Integer.toString(--nr));
 			}

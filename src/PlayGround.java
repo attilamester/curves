@@ -287,25 +287,24 @@ public class PlayGround extends JPanel  {
 	}
 	
 	public void eraseArrows() {
-		this.playgroundLoading = false;		
-		//System.out.println(this.getWidth() + " " + this.compressedLayer.getImg().getWidth());
+		this.playgroundLoading = false;
 	}
 	
 	private void managePlayerDeath(int player) {
 		
-		return;/*
 		this.curveControllers[player].stop();
 
 		this.playersStillAlive.remove(this.names.get(player));
 		
 		if (this.playersStillAlive.size() == 1) {
+			GameController.finished = true;			
 			this.curveWindow.getDisplayRefresher().stopRefresher();
 			String winner = this.playersStillAlive.get(0);
 			if (winner.isEmpty())
 				winner = "Player " + Integer.toString(player);
 			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner);
-			GameController.finished = true;
-		}*/
+			
+		}
 	}
 	
 	private void startNewRound() {
@@ -417,8 +416,8 @@ public class PlayGround extends JPanel  {
 		/**
 		 * INSIDE PREVIOUS PAINTED CIRCLE => IGNORE IT
 		 */
-		if( Math.hypot(point.getX() - curve.getOldX(), point.getY() - curve.getOldY()) <= 
-			curve.getRadius()
+		if( this.point_distance(point.getX(), point.getY(), curve.getOldX(), curve.getOldY()) <= 
+			curve.getRadius() + 1
 				) {
 			/*System.out.println("INSIDE OLD CIRCLE:\n\t" + "Point:" + point.getX() + " " + point.getY()
 				+ "\n\tCenter of old circle:" + curve.getOldX() + " " + curve.getOldY()

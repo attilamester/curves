@@ -227,7 +227,7 @@ public class ConfigPanel extends JPanel {
 				start.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
 			@Override
-			public void mouseClicked(MouseEvent e) {				
+			public void mouseClicked(MouseEvent e) {
 				start.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				
 				List<Control> ctrl = new ArrayList<Control>();
