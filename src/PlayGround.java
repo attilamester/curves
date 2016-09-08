@@ -1,11 +1,18 @@
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
@@ -35,7 +42,8 @@ public class PlayGround extends JPanel  {
 	
 	private ImageLayer compressedLayer;
 	
-	private int defaultLayerColor;	
+	private int defaultLayerColor;
+	private final int PADDING = GameController.FRAME_SIZE_X / 5;
 	
 	/*
 	 * Explicite playground
@@ -45,9 +53,11 @@ public class PlayGround extends JPanel  {
 	private Curve[] curves;
 	private CurveController[] curveControllers;
 	private List<Control> controls;
-	
+	private List<Color> colors;
 	private List<String> playersStillAlive;
 	private int round;
+	
+	private boolean playgroundLoading;
 	
 	
 	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls, List<Color> colors) {
@@ -58,18 +68,11 @@ public class PlayGround extends JPanel  {
 		this.controls = controls;
 		this.names = new ArrayList<String>(names);
 		this.playersStillAlive = new ArrayList<String>(names);
+		this.colors = new ArrayList<Color>(colors);
 		this.round = 1;
 		
 		curves = new Curve[players];
 		curveControllers = new CurveController[players];
-
-		
-		/*
-		Color[] colors = new Color[players];
-		for (int i = 0; i < players; ++i)
-			colors[i] = new Color(rnd.nextInt(200) + 50, rnd.nextInt(200) + 50, rnd.nextInt(200) + 50);
-			*/
-		int padding = GameController.FRAME_SIZE_X / 5;
 		
 		Direction dir = new Direction();
 		byte multiplier = 1;
@@ -85,11 +88,12 @@ public class PlayGround extends JPanel  {
 				Math.pow(GameController.DEFAULT_CURVE_SPEED, 2) - 
 				Math.pow(dir.getI(), 2)
 			) * multiplier);
-			curves[i] = new Curve( randBetween(padding, GameController.FRAME_SIZE_X - padding), randBetween(padding, GameController.FRAME_SIZE_Y - padding), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
+			curves[i] = new Curve( randBetween(PADDING, GameController.FRAME_SIZE_X - PADDING), randBetween(PADDING, GameController.FRAME_SIZE_Y - PADDING), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
 			curveControllers[i] = new CurveController(curves[i]);
 		}
-				
+		
 		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
+		this.playgroundLoading = true;
 	}
 		
 	/*
@@ -109,7 +113,7 @@ public class PlayGround extends JPanel  {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (this.compressedLayer == null) {
+		if (this.compressedLayer == null || this.playgroundLoading) {
 			this.compressedLayer = new ImageLayer(this.getWidth(), this.getHeight(), GameController.PLAYGROUND_BACKGROUND);
 			this.backgroundLayer = new ImageLayer(this.getWidth(), this.getHeight(), GameController.PLAYGROUND_BACKGROUND);
 			this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
@@ -200,11 +204,16 @@ public class PlayGround extends JPanel  {
 	 ***********************************************************/
 	
 	public void initPaint(Graphics g) {
+		Graphics2D g2d = (Graphics2D)g;
+		
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,    RenderingHints.VALUE_ANTIALIAS_ON);
+		
 		g.drawImage(this.backgroundLayer.getImg(), 0, 0, null);
 		System.out.println("initPaint");
 		for (int i = 0; i < players; ++i) {
 			int r = curves[i].getRadius();
 			int color = curves[i].getColor().getRGB(); 
+			
 			BufferedImage direction =  null;
 			BufferedImage finalImg = null;
 			try {
@@ -219,6 +228,30 @@ public class PlayGround extends JPanel  {
 			};
 			ImageProducer ip = new FilteredImageSource(direction.getSource(),filter);
 			finalImg = toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
+			
+			/**************************************
+			 * Draw Name Initials
+			 *************************************/
+			Graphics2D gr2D_initial = finalImg.createGraphics();
+			gr2D_initial.setRenderingHint(RenderingHints.KEY_ANTIALIASING,    RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			String text = (this.names.get(i).length() > 0) ? Character.toString( this.names.get(i).charAt(0) ) : "?";			
+		    FontRenderContext context = gr2D_initial.getFontRenderContext();
+            Font font = new Font("Arial", Font.BOLD, finalImg.getWidth() / 3);
+            TextLayout txt = new TextLayout(text, font, context);
+            Rectangle2D bounds = txt.getBounds();
+            int textX = (int) ((finalImg.getWidth() - (int) bounds.getWidth()) / 2);
+            int textY = (int) ((finalImg.getHeight() - (bounds.getHeight() - txt.getDescent())) / 2);
+            textY += txt.getAscent() - txt.getDescent();
+
+            gr2D_initial.setFont(font);
+            gr2D_initial.setColor(Color.BLACK);
+            gr2D_initial.drawString(text, textX, textY);
+            gr2D_initial.setColor(Color.WHITE);
+            gr2D_initial.drawString(text, textX - 20, textY - 20);
+            
+            gr2D_initial.dispose();
+		    
 			/** 
 			 *  ___________>   oX  v0
 			 *  \alpha
@@ -243,24 +276,24 @@ public class PlayGround extends JPanel  {
 			tx.rotate(rotationRequired, direction.getWidth() * scale / 2, direction.getHeight() * scale);
 			tx.scale(scale, scale);
 			
-			
-			/*
-			this.playgroundImg.gr2DDrawImage(finalImg, tx, null);
-			this.playgroundImg.grSetColor(curves[i].getColor());
-			this.playgroundImg.grFillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r);
-			*/
-			((Graphics2D)this.backgroundLayer.getGr()).drawImage(finalImg, tx, null);
-			this.backgroundLayer.getGr().setColor(curves[i].getColor());
-			this.backgroundLayer.getGr().fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r	);
+			g2d.drawImage(finalImg, tx, null);
+			this.curvesLayer.getGr().setColor(curves[i].getColor());
+			this.curvesLayer.getGr().fillOval((int)curves[i].getX() - r, (int)curves[i].getY() - r, 2 * r, 2 * r	);
 			
 		}
 		
-		g.drawImage(this.backgroundLayer.getImg(), 0, 0, null);
+		g.drawImage(this.curvesLayer.getImg(), 0, 0, null);
 		
+	}
+	
+	public void eraseArrows() {
+		this.playgroundLoading = false;		
+		//System.out.println(this.getWidth() + " " + this.compressedLayer.getImg().getWidth());
 	}
 	
 	private void managePlayerDeath(int player) {
 		
+		return;/*
 		this.curveControllers[player].stop();
 
 		this.playersStillAlive.remove(this.names.get(player));
@@ -272,7 +305,29 @@ public class PlayGround extends JPanel  {
 				winner = "Player " + Integer.toString(player);
 			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner);
 			GameController.finished = true;
+		}*/
+	}
+	
+	private void startNewRound() {
+		Direction dir = new Direction();
+		byte multiplier = 1;
+		
+		for (int i = 0; i < players; ++i) {
+			if(rnd.nextBoolean())
+				multiplier *= -1;
+			dir.setI(rnd.nextDouble() * GameController.DEFAULT_CURVE_SPEED * multiplier);
+			
+			if(rnd.nextBoolean())
+				multiplier *= -1;
+			dir.setJ( Math.sqrt( 
+				Math.pow(GameController.DEFAULT_CURVE_SPEED, 2) - 
+				Math.pow(dir.getI(), 2)
+			) * multiplier);
+			
+			curves[i].reset(randBetween(PADDING, GameController.FRAME_SIZE_X - PADDING), randBetween(PADDING, GameController.FRAME_SIZE_Y - PADDING), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);					
+			
 		}
+		
 	}
 	
 	/***************************************************************************************************************************************************************
@@ -360,12 +415,6 @@ public class PlayGround extends JPanel  {
 	
 	private boolean pointIsOk(Point2D.Double point, Curve curve) {
 		/**
-		 * red   = (paintedColor & 0x00ff0000) >> 16;
-		 * green = (paintedColor & 0x0000ff00) >> 8;
-		 * blue  = (paintedColor & 0x000000ff);
-		 */
-		
-		/**
 		 * INSIDE PREVIOUS PAINTED CIRCLE => IGNORE IT
 		 */
 		if( Math.hypot(point.getX() - curve.getOldX(), point.getY() - curve.getOldY()) <= 
@@ -381,26 +430,59 @@ public class PlayGround extends JPanel  {
 		
 		int paintedColor;
 		try {
-			paintedColor = this.compressedLayer.getImg().getRGB((int)point.getX(), (int)point.getY());			
+			final int[] pixels = ((DataBufferInt) (this.compressedLayer.getImg().getRaster().getDataBuffer())).getData();
+			paintedColor = this.compressedLayer.getImg().getRGB((int)point.getX(), (int)point.getY());
+			if (paintedColor != this.getRGB_fromByteArray(compressedLayer.getImg().getWidth(), pixels, (int)point.getX(), (int)point.getY())) {
+				System.out.println(paintedColor + " Mine: " + this.getRGB_fromByteArray(compressedLayer.getImg().getWidth(), pixels, (int)point.getX(), (int)point.getY()));
+			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("out of bounds");
+			//System.out.println("out of bounds");
 			return false;
-		}		
+		}
 		/*for (int i = 0; i < players; ++i)
 			if (curves[i].getColor().getRGB() == paintedColor) {
 				System.out.println("already colored here" + (i+1));
 				return false;
 			}*/
-		// canot check deault color, layer is uninitialized, alpha channel, etc
+		// cannot check default color, layer is uninitialized, alpha channel, etc
 		 if (paintedColor != this.defaultLayerColor) {			
-			System.out.println("already colored here");
+			System.out.println("already colored here: " + getCssColor(paintedColor) + ", curve color: " + getCssColor( curve.getColor().getRGB() ) );
+			System.out.println("Current cir:" + curve.getX() + " " + curve.getY());
+			System.out.println("Prev circle:" + curve.getOldX() + " " + curve.getOldY());
+			System.out.println("Point      :" + point.getX() + " " + point.getY());
+			System.out.println("Dist: " + this.point_distance(curve.getOldX(), curve.getOldY(), point.getX(), point.getY()));
 			return false;
 		}
-		System.out.println("OUT OF CIRCLE OK");
+		//System.out.println("OUT OF CIRCLE OK");
 		return true;
 	}
 	
-	public static BufferedImage toBufferedImage(Image image) { 
+	private double point_distance(double x1, double y1, double x2, double y2) {
+		return Math.hypot(x1 - x2, y1 - y2);
+	}
+	
+	private int getRGB_fromByteArray(final int imageWidth, final int[] pixels, int i, int j) {
+		return pixels[j * imageWidth + i];
+	}
+	
+	
+	private String getCssColor(int pixel) {
+		return "(" + Integer.toString(getRed_fromInt(pixel)) + ", " + Integer.toString(getGreen_fromInt(pixel)) + ", " + Integer.toString(getBlue_fromInt(pixel)) + ")"; 
+	}
+	
+	private int getRed_fromInt(int pixel) {
+		return (pixel & 0x00ff0000) >> 16;
+	}
+	
+	private int getGreen_fromInt(int pixel) {
+		 return (pixel & 0x0000ff00) >> 8;		 
+	}
+	
+	private int getBlue_fromInt(int pixel) {
+		return (pixel & 0x000000ff);
+	}
+	
+	private static BufferedImage toBufferedImage(Image image) { 
 		if (image instanceof BufferedImage) return (BufferedImage) image;
 
 		image = new ImageIcon(image).getImage(); 
@@ -409,12 +491,6 @@ public class PlayGround extends JPanel  {
 		g.drawImage(image,0,0,null); 
 		g.dispose(); 
 		return bimage; 
-	}
-	
-	public void eraseArrows() {
-		this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
-		this.backgroundLayer.getGr().fillRect(0, 0, this.getWidth(), this.getHeight());
-		this.getGraphics().drawImage(this.backgroundLayer.getImg(), 0, 0, null);
 	}
 	
 	/*

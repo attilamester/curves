@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 public class ImageLayer {
@@ -10,6 +12,7 @@ public class ImageLayer {
 	public ImageLayer(int width, int height, Color defaultColor) {
 		this.img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);		
 		this.gr = img.getGraphics();
+		//((Graphics2D)this.gr).setRenderingHint(RenderingHints.KEY_ANTIALIASING,    RenderingHints.VALUE_ANTIALIAS_ON);
 		if (defaultColor != null) {
 			this.gr.setColor(defaultColor);
 			this.gr.fillRect(0, 0, width, height);

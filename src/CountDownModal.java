@@ -7,13 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-public class CountDownModal extends JFrame {
+public class CountDownModal extends JDialog {
 	
 	private CurveWindow curveWindow;
 	private Container contentPane;
@@ -45,14 +45,13 @@ public class CountDownModal extends JFrame {
 		roundLabel.setForeground(Color.WHITE);
 		roundLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
-		countDownLabel = new JLabel("1", SwingConstants.CENTER);
+		countDownLabel = new JLabel("3", SwingConstants.CENTER);
 		countDownLabel.setOpaque(false);
 		countDownLabel.setForeground(Color.RED);
 		countDownLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
 		JPanel nextRoundPane = new JPanel();
 		nextRoundPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
-		
 		nextRoundPane.add(roundLabel);
 		nextRoundPane.add(countDownLabel);
 		

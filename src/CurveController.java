@@ -68,24 +68,24 @@ public class CurveController implements Runnable {
 		});
 		dashStopper.setRepeats(false);
 		
-		dashStarter = new Timer(rnd.nextInt(1000)+0, new ActionListener() {
+		dashStarter = new Timer(rnd.nextInt(10000) + 1000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				curve.setPaused(true);
 				curve.setPausedX(curve.getX());
 				curve.setPausedY(curve.getY());
 				
-				double v = curve.calcSpeed() / delay; // speed in: <px / ms>
-				double d = 6 * curve.getRadius(); // 3 * circle diameter
-				double t = d / v;
+				double v = curve.calcSpeed() / delay; 	// <px / ms>
+				double d = 6 * curve.getRadius(); 	 	// <px>   (3 * circle diameter)
+				double t = d / v; 					  	// <ms>
 				
-				System.out.println("\t\tv: " + v + " d: " +  d  + " t: " + t );
+				//System.out.println("\t\tv: " + v + " d: " +  d  + " t: " + t );
 				
-				int dashStop = rnd.nextInt((int)t) + (int)(t);
-				dashStopper.setInitialDelay(dashStop);							
+				int dashStop = rnd.nextInt((int)t) + 2 * (int)(t);
+				dashStopper.setInitialDelay(dashStop);
 				dashStopper.start();
 				
-				dashStarter.setDelay(dashStop + rnd.nextInt(1000) + 500);
+				dashStarter.setDelay(dashStop + rnd.nextInt(10000) + 500);
 			}
 		});
 	}

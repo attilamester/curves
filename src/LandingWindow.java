@@ -56,7 +56,6 @@ public class LandingWindow extends JFrame {
 		this.setIconImage(new ImageIcon("images\\icon.png").getImage());
 		this.setVisible(true);
 		Main.setCloseOnEsc(this);
-					
 	}
 	
 	public Container getDefaultContent() {

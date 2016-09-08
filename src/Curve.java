@@ -42,6 +42,20 @@ public class Curve {
 		//this.dashLayer  = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
 	}
 	
+	public void reset(double x, double y, int radius, double turnAngle, Color color, Direction direction) {
+		this.x = this.oldX = x;
+		this.y = this.oldY = y;
+		
+		this.radius = radius;
+		this.turnAngle = turnAngle;
+		this.color = color;		
+		this.direction.setI(direction.getI());
+		this.direction.setJ(direction.getJ());
+		
+		this.leftIsPressed = false;
+		this.rightIsPressed = false;		
+	}
+	
 	public double getX() {
 		return x;
 	}
