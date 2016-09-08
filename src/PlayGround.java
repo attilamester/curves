@@ -304,10 +304,14 @@ public class PlayGround extends JPanel  {
 				winner = "Player " + Integer.toString(player);
 			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner);
 			
+			this.startNewRound();
+			this.repaint();
 		}
 	}
 	
 	private void startNewRound() {
+		this.playgroundLoading = true;
+		
 		Direction dir = new Direction();
 		byte multiplier = 1;
 		
