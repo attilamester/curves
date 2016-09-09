@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -34,6 +35,7 @@ public class CurveWindow extends JFrame {
 	private JMenuItem newGameItem;
 	
 	private JPanel namesPane;
+	private List<PlayerStatus> playerStatusPanes;
 	
 	private PlayGround playGround;
 	private DisplayRefresher displayRefresher;
@@ -157,19 +159,23 @@ public class CurveWindow extends JFrame {
 	}
 		
 	private void addPlayerNames(List<String> names, List<Color> colors) {
-		namesPane = new JPanel(new GridLayout(1, names.size()));
-		namesPane.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, 30));
+		this.namesPane = new JPanel(new GridLayout(1, names.size()));		
+		this.namesPane.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, 30));
+		this.playerStatusPanes = new ArrayList<PlayerStatus	>();
+		
 		ListIterator<String> iterNames  = names.listIterator();
 		ListIterator<Color> iterColors = colors.listIterator();
-		while(iterNames.hasNext()) {
+		while(iterNames.hasNext()) {			
 			String name = (String)iterNames.next();
 			Color color = (Color)iterColors.next();
-			namesPane.add(new PlayerStatus(name, color));
+			PlayerStatus status = new PlayerStatus(name, color);
+			this.playerStatusPanes.add(status);
+			namesPane.add(status);
 		} 		
 		this.contentPane.add(namesPane, BorderLayout.NORTH);
 		
 	}
-	
+
 	public void startGame() {
 		this.playGround.startGame();
 		this.displayRefresher.start();
@@ -187,6 +193,10 @@ public class CurveWindow extends JFrame {
 
 	public DisplayRefresher getDisplayRefresher() {
 		return displayRefresher;
+	}
+
+	public List<PlayerStatus> getPlayerStatusPanes() {
+		return playerStatusPanes;
 	}
 	
 }

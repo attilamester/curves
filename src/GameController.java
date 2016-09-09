@@ -21,6 +21,9 @@ public class GameController {
 	public static final int PLAYGROUND_BORDER_WIDTH = 4;
 	public static double DEFAULT_CURVE_SPEED;
 	public static double DEFAULT_CURVE_ANGLE = 3;
+	public static final int COUNT_DOWN_WIDTH  = 200;
+	public static final int COUNT_DOWN_HEIGHT = 200;
+	
 	
 		
 	public GameController() {

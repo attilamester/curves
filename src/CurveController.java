@@ -81,7 +81,7 @@ public class CurveController implements Runnable {
 				
 				//System.out.println("\t\tv: " + v + " d: " +  d  + " t: " + t );
 				
-				int dashStop = rnd.nextInt((int)t) + 2 * (int)(t);
+				int dashStop = rnd.nextInt((int)t) + (int)(t);
 				dashStopper.setInitialDelay(dashStop);
 				dashStopper.start();
 				

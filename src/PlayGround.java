@@ -1,11 +1,12 @@
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
@@ -27,6 +28,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 public class PlayGround extends JPanel  {
 
@@ -54,7 +56,8 @@ public class PlayGround extends JPanel  {
 	private CurveController[] curveControllers;
 	private List<Control> controls;
 	private List<Color> colors;
-	private List<String> playersStillAlive;
+	private List<Integer> playersStillAlive;
+	private List<Integer> playersDead;
 	private int round;
 	
 	private boolean playgroundLoading;
@@ -63,13 +66,21 @@ public class PlayGround extends JPanel  {
 	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls, List<Color> colors) {
 		
 		this.curveWindow = curveWindow;
-		
-		this.players = players;
 		this.controls = controls;
-		this.names = new ArrayList<String>(names);
-		this.playersStillAlive = new ArrayList<String>(names);
-		this.colors = new ArrayList<Color>(colors);
 		this.round = 1;
+				
+		this.names = new ArrayList<String>(names);
+		this.players = players;
+		
+		/** List of player numbers */
+		this.playersStillAlive = new ArrayList<Integer>();
+		for (int i = 0; i < players; ++i)
+			playersStillAlive.add(new Integer(i));
+		this.playersDead = new ArrayList<Integer>();
+		
+		this.colors = new ArrayList<Color>(colors);
+		
+		
 		
 		curves = new Curve[players];
 		curveControllers = new CurveController[players];
@@ -88,7 +99,7 @@ public class PlayGround extends JPanel  {
 				Math.pow(GameController.DEFAULT_CURVE_SPEED, 2) - 
 				Math.pow(dir.getI(), 2)
 			) * multiplier);
-			curves[i] = new Curve( randBetween(PADDING, GameController.FRAME_SIZE_X - PADDING), randBetween(PADDING, GameController.FRAME_SIZE_Y - PADDING), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
+			curves[i] = new Curve( createCoordinate_X(), createCoordinate_Y(), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
 			curveControllers[i] = new CurveController(curves[i]);
 		}
 		
@@ -292,21 +303,38 @@ public class PlayGround extends JPanel  {
 	
 	private void managePlayerDeath(int player) {
 		
+		if (this.playersDead.contains(new Integer(player)))
+			return;
+		
+		this.playersDead.add(new Integer(player));
+		
 		this.curveControllers[player].stop();
-
-		this.playersStillAlive.remove(this.names.get(player));
+		this.playersStillAlive.remove(new Integer(player));
+		for (Integer i : this.playersStillAlive) {
+			this.curveWindow.getPlayerStatusPanes().get((int)i).increaseScore();
+		}
 		
 		if (this.playersStillAlive.size() == 1) {
-			GameController.finished = true;			
 			this.curveWindow.getDisplayRefresher().stopRefresher();
-			String winner = this.playersStillAlive.get(0);
+			GameController.finished = true;
+			this.curveControllers[(int)this.playersStillAlive.get(0)].stop();
+			
+			String winner = this.names.get((int)(this.playersStillAlive.get(0)));
 			if (winner.isEmpty())
 				winner = "Player " + Integer.toString(player);
+			
 			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner);
 			
-			this.startNewRound();
-			this.repaint();
-		}
+			Timer timer = new Timer(2000, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					PlayGround.this.startNewRound();
+					PlayGround.this.repaint();
+				}
+			});
+			timer.setRepeats(false);
+			timer.start();
+		}		
 	}
 	
 	private void startNewRound() {
@@ -327,7 +355,7 @@ public class PlayGround extends JPanel  {
 				Math.pow(dir.getI(), 2)
 			) * multiplier);
 			
-			curves[i].reset(randBetween(PADDING, GameController.FRAME_SIZE_X - PADDING), randBetween(PADDING, GameController.FRAME_SIZE_Y - PADDING), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);					
+			curves[i].initData(createCoordinate_X(), createCoordinate_Y(), GameController.DEFAULT_THICK, GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);			
 			
 		}
 		
@@ -421,7 +449,7 @@ public class PlayGround extends JPanel  {
 		 * INSIDE PREVIOUS PAINTED CIRCLE => IGNORE IT
 		 */
 		if( this.point_distance(point.getX(), point.getY(), curve.getOldX(), curve.getOldY()) <= 
-			curve.getRadius() + 1
+			curve.getRadius()
 				) {
 			/*System.out.println("INSIDE OLD CIRCLE:\n\t" + "Point:" + point.getX() + " " + point.getY()
 				+ "\n\tCenter of old circle:" + curve.getOldX() + " " + curve.getOldY()
@@ -448,7 +476,7 @@ public class PlayGround extends JPanel  {
 				return false;
 			}*/
 		// cannot check default color, layer is uninitialized, alpha channel, etc
-		 if (paintedColor != this.defaultLayerColor) {			
+		 if (paintedColor != this.defaultLayerColor && paintedColor != curve.getColor().getRGB()) {			
 			System.out.println("already colored here: " + getCssColor(paintedColor) + ", curve color: " + getCssColor( curve.getColor().getRGB() ) );
 			System.out.println("Current cir:" + curve.getX() + " " + curve.getY());
 			System.out.println("Prev circle:" + curve.getOldX() + " " + curve.getOldY());
@@ -523,6 +551,25 @@ public class PlayGround extends JPanel  {
 		return this.rnd.nextInt(b - a) + a;
 	}
 	
+	private double createCoordinate_X() {
+		int marginFromCountDown = 20;
+		double x = randBetween(PADDING, GameController.FRAME_SIZE_X - PADDING);
+		if (x >= (GameController.FRAME_SIZE_X - GameController.COUNT_DOWN_WIDTH) / 2 - marginFromCountDown &&
+			x <= (GameController.FRAME_SIZE_X + GameController.COUNT_DOWN_WIDTH) / 2 + marginFromCountDown
+		) {
+			x += GameController.COUNT_DOWN_WIDTH;
+		}
+		return x;
+	}
 	
-	
+	private double createCoordinate_Y() {
+		double y = randBetween(PADDING, GameController.FRAME_SIZE_Y - PADDING);
+		int marginFromCountDown = 20;
+		if (y >= (GameController.FRAME_SIZE_Y - GameController.COUNT_DOWN_HEIGHT) / 2 - marginFromCountDown &&
+			y <= (GameController.FRAME_SIZE_Y + GameController.COUNT_DOWN_HEIGHT) / 2 + marginFromCountDown
+		) {
+			y += GameController.COUNT_DOWN_HEIGHT;
+		}
+		return y;
+	}
 }

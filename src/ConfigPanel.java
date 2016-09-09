@@ -235,8 +235,11 @@ public class ConfigPanel extends JPanel {
 				List<Color> colors = new ArrayList<Color>();
 				for (Component c : playersPane.getComponents()) {
 					PlayerConfigRow ref = (PlayerConfigRow) c;
-					//ctrl.add(new Control(ref.getLeft(), ref.getRight()));
-					ctrl.add(new Control(65,83));
+					if (ref.getLeft() == -1 || ref.getRight() == -1)
+						ctrl.add(new Control(65,83));
+					else
+						ctrl.add(new Control(ref.getLeft(), ref.getRight()));
+					
 					names.add(ref.getName());
 					colors.add(ref.getColor());
 				}

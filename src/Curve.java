@@ -24,25 +24,14 @@ public class Curve {
 
 	private ImageLayer curveLayer;
 	//private ImageLayer dashLayer;
-
-	public Curve(double x, double y, int radius, double turnAngle, Color color, Direction direction) {
-		
-		this.x = this.oldX = x;
-		this.y = this.oldY = y;
-		
-		this.radius = radius;
-		this.turnAngle = turnAngle;
-		this.color = color;		
-		this.direction = new Direction(direction.getI(), direction.getJ());
-		
-		this.leftIsPressed = false;
-		this.rightIsPressed = false;
-		
+	
+	public Curve (double x, double y, int radius, double turnAngle, Color color, Direction direction) {
+		this.direction = new Direction(0, 0);
 		this.curveLayer = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
-		//this.dashLayer  = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
+		this.initData(x, y, radius, turnAngle, color, direction);
 	}
 	
-	public void reset(double x, double y, int radius, double turnAngle, Color color, Direction direction) {
+	public void initData(double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		this.x = this.oldX = x;
 		this.y = this.oldY = y;
 		

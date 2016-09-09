@@ -18,6 +18,8 @@ public class PlayerStatus extends JPanel{
 		
 		if (name.length() == 0)
 			name = "#noName";
+		score = 0;
+		
 		nameLabel = new JLabel(name);
 		//nameLabel.setMinimumSize(new Dimension(300, 30));
 		nameLabel.setHorizontalAlignment(JLabel.LEFT);
@@ -60,5 +62,9 @@ public class PlayerStatus extends JPanel{
 
 	public void setScore(int score) {
 		this.score = score;
+		this.scoreLabel.setText(score + " pt");		
+	}
+	public void increaseScore() {
+		this.setScore(this.getScore() + 1);
 	}
 }

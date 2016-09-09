@@ -27,7 +27,7 @@ public class CountDownModal extends JDialog {
 		
 		addItems(winner, round);
 
-		this.setSize(200, 200);
+		this.setSize(GameController.COUNT_DOWN_WIDTH, GameController.COUNT_DOWN_HEIGHT);
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
 		curveWindow.setAlwaysOnTop(false);
