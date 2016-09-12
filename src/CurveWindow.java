@@ -155,7 +155,6 @@ public class CurveWindow extends JFrame {
 	
 	public void addMenuListeners() {
 		
-		
 	}
 		
 	private void addPlayerNames(List<String> names, List<Color> colors) {
@@ -182,7 +181,8 @@ public class CurveWindow extends JFrame {
 	}
 	
 	public void restartGame() {
-		this.playGround.startGame();
+		GameController.finished = false;
+		this.playGround.restartGame();
 		this.displayRefresher.restart();
 	}
 	

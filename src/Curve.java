@@ -24,6 +24,8 @@ public class Curve {
 
 	private ImageLayer curveLayer;
 	//private ImageLayer dashLayer;
+	private long lastCollidedAt;	
+	private int collisionCount;
 	
 	public Curve (double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		this.direction = new Direction(0, 0);
@@ -42,7 +44,10 @@ public class Curve {
 		this.direction.setJ(direction.getJ());
 		
 		this.leftIsPressed = false;
-		this.rightIsPressed = false;		
+		this.rightIsPressed = false;
+		
+		this.lastCollidedAt = 0;
+		this.collisionCount = 0;
 	}
 	
 	public double getX() {
@@ -150,7 +155,23 @@ public class Curve {
 		return this.curveLayer;
 	}
 		
-	// nem akar menni a jo egnek se :(  :/
+	public long getLastCollidedAt() {
+		return lastCollidedAt;
+	}
+
+	public void setLastCollidedAt(long lastCollidedAt) {
+		this.lastCollidedAt = lastCollidedAt;
+	}
+
+	public int getCollisionCount() {
+		return collisionCount;
+	}
+
+	public void setCollisionCount(int collisionCount) {
+		this.collisionCount = collisionCount;
+	}
+	
+	// nem akar menni a jo egnek se :(  :/ :D :))
 	public void resetDashLayer() {
 		/*Graphics2D gr = (Graphics2D)this.dashLayer.getGr();
 		

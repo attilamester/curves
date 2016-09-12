@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,13 +20,15 @@ public class CountDownModal extends JDialog {
 	private Container contentPane;
 	private JLabel countDownLabel;
 	
-	public CountDownModal(CurveWindow curveWindow, int round, String winner) {
+	private Color bg = new Color(38, 38, 38);
+	
+	public CountDownModal(CurveWindow curveWindow, int round, String winner, Color color) {
 		this.curveWindow = curveWindow;
 		
 		this.contentPane = this.getContentPane();
-		contentPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
+		contentPane.setBackground(bg);
 		
-		addItems(winner, round);
+		addItems(winner, round, color);
 
 		this.setSize(GameController.COUNT_DOWN_WIDTH, GameController.COUNT_DOWN_HEIGHT);
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
@@ -37,7 +40,7 @@ public class CountDownModal extends JDialog {
 		startCountDown(round);
 	}
 	
-	private void addItems(String winner, int round) {
+	private void addItems(String winner, int round, Color color) {
 		ImageIcon icon = new ImageIcon("images\\loading.gif");
 		JLabel loading = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
 		JLabel roundLabel = new JLabel("Round " + Integer.toString(round) + " in ");
@@ -51,17 +54,28 @@ public class CountDownModal extends JDialog {
 		countDownLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
 		JPanel nextRoundPane = new JPanel();
-		nextRoundPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
+		nextRoundPane.setBackground(bg);
 		nextRoundPane.add(roundLabel);
 		nextRoundPane.add(countDownLabel);
 		
 		
 		if (winner != null && winner.length() > 0) {
-			JLabel titleLabel = new JLabel("<html><span style='color:red'>" + winner + "</span> wins this round</html>", SwingConstants.CENTER);
-			titleLabel.setOpaque(false);
-			titleLabel.setForeground(Color.WHITE);		
-			titleLabel.setFont(new Font("Calibri", Font.BOLD, 20));
-			this.contentPane.add(titleLabel, BorderLayout.NORTH);
+			String col = Main.getCssColor(color.getRGB());
+			JPanel titlePane = new JPanel(new GridLayout(2, 1));
+			titlePane.setBackground(bg);
+			JLabel titleLabel_name = new JLabel("<html><span style='color: " + col + "'>" + winner + "</span></html>", SwingConstants.CENTER);
+			titleLabel_name.setOpaque(false);
+			titleLabel_name.setForeground(Color.WHITE);		
+			titleLabel_name.setFont(new Font("Calibri", Font.BOLD, 20));
+			JLabel titleLabel_status = new JLabel("wins this round", SwingConstants.CENTER);
+			titleLabel_status.setOpaque(false);
+			titleLabel_status.setForeground(Color.WHITE);		
+			titleLabel_status.setFont(new Font("Calibri", Font.BOLD, 20));
+			
+			titlePane.add(titleLabel_name);
+			titlePane.add(titleLabel_status);
+			
+			this.contentPane.add(titlePane, BorderLayout.NORTH);			
 		}
 		this.contentPane.add(loading, BorderLayout.CENTER);
 		this.contentPane.add(nextRoundPane, BorderLayout.SOUTH);

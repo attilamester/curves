@@ -103,6 +103,10 @@ public class CurveController implements Runnable {
 		timer.stop();
 	}
 	
+	public void restart() {
+		timer.restart();		
+	}
+	
 	public void suspend() {
 		this.suspended = true;
 	}

@@ -66,6 +66,28 @@ public class Main {
 		panel.add(backPane, BorderLayout.NORTH);
 	}
 	
+	/***********************************************************************
+	 * 
+	 * Coloring stuff
+	 * 
+	 ************************************************************************/
+	
+	public static String getCssColor(int pixel) {
+		return "rgb (" + Integer.toString(Main.getRed_fromInt(pixel)) + ", " + Integer.toString(Main.getGreen_fromInt(pixel)) + ", " + Integer.toString(Main.getBlue_fromInt(pixel)) + ")"; 
+	}
+	
+	public static int getRed_fromInt(int pixel) {
+		return (pixel & 0x00ff0000) >> 16;
+	}
+	
+	public static int getGreen_fromInt(int pixel) {
+		 return (pixel & 0x0000ff00) >> 8;		 
+	}
+	
+	public static int getBlue_fromInt(int pixel) {
+		return (pixel & 0x000000ff);
+	}
+	
 	private static GameController game;
 	
 	public static void main(String[] args) {
