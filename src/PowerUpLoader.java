@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.Timer;
 
 public class PowerUpLoader {
@@ -17,6 +18,7 @@ public class PowerUpLoader {
 	private Timer timer;
 	private int delay;
 	private int frequency; /// max milli sec. between powerups
+	private int minDelay;
 	private Random rnd;
 	private List<PowerUp> powerUps;
 	
@@ -39,8 +41,9 @@ public class PowerUpLoader {
 		this.backgroundLayer = backgroundLayer;
 		
 		this.rnd = new Random();
-		this.frequency = 3000;
-		this.delay = rnd.nextInt(this.frequency) + 500;
+		this.frequency = 10000;
+		this.minDelay = 3000;
+		this.delay = rnd.nextInt(this.frequency) + this.minDelay;
 		this.timer = new Timer(delay, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -49,7 +52,7 @@ public class PowerUpLoader {
 					return;
 				}
 				
-				delay = rnd.nextInt(frequency) + 500;
+				delay = rnd.nextInt(frequency) + minDelay;
 				timer.setDelay(delay);
 				
 				PowerUp newPower = createPowerUp();
@@ -89,12 +92,34 @@ public class PowerUpLoader {
 	 * 
 	 *************************************************************************************************************/
 	
-	public static void action_moreExtra() {
-		
+	public void action_moreExtra() {
+		int _minDelay = minDelay;
+		int _frequency = frequency;
+		this.minDelay = 0;
+		this.frequency = 2000;
+		Timer timer = new Timer(5000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				minDelay = _minDelay;
+				frequency = _frequency;
+			}
+		});
+		timer.setRepeats(false);
+		timer.start();
 	}
 	
-	public static void action_noBorder() {
-		
+	public static void action_noBorder(PlayGround pl) {
+		pl.setBorder(BorderFactory.createLineBorder(Color.GRAY, GameController.PLAYGROUND_BORDER_WIDTH));
+		pl.setNoBorder(true);
+		Timer timer = new Timer(5000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pl.setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
+				pl.setNoBorder(false);
+			}
+		});
+		timer.setRepeats(false);
+		timer.start();
 	}
 	
 	public static void action_erase(PlayGround pl) {

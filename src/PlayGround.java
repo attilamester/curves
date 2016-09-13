@@ -65,6 +65,8 @@ public class PlayGround extends JPanel  {
 	
 	private List<PowerUp> powerUps;
 	
+	private boolean noBorder = false;
+	
 	
 	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls, List<Color> colors) {
 		
@@ -164,10 +166,14 @@ public class PlayGround extends JPanel  {
 				int r = curves[i].getRadius();
 				int padding = r + GameController.PLAYGROUND_BORDER_WIDTH;
 				
-				if (outOfBorderBounds(curves[i], i, x, y, padding)) {
-					g.drawImage(curvesLayer.getImg(), 0, 0, null);					
-					managePlayerDeath(i);
-					return;
+				if (!noBorder) {				
+					if (outOfBorderBounds(curves[i], i, x, y, padding)) {
+						g.drawImage(curvesLayer.getImg(), 0, 0, null);					
+						managePlayerDeath(i);
+						return;
+					}
+				} else {
+					manageNoBorder(curves[i], x, y, padding);
 				}
 				if (crashedToSomething(curves[i], i)) {
 					g.drawImage(curvesLayer.getImg(), 0, 0, null);					
@@ -413,8 +419,16 @@ public class PlayGround extends JPanel  {
 	private boolean outOfBorderBounds(Curve curve, int index, int x, int y, int padding) {		
 		if (curve.isPaused() || this.playersDead.contains(new Integer(index))) {
 			return false;
-		}
-		return (x < padding  || y < padding || x > this.backgroundLayer.getImg().getWidth() - padding  || y > this.backgroundLayer.getImg().getHeight() - padding); 
+		}		
+		
+		return (x < padding  || y < padding || x > this.backgroundLayer.getImg().getWidth() - padding  || y > this.backgroundLayer.getImg().getHeight() - padding);		
+	}
+	
+	private void manageNoBorder(Curve curve, int x, int y, int padding) {
+		if (x <= padding)
+			curve.setX(this.backgroundLayer.getImg().getWidth() - padding);
+		if (y <= padding)
+			curve.setX(this.backgroundLayer.getImg().getWidth() - padding);
 	}
 	
 	private boolean crashedToSomething(Curve curve, int index) {
@@ -553,13 +567,12 @@ public class PlayGround extends JPanel  {
 			double y = curve.getY();
 			int r = curve.getRadius();
 			double dist = point_distance(curve.getX(), curve.getY(), p.getX(), p.getY());
-			//System.out.println(dist + ": " + p.getX() + " " + p.getY());
 			if (dist <= PowerUp.POWERUP_RADIUS ) {
 				switch (p.getName()) {
 					case "more_extra.png":
-						PowerUpLoader.action_moreExtra(); break;
+						this.powerUpLoader.action_moreExtra(); break;
 					case "no_border.png":
-						PowerUpLoader.action_noBorder(); break;
+						PowerUpLoader.action_noBorder(this); break;
 					case "erase.png":
 						PowerUpLoader.action_erase(this); break;
 					case "own_fly.png":
@@ -667,5 +680,9 @@ public class PlayGround extends JPanel  {
 
 	public List<PowerUp> getPowerUps() {
 		return powerUps;
+	}
+
+	public void setNoBorder(boolean noBorder) {
+		this.noBorder = noBorder;
 	}
 }
