@@ -1,13 +1,14 @@
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -71,6 +72,17 @@ public class Main {
 	 * Coloring stuff
 	 * 
 	 ************************************************************************/
+	
+	public static BufferedImage toBufferedImage(Image image) { 
+		if (image instanceof BufferedImage) return (BufferedImage) image;
+
+		image = new ImageIcon(image).getImage(); 
+		BufferedImage bimage = new BufferedImage(image.getWidth(null),image.getHeight(null), BufferedImage.TYPE_INT_ARGB); 
+		Graphics g = bimage.createGraphics(); 
+		g.drawImage(image,0,0,null); 
+		g.dispose(); 
+		return bimage; 
+	}
 	
 	public static String getCssColor(int pixel) {
 		return "rgb (" + Integer.toString(Main.getRed_fromInt(pixel)) + ", " + Integer.toString(Main.getGreen_fromInt(pixel)) + ", " + Integer.toString(Main.getBlue_fromInt(pixel)) + ")"; 

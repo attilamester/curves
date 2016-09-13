@@ -186,7 +186,6 @@ public class CurveWindow extends JFrame {
 		this.displayRefresher.restart();
 	}
 	
-	
 	public PlayGround getPlayGround() {
 		return playGround;
 	}

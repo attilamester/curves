@@ -13,6 +13,7 @@ public class GameController {
 	 * 
 	 ************************************************************************/
 	public static boolean finished;
+	public static int ROUND_COUNT = 10;
 	public static final int FRAME_SIZE_X = Main.SCREEN_WIDTH;
 	public static final int FRAME_SIZE_Y = Main.SCREEN_HEIGHT;
 	public static final int DEFAULT_THICK = 4;

@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -22,11 +21,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -37,8 +36,9 @@ public class PlayGround extends JPanel  {
 	private Random rnd = new Random();
 	
 	private CurveWindow curveWindow; // JUST for countDown needed
+	private PowerUpLoader powerUpLoader;
 	
-	private ImageLayer backgroundLayer;
+	private volatile ImageLayer backgroundLayer;
 	private ImageLayer curvesLayer;
 	private ImageLayer extrasLayer;
 	
@@ -48,9 +48,9 @@ public class PlayGround extends JPanel  {
 	private int defaultLayerColor;
 	private final int PADDING = GameController.FRAME_SIZE_X / 5;
 	
-	/*
+	/********************************
 	 * Explicite playground
-	 */
+	 ********************************/
 	private int players;
 	private List<String> names;
 	private Curve[] curves;
@@ -62,6 +62,8 @@ public class PlayGround extends JPanel  {
 	private int round;
 	
 	private boolean playgroundLoading;
+	
+	private List<PowerUp> powerUps;
 	
 	
 	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls, List<Color> colors) {
@@ -105,9 +107,9 @@ public class PlayGround extends JPanel  {
 		}
 		
 		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
-		this.playgroundLoading = true;
+		this.playgroundLoading = true;		
 	}
-		
+
 	/*
 	private void resizeImage() {
 		BufferedImage tmp = new BufferedImage(this.getWidth(),this.getHeight(),BufferedImage.TYPE_INT_ARGB);
@@ -116,25 +118,41 @@ public class PlayGround extends JPanel  {
 		gr = img.getGraphics();
 	}*/
 	
-	/***********************************************************
+	/************************************************************************************************************************
 	 * 
 	 * PAINT PAINT PAINT PAINT PAINT PAINT PAINT PAINT
 	 * 
-	 ***********************************************************/
+	 ************************************************************************************************************************/
 	
 	@Override
 	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
+		super.paintComponent(g);		
 		if (this.compressedLayer == null || this.playgroundLoading) {
-			this.compressedLayer = new ImageLayer(this.getWidth(), this.getHeight(), GameController.PLAYGROUND_BACKGROUND);
-			this.backgroundLayer = new ImageLayer(this.getWidth(), this.getHeight(), GameController.PLAYGROUND_BACKGROUND);
-			this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
-			this.extrasLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
-			this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
 			
-			this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();  
-					
+			if (this.compressedLayer == null) {
+				this.compressedLayer = new ImageLayer(this.getWidth(), this.getHeight(), GameController.PLAYGROUND_BACKGROUND);
+				this.backgroundLayer = new ImageLayer(this.getWidth(), this.getHeight(), GameController.PLAYGROUND_BACKGROUND);
+				this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
+				//this.extrasLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
+				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
+				
+				this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();
+				
+				this.powerUps = new ArrayList<>();
+				this.powerUpLoader = new PowerUpLoader(this.backgroundLayer, this.powerUps);
+			} else {
+				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+				this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(), this.backgroundLayer.getImg().getHeight());
+				this.compressedLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+				this.compressedLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(), this.backgroundLayer.getImg().getHeight());
+				
+				this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
+				//this.curvesLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+				//this.curvesLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(), this.backgroundLayer.getImg().getHeight());
+			}
+			
 			this.initPaint(g);
+			
 		} else {
 			
 			g.drawImage(this.backgroundLayer.getImg(), 0, 0, null);
@@ -146,7 +164,7 @@ public class PlayGround extends JPanel  {
 				int r = curves[i].getRadius();
 				int padding = r + GameController.PLAYGROUND_BORDER_WIDTH;
 				
-				if (outOfBorderBounds(x, y, padding)) {
+				if (outOfBorderBounds(curves[i], i, x, y, padding)) {
 					g.drawImage(curvesLayer.getImg(), 0, 0, null);					
 					managePlayerDeath(i);
 					return;
@@ -196,6 +214,7 @@ public class PlayGround extends JPanel  {
 				}
 				//g.drawImage(curves[i].getCurveLayer().getImg(), 0, 0, null);
 				//compressedLayer.getGr().drawImage(curves[i].getCurveLayer().getImg(), 0, 0, null);
+				checkForPowerUp(curves[i]);
 			}
 			
 			
@@ -203,7 +222,6 @@ public class PlayGround extends JPanel  {
 			this.compressedLayer.getGr().drawImage(curvesLayer.getImg(), 0, 0, null);
 			//compressedLayer.getGr().drawImage(this.curvesLayer.getImg(), 0, 0, null);
 			//compressedLayer.getGr().drawImage(this.extrasLayer.getImg(), 0, 0, null);
-			
 			
 		}
 	}
@@ -238,7 +256,7 @@ public class PlayGround extends JPanel  {
 				}
 			};
 			ImageProducer ip = new FilteredImageSource(direction.getSource(),filter);
-			finalImg = toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
+			finalImg = Main.toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
 			
 			/**************************************
 			 * Draw Name Initials
@@ -263,7 +281,7 @@ public class PlayGround extends JPanel  {
             
             gr2D_initial.dispose();
 		    
-			/** 
+			/**
 			 *  ___________>   oX  v0
 			 *  \alpha
 			 *   \
@@ -301,12 +319,18 @@ public class PlayGround extends JPanel  {
 		this.playgroundLoading = false;
 	}
 	
+	/***************************************************************************************************************************
+	 * 
+	 * DEATH + next ROUND
+	 * 
+	 **************************************************************************************************************************/
 	private void managePlayerDeath(int player) {
 		
-		System.out.println("DEATH DEATH DEATH DEATHDEATH DEATH");
+		//System.out.println("DEATH DEATH DEATH DEATHDEATH DEATH");
 		//System.out.println(System.nanoTime());
 		
 		if (this.playersDead.contains(new Integer(player))) {
+			//System.out.println("ezert");
 			return;
 		}
 				
@@ -319,31 +343,44 @@ public class PlayGround extends JPanel  {
 		}
 		
 		if (this.playersStillAlive.size() <= 1) {
+			int alive = (this.playersStillAlive.size() == 1) ? (int)this.playersStillAlive.get(0) : 0;
 			System.out.println("VEGEEEEE");
 			this.curveWindow.getDisplayRefresher().stopRefresher();
 			GameController.finished = true;
-			this.curveControllers[(int)this.playersStillAlive.get(0)].stop();
+			this.curveControllers[alive].stop();
 			
-			String winner = this.names.get((int)(this.playersStillAlive.get(0)));
+			String winner = this.names.get(alive);
 			if (winner.isEmpty())
 				winner = "#noName";
 			
-			CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner, this.colors.get((int)(this.playersStillAlive.get(0))));
-			this.playersStillAlive.clear();
-			
-			Timer timer = new Timer(2000, new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					PlayGround.this.startNewRound();
-					PlayGround.this.repaint();
-				}
-			});
-			timer.setRepeats(false);
-			timer.start();
+			if (this.round == GameController.ROUND_COUNT) {
+				/**
+				 * end game statistics window
+				 */
+			} else {
+				CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner, this.colors.get(alive));
+				this.playersStillAlive.clear();
+				
+				Timer timer = new Timer(2000, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						PlayGround.this.startNewRound();
+						PlayGround.this.repaint();
+					}
+				});
+				timer.setRepeats(false);
+				timer.start();
+			}
 		}
 	}
 	
 	private void startNewRound() {
+		
+		//PowerUpLoader.action_erase(this.backgroundLayer);
+		//PowerUpLoader.action_erase(this.compressedLayer);
+		//this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+		//this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(), this.backgroundLayer.getImg().getHeight());
+		
 		this.playgroundLoading = true;
 		
 		Direction dir = new Direction();
@@ -373,14 +410,18 @@ public class PlayGround extends JPanel  {
 	 * 
 	 ****************************************************************************************************************************************************************/
 	
-	private boolean outOfBorderBounds(int x, int y, int padding) {
+	private boolean outOfBorderBounds(Curve curve, int index, int x, int y, int padding) {		
+		if (curve.isPaused() || this.playersDead.contains(new Integer(index))) {
+			return false;
+		}
 		return (x < padding  || y < padding || x > this.backgroundLayer.getImg().getWidth() - padding  || y > this.backgroundLayer.getImg().getHeight() - padding); 
 	}
 	
 	private boolean crashedToSomething(Curve curve, int index) {
-	
-		if (curve.isPaused())
+		
+		if (curve.isPaused() || this.playersDead.contains(new Integer(index))) {
 			return false;
+		}
 		
 		int r = curve.getRadius();
 		double i = curve.getDirection().getI();
@@ -467,7 +508,7 @@ public class PlayGround extends JPanel  {
 		for (int i = 0; i < players; ++i) {
 			if (i == index)
 				continue;
-			if (curves[i].getColor().getRGB() == paintedColor) {
+			if (paintedColor == curves[i].getColor().getRGB()) {
 				// death because of i. player. Congrats i. EVIL :))
 				System.out.println("naaa");
 				this.curveWindow.getPlayerStatusPanes().get((int)i).increaseScore();				
@@ -505,6 +546,44 @@ public class PlayGround extends JPanel  {
 		return true;
 	}
 	
+	private void checkForPowerUp(Curve curve){
+		for (ListIterator<PowerUp> iter = this.powerUps.listIterator(); iter.hasNext(); ) {			
+			PowerUp p = iter.next();
+			double x = curve.getX();
+			double y = curve.getY();
+			int r = curve.getRadius();
+			double dist = point_distance(curve.getX(), curve.getY(), p.getX(), p.getY());
+			//System.out.println(dist + ": " + p.getX() + " " + p.getY());
+			if (dist <= PowerUp.POWERUP_RADIUS ) {
+				switch (p.getName()) {
+					case "more_extra.png":
+						PowerUpLoader.action_moreExtra(); break;
+					case "no_border.png":
+						PowerUpLoader.action_noBorder(); break;
+					case "erase.png":
+						PowerUpLoader.action_erase(this); break;
+					case "own_fly.png":
+						PowerUpLoader.action_ownFly(curve); break;
+					case "own_slow.png":
+						PowerUpLoader.action_ownSlow(curve); break;												
+					case "own_speed.png":
+						PowerUpLoader.action_ownSpeed(curve); break;						
+					case "other_slow.png":
+						PowerUpLoader.action_otherSlow(); break;						
+					case "other_speed.png":
+						PowerUpLoader.action_otherSpeed(); break;						
+					case "other_swap_control.png":
+						PowerUpLoader.action_otherSwapControl(); break;						
+					case "other_thick":
+						PowerUpLoader.action_otherThick(); break;												
+				}							
+				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
+				this.backgroundLayer.getGr().fillOval(p.getX() - PowerUp.POWERUP_RADIUS, p.getY() - PowerUp.POWERUP_RADIUS, 2 * PowerUp.POWERUP_RADIUS, 2 * PowerUp.POWERUP_RADIUS);
+				iter.remove();
+			}
+		}
+	}
+	
 	private double point_distance(double x1, double y1, double x2, double y2) {
 		return Math.hypot(x1 - x2, y1 - y2);
 	}
@@ -513,22 +592,6 @@ public class PlayGround extends JPanel  {
 		return pixels[j * imageWidth + i];
 	}
 	
-	
-	private static BufferedImage toBufferedImage(Image image) { 
-		if (image instanceof BufferedImage) return (BufferedImage) image;
-
-		image = new ImageIcon(image).getImage(); 
-		BufferedImage bimage = new BufferedImage(image.getWidth(null),image.getHeight(null), BufferedImage.TYPE_INT_ARGB); 
-		Graphics g = bimage.createGraphics(); 
-		g.drawImage(image,0,0,null); 
-		g.dispose(); 
-		return bimage; 
-	}
-	
-	/*
-	public Graphics getGr() {
-		return this.playgroundImg.getGr();
-	}*/
 	public void startGame() {
 		for(int i = 0; i < players; ++i) {
 			curveControllers[i].start();
@@ -584,5 +647,25 @@ public class PlayGround extends JPanel  {
 			y += GameController.COUNT_DOWN_HEIGHT;
 		}
 		return y;
+	}
+	
+	public PowerUpLoader getPowerUpLoader() {
+		return this.powerUpLoader;
+	}
+
+	public ImageLayer getBackgroundLayer() {
+		return backgroundLayer;
+	}
+
+	public ImageLayer getCurvesLayer() {
+		return curvesLayer;
+	}
+
+	public ImageLayer getCompressedLayer() {
+		return compressedLayer;
+	}
+
+	public List<PowerUp> getPowerUps() {
+		return powerUps;
 	}
 }

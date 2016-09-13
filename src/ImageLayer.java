@@ -1,8 +1,10 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.Image;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 
 public class ImageLayer {
 
@@ -35,7 +37,16 @@ public class ImageLayer {
 		this.gr = gr;
 	}
 	
-	/*
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * newm kellll
+	 */
+	
 	public Graphics2D getGr2D() {
 		return (Graphics2D) gr;
 	}
@@ -49,9 +60,13 @@ public class ImageLayer {
 		gr.fillOval(x,  y,  w,  h);
 	}
 	
-	public void gr2DDrawImage(Image img, AffineTransform xform, ImageObserver obs){
-		((Graphics2D)this.gr).drawImage(img, xform, obs);
+	public void grFillRect(int x, int y, int w, int h) {
+		gr.fillRect(x,  y,  w,  h);
 	}
-*/
+	
+	public void gr2DDrawImage(Image img, AffineTransform xform, ImageObserver obs){
+		((Graphics2D)gr).drawImage(img, xform, obs);
+	}
+
 	
 }

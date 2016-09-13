@@ -24,7 +24,7 @@ public class Curve {
 
 	private ImageLayer curveLayer;
 	//private ImageLayer dashLayer;
-	private long lastCollidedAt;	
+	private long lastCollidedAt;
 	private int collisionCount;
 	
 	public Curve (double x, double y, int radius, double turnAngle, Color color, Direction direction) {
@@ -142,10 +142,6 @@ public class Curve {
 	public void setPausedY(double pausedY) {
 		this.pausedY = pausedY;
 	}
-
-	public double calcSpeed() {
-		return Math.hypot(direction.getI(), direction.getJ());
-	}
 	
 	public double getM() {
 		return direction.getJ() / direction.getI();
@@ -169,6 +165,10 @@ public class Curve {
 
 	public void setCollisionCount(int collisionCount) {
 		this.collisionCount = collisionCount;
+	}
+	
+	public double calcSpeed() {
+		return Math.hypot(direction.getI(), direction.getJ());
 	}
 	
 	// nem akar menni a jo egnek se :(  :/ :D :))
@@ -228,4 +228,22 @@ public class Curve {
 			j * Math.cos(Math.toRadians(turnAngle))
 		));
 	}
+	
+	/**********************************************************
+	 * 
+	 * ACTIONS
+	 * 
+	 ********************************************************/
+	public void slowDown() {
+		System.out.println(direction.toString());
+		direction.setI(direction.getI() * 0.5);
+		direction.setJ(direction.getJ() * 0.5);
+		System.out.println(direction.toString());
+	}
+	
+	public void speedUp() {
+		direction.setI(direction.getI() * 2);
+		direction.setJ(direction.getJ() * 2);
+	}
+	
 }

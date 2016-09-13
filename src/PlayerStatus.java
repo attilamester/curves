@@ -28,10 +28,10 @@ public class PlayerStatus extends JPanel{
 		nameLabel.setOpaque(true);
 		nameLabel.setForeground(Color.WHITE);
 		nameLabel.setBackground(c);
-		nameLabel.setFont(new Font("Calibri", Font.BOLD, 15));
+		nameLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
 		scoreLabel = new JLabel("0 pt");
-		scoreLabel.setFont(new Font("Calibri", Font.PLAIN, 15));
+		scoreLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		scoreLabel.setMinimumSize(new Dimension(30, 30));
 		scoreLabel.setVerticalAlignment(JLabel.CENTER);
 		scoreLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
