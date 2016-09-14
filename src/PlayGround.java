@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -27,6 +28,8 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 public class PlayGround extends JPanel {
@@ -105,7 +108,7 @@ public class PlayGround extends JPanel {
 		}
 
 		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
-		this.playgroundLoading = true;
+		this.playgroundLoading = true;		
 	}
 
 	/*
@@ -223,7 +226,7 @@ public class PlayGround extends JPanel {
 				// g.drawImage(curves[i].getCurveLayer().getImg(), 0, 0, null);
 				// compressedLayer.getGr().drawImage(curves[i].getCurveLayer().getImg(),
 				// 0, 0, null);
-				checkForPowerUp(curves[i]);
+				checkForPowerUp(curves[i], i);
 			}
 
 			g.drawImage(curvesLayer.getImg(), 0, 0, null);
@@ -452,13 +455,6 @@ public class PlayGround extends JPanel {
 		// this.backgroundLayer.getImg().getHeight() - padding);
 	}
 
-	private void manageNoBorder(Curve curve, int x, int y, int padding) {
-		if (x <= padding)
-
-			if (y <= padding)
-				curve.setX(this.backgroundLayer.getImg().getWidth() - padding);
-	}
-
 	private boolean crashedToSomething(Curve curve, int index) {
 
 		if (curve.isPaused() || this.playersDead.contains(new Integer(index))) {
@@ -554,9 +550,9 @@ public class PlayGround extends JPanel {
 
 			curve.setLastCollidedAt(now);
 
-			if (elapse < 30000000) { // again collision within 30 milliseconds,
+			if (elapse < 50000000) { // again collision within 30 milliseconds,
 										// weird
-				if (collision == 3) // too many, means that no pixel-bug
+				if (collision == 5) // too many, means that no pixel-bug
 					return false;
 				curve.setCollisionCount(++collision);
 
@@ -580,7 +576,7 @@ public class PlayGround extends JPanel {
 		return true;
 	}
 
-	private void checkForPowerUp(Curve curve) {
+	private void checkForPowerUp(Curve curve, int index) {
 		for (ListIterator<PowerUp> iter = this.powerUps.listIterator(); iter.hasNext();) {
 			PowerUp p = iter.next();
 			double x = curve.getX();
@@ -597,9 +593,9 @@ public class PlayGround extends JPanel {
 					break;
 				case "erase.png":
 					PowerUpLoader.action_erase(this);
-					break;
+					return;					
 				case "own_fly.png":
-					PowerUpLoader.action_ownFly(curve);
+					PowerUpLoader.action_ownFly(this, curve, index);
 					break;
 				case "own_slow.png":
 					PowerUpLoader.action_ownSlow(curve);
@@ -621,8 +617,10 @@ public class PlayGround extends JPanel {
 					break;
 				}
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
-				this.backgroundLayer.getGr().fillOval(p.getX() - PowerUp.POWERUP_RADIUS - 1,
-						p.getY() - PowerUp.POWERUP_RADIUS - 1, 2 * PowerUp.POWERUP_RADIUS + 1,
+				this.backgroundLayer.getGr().fillOval(
+						p.getX() - PowerUp.POWERUP_RADIUS - 1,
+						p.getY() - PowerUp.POWERUP_RADIUS - 1, 
+						2 * PowerUp.POWERUP_RADIUS + 1,
 						2 * PowerUp.POWERUP_RADIUS + 1);
 				try {
 					iter.remove();
@@ -719,5 +717,9 @@ public class PlayGround extends JPanel {
 
 	public void setNoBorder(boolean noBorder) {
 		this.noBorder = noBorder;
+	}
+
+	public CurveWindow getCurveWindow() {
+		return curveWindow;
 	}
 }

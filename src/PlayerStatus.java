@@ -7,7 +7,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class PlayerStatus extends JPanel{
+public class PlayerStatus extends JPanel {
 	
 	private JLabel nameLabel;
 	private JLabel scoreLabel;

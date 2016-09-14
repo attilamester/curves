@@ -71,6 +71,8 @@ public class CurveController implements Runnable {
 		dashStarter = new Timer(rnd.nextInt(10000) + 1000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (curve.isPaused())
+					return;
 				curve.setPaused(true);
 				curve.setPausedX(curve.getX());
 				curve.setPausedY(curve.getY());

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -42,7 +43,7 @@ public class PowerUpLoader {
 		
 		this.rnd = new Random();
 		this.frequency = 1000;
-		this.minDelay = 3000;
+		this.minDelay = 1000;
 		this.delay = rnd.nextInt(this.frequency) + this.minDelay;
 		this.timer = new Timer(delay, new ActionListener() {
 			@Override
@@ -83,7 +84,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE / 2) + PowerUp.POWERUP_SIZE / 2;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE / 2)+ PowerUp.POWERUP_SIZE / 2;
 		
-		return new PowerUp(POWERUP_NAMES[rnd.nextInt(POWERUP_COUNT - 1)], x, y);
+		return new PowerUp(POWERUP_NAMES[3/*rnd.nextInt(POWERUP_COUNT - 1)*/], x, y);
 	}
 	
 	/*************************************************************************************************************
@@ -140,16 +141,15 @@ public class PowerUpLoader {
 		pl.getPowerUps().clear();				
 	}
 	
-	public static void action_ownFly(Curve curve) {
-		curve.setPaused(true);
-		Timer timer = new Timer(5000, new ActionListener() {
+	public static void action_ownFly(PlayGround pl, Curve curve, int index) {
+		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public Void call() throws Exception {
 				curve.setPaused(false);
+				return null;
 			}
 		});
-		timer.setRepeats(false);
-		timer.start();
+		curve.setPaused(true);
 	}
 	
 	public static void action_ownSlow(Curve curve) {
