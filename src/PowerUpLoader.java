@@ -41,7 +41,7 @@ public class PowerUpLoader {
 		this.backgroundLayer = backgroundLayer;
 		
 		this.rnd = new Random();
-		this.frequency = 10000;
+		this.frequency = 1000;
 		this.minDelay = 3000;
 		this.delay = rnd.nextInt(this.frequency) + this.minDelay;
 		this.timer = new Timer(delay, new ActionListener() {
@@ -109,7 +109,7 @@ public class PowerUpLoader {
 	}
 	
 	public static void action_noBorder(PlayGround pl) {
-		pl.setBorder(BorderFactory.createLineBorder(Color.GRAY, GameController.PLAYGROUND_BORDER_WIDTH));
+		pl.setBorder(BorderFactory.createLineBorder(new Color(75,75,75), GameController.PLAYGROUND_BORDER_WIDTH));
 		pl.setNoBorder(true);
 		Timer timer = new Timer(5000, new ActionListener() {
 			@Override
