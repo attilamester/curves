@@ -45,9 +45,10 @@ public class PowerUpTask {
 	private void createPersonalLoadingBar() {
 		progressBar = new JProgressBar();		
 		progressBar.setOrientation(SwingConstants.VERTICAL);
-		progressBar.setPreferredSize(new Dimension(8,GameController.PLAYER_STATUS_PANE_HEIGHT));
+		progressBar.setPreferredSize(new Dimension(10, GameController.PLAYER_STATUS_PANE_HEIGHT));
 		progressBar.setBackground(Color.WHITE);
 		progressBar.setForeground(Color.RED);
+		progressBar.setBorder(BorderFactory.createEmptyBorder());
 		progressBar.setBorderPainted(false);
 		progressBar.setMaximum(100);
 		progressBar.setValue(0);
@@ -61,7 +62,10 @@ public class PowerUpTask {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (progressBar.getValue() == 100) {
-					progressBarEffect.stop();				
+					progressBarEffect.stop();	
+					panel.remove(progressBar);
+					panel.revalidate();
+					panel.repaint();
 					return;
 				}
 				progressBar.setValue(progressBar.getValue() + 1);
@@ -99,7 +103,8 @@ public class PowerUpTask {
 					progressBarEffect.stop();
 					panel.remove(progressBar);
 					panel.setBackground(Colors.TRANSPARENT);
-					panel.revalidate();					
+					panel.revalidate();
+					panel.repaint();
 					return;
 				}
 				progressBar.setValue(++i);
@@ -116,13 +121,13 @@ public class PowerUpTask {
 	
 	public void finish() {
 		try {
-			this.callback.call();
-			if(panel.getComponentCount() != 0) {
-				panel.remove(progressBar);
-				panel.revalidate();
-			}
-			//panel.repaint();
+			this.callback.call();			
 		} catch (Exception e1) {}
+		if(panel.getComponentCount() != 0) {
+			panel.remove(progressBar);
+			panel.revalidate();
+		}
+		panel.repaint();
 		
 	}
 	
