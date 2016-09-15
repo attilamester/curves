@@ -27,6 +27,8 @@ public class Curve {
 	private long lastCollidedAt;
 	private int collisionCount;
 	
+	private int flyCount;
+	
 	public Curve (double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		this.direction = new Direction(0, 0);
 		this.curveLayer = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
@@ -48,6 +50,7 @@ public class Curve {
 		
 		this.lastCollidedAt = 0;
 		this.collisionCount = 0;
+		this.flyCount = 0;
 	}
 	
 	public double getX() {
@@ -167,6 +170,14 @@ public class Curve {
 		this.collisionCount = collisionCount;
 	}
 	
+	public int getFlyCount() {
+		return flyCount;
+	}
+
+	public void setFlyCount(int flyCount) {
+		this.flyCount = flyCount;
+	}
+
 	public double calcSpeed() {
 		return Math.hypot(direction.getI(), direction.getJ());
 	}
@@ -235,15 +246,22 @@ public class Curve {
 	 * 
 	 ********************************************************/
 	public void slowDown() {
-		System.out.println(direction.toString());
 		direction.setI(direction.getI() * 0.5);
 		direction.setJ(direction.getJ() * 0.5);
-		System.out.println(direction.toString());
 	}
 	
 	public void speedUp() {
 		direction.setI(direction.getI() * 2);
 		direction.setJ(direction.getJ() * 2);
 	}
+	
+	public void thickUp() {
+		this.radius *= 2;
+	}
+	
+	public void thickDown() {
+		this.radius *= 0.5;
+	}
+	
 	
 }

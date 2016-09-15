@@ -33,7 +33,7 @@ public class PowerUpLoader {
 		"other_slow.png",
 		"other_speed.png",
 		"other_swap_control.png",
-		"other_thick"
+		"other_thick.png"
 	};
 	private static final int POWERUP_COUNT = 10;
 	private static final int MAX_POWERUPS = 15;	
@@ -69,7 +69,7 @@ public class PowerUpLoader {
 		this.timer.start();
 	}
 	
-	private void drawPowerUpIcon(PowerUp powerup) {		
+	public void drawPowerUpIcon(PowerUp powerup) {		
 		BufferedImage icon =  null;
 		int iconHeight = 0;
 		try {
@@ -84,7 +84,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE / 2) + PowerUp.POWERUP_SIZE / 2;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE / 2)+ PowerUp.POWERUP_SIZE / 2;
 		
-		return new PowerUp(POWERUP_NAMES[3/*rnd.nextInt(POWERUP_COUNT - 1)*/], x, y);
+		return new PowerUp(POWERUP_NAMES[9/*rnd.nextInt(POWERUP_COUNT )*/], x, y);
 	}
 	
 	/*************************************************************************************************************
@@ -142,54 +142,78 @@ public class PowerUpLoader {
 	}
 	
 	public static void action_ownFly(PlayGround pl, Curve curve, int index) {
+		curve.setPaused(true);
+		curve.setFlyCount(curve.getFlyCount() + 1);
 		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				curve.setPaused(false);
+				if (curve.getFlyCount() == 1)
+					curve.setPaused(false);
+				curve.setFlyCount(curve.getFlyCount() - 1);
 				return null;
 			}
 		});
-		curve.setPaused(true);
 	}
 	
-	public static void action_ownSlow(Curve curve) {
+	public static void action_ownSlow(PlayGround pl, Curve curve, int index) {
 		curve.slowDown();		
-		Timer timer = new Timer(5000, new ActionListener() {
+		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public Void call() throws Exception {
 				curve.speedUp();
+				return null;
 			}
 		});
-		timer.setRepeats(false);
-		timer.start();
 	}
 
-	public static void action_ownSpeed(Curve curve) {
+	public static void action_ownSpeed(PlayGround pl, Curve curve, int index) {
 		curve.speedUp();		
-		Timer timer = new Timer(5000, new ActionListener() {
+		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public Void call() throws Exception {
 				curve.slowDown();
+				return null;
 			}
 		});
-		timer.setRepeats(false);
-		timer.start();
 	}
 	
-	public static void action_otherSlow() {
+	public static void action_otherSlow(PlayGround pl, int index) {
+		for (int i = 0; i < pl.getPlayers(); ++i) {
+			if (i == index)
+				continue;
+			PowerUpLoader.action_ownSlow(pl, pl.getCurves()[i], i);
+		}
+	}
+	
+	public static void action_otherSpeed(PlayGround pl, int index) {
+		for (int i = 0; i < pl.getPlayers(); ++i) {
+			if (i == index)
+				continue;
+			PowerUpLoader.action_ownSpeed(pl, pl.getCurves()[i], i);
+		}	
+	}
+	
+	public static void action_otherSwapControl(PlayGround pl, int index) {
 		
 	}
 	
-	public static void action_otherSpeed() {
-		
+	public static void action_otherThick(PlayGround pl, int index) {
+		for (int i = 0; i < pl.getPlayers(); ++i) {
+			if (i == index)
+				continue;
+			PowerUpLoader.action_ownThick(pl, pl.getCurves()[i], i);
+		}
 	}
 	
-	public static void action_otherSwapControl() {
-		
-	}
-	
-	public static void action_otherThick() {
-		
+	public static void action_ownThick(PlayGround pl, Curve curve, int index) {
+		curve.thickUp();		
+		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				curve.thickDown();
+				return null;
+			}
+		});
 	}
 	
 }

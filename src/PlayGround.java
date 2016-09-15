@@ -410,6 +410,8 @@ public class PlayGround extends JPanel {
 					GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);
 
 		}
+		
+		this.powerUps.clear();
 
 	}
 
@@ -598,34 +600,42 @@ public class PlayGround extends JPanel {
 					PowerUpLoader.action_ownFly(this, curve, index);
 					break;
 				case "own_slow.png":
-					PowerUpLoader.action_ownSlow(curve);
+					PowerUpLoader.action_ownSlow(this, curve, index);
 					break;
 				case "own_speed.png":
-					PowerUpLoader.action_ownSpeed(curve);
+					PowerUpLoader.action_ownSpeed(this, curve, index);
 					break;
 				case "other_slow.png":
-					PowerUpLoader.action_otherSlow();
+					PowerUpLoader.action_otherSlow(this, index);
 					break;
 				case "other_speed.png":
-					PowerUpLoader.action_otherSpeed();
+					PowerUpLoader.action_otherSpeed(this, index);
 					break;
 				case "other_swap_control.png":
-					PowerUpLoader.action_otherSwapControl();
+					PowerUpLoader.action_otherSwapControl(this, index);
 					break;
 				case "other_thick":
-					PowerUpLoader.action_otherThick();
+					PowerUpLoader.action_otherThick(this, index);
 					break;
 				}
+				
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
-				this.backgroundLayer.getGr().fillOval(
+				this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(), this.backgroundLayer.getImg().getHeight());
+				
+				try {
+					iter.remove();
+				} catch (java.util.ConcurrentModificationException e) {}
+				
+				for (ListIterator<PowerUp> iter2 = this.powerUps.listIterator(); iter2.hasNext();) {
+					PowerUp p2 = iter2.next();
+					this.powerUpLoader.drawPowerUpIcon(p2);
+				}
+				/*this.backgroundLayer.getGr().fillOval(
 						p.getX() - PowerUp.POWERUP_RADIUS - 1,
 						p.getY() - PowerUp.POWERUP_RADIUS - 1, 
 						2 * PowerUp.POWERUP_RADIUS + 1,
-						2 * PowerUp.POWERUP_RADIUS + 1);
-				try {
-					iter.remove();
-				} catch (java.util.ConcurrentModificationException e) {
-				}
+						2 * PowerUp.POWERUP_RADIUS + 1);*/
+				
 			}
 		}
 	}
@@ -721,5 +731,13 @@ public class PlayGround extends JPanel {
 
 	public CurveWindow getCurveWindow() {
 		return curveWindow;
+	}
+
+	public int getPlayers() {
+		return players;
+	}
+
+	public Curve[] getCurves() {
+		return curves;
 	}
 }
