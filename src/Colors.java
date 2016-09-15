@@ -10,5 +10,7 @@ public class Colors {
 	};
 	
 	public static final Color BACK_PANE = new Color(132, 145, 255);
+	public static final Color TRANSPARENT = new Color(0f, 0f, 0f, 0f);
+	
 	
 }

@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 public class CountDownModal extends JDialog {
+	private static final long serialVersionUID = 1;
 	
 	private CurveWindow curveWindow;
 	private Container contentPane;

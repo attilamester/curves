@@ -22,8 +22,7 @@ public class DisplayRefresher extends Thread {
 					return;
 				}
 				
-				
-				playGround.repaint();				
+				DisplayRefresher.this.playGround.repaint();				
 				
 			}
 		});

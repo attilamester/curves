@@ -16,4 +16,10 @@ public class Control {
 	public int getRight() {
 		return this.right;
 	}
+	
+	public void swap() {
+		int tmp = left;
+		left = right;
+		right = tmp;
+	}
 }

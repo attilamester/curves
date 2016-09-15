@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -5,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
@@ -14,59 +14,116 @@ import javax.swing.Timer;
 public class PowerUpTask {
 	
 	private JPanel panel;
-	private Timer progressBar;
+	private JProgressBar progressBar;
+	private Timer progressBarEffect;
 	private Timer powerUpEffect;
 	private int time;
+	private Callable<?> callback;
 	
-	public PowerUpTask(int time, JPanel panel, Callable<?> func) {
+	public PowerUpTask(int time, boolean PERSONAL, JPanel panel, Callable<?> func) {
 		this.panel = panel;
 		this.time = time;
+		this.callback = func;
 		
-		startPanelLoading();
+		if (PERSONAL) {
+			createPersonalLoadingBar();
+		} else {
+			createCommonLoadingBar();
+		}
 		
 		this.powerUpEffect = new Timer(time, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					func.call();
-				} catch (Exception e1) {}
+				PowerUpTask.this.finish();				
 			}
 		});
 		powerUpEffect.setRepeats(false);
 		
-		powerUpEffect.start();		
-		progressBar.start();
 		
 	}
 	
-	private void startPanelLoading() {
-		JProgressBar bar = new JProgressBar();
-		bar.setOrientation(SwingConstants.VERTICAL);
-		bar.setPreferredSize(new Dimension(4,20));
-		bar.setBackground(Color.WHITE);
-		bar.setForeground(Color.RED);
-		bar.setBorderPainted(false);
-		bar.setBorder(BorderFactory.createEmptyBorder());
-		bar.setMaximum(100);
-		bar.setValue(0);
+	private void createPersonalLoadingBar() {
+		progressBar = new JProgressBar();		
+		progressBar.setOrientation(SwingConstants.VERTICAL);
+		progressBar.setPreferredSize(new Dimension(8,GameController.PLAYER_STATUS_PANE_HEIGHT));
+		progressBar.setBackground(Color.WHITE);
+		progressBar.setForeground(Color.RED);
+		progressBar.setBorderPainted(false);
+		progressBar.setMaximum(100);
+		progressBar.setValue(0);
 		
-		panel.add(bar);		
+		panel.add(progressBar);		
 		panel.revalidate();
 		
 		
-		progressBar = new Timer(time / 100, null);
-		progressBar.addActionListener(new ActionListener() {
+		progressBarEffect = new Timer(time / 100, null);
+		progressBarEffect.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (bar.getValue() == 100) {
-					progressBar.stop();
-					panel.remove(bar);
-					panel.revalidate();
-					panel.repaint();
+				if (progressBar.getValue() == 100) {
+					progressBarEffect.stop();				
 					return;
-				} 
-				bar.setValue(bar.getValue() + 1);
+				}
+				progressBar.setValue(progressBar.getValue() + 1);
 			}
 		});		
 	}
+	
+	private void createCommonLoadingBar() {
+		int STEPS = 100;
+		
+		if (panel.getComponentCount() == 1) {
+			progressBar = (JProgressBar) panel.getComponent(0);
+			progressBar.setValue(0);
+		} else {
+			progressBar = new JProgressBar();
+			progressBar.setBackground(Colors.TRANSPARENT);
+			progressBar.setForeground(Color.RED);		
+			progressBar.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, 5));
+			progressBar.setBorderPainted(false);
+			progressBar.setBorder(BorderFactory.createEmptyBorder());
+			progressBar.setBorderPainted(false);
+			progressBar.setMaximum(STEPS);
+			progressBar.setValue(0);
+			
+			panel.add(progressBar, BorderLayout.NORTH);		
+			panel.revalidate();
+		}
+		
+		progressBarEffect = new Timer(time / STEPS, null);
+		progressBarEffect.addActionListener(new ActionListener() {
+			int i = 0;
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				if (i == STEPS) {					
+					progressBarEffect.stop();
+					panel.remove(progressBar);
+					panel.setBackground(Colors.TRANSPARENT);
+					panel.revalidate();					
+					return;
+				}
+				progressBar.setValue(++i);
+			}
+		});
+	}
+	
+	
+	public PowerUpTask start() {
+		progressBarEffect.start();
+		powerUpEffect.start();		
+		return this;
+	}
+	
+	public void finish() {
+		try {
+			this.callback.call();
+			if(panel.getComponentCount() != 0) {
+				panel.remove(progressBar);
+				panel.revalidate();
+			}
+			//panel.repaint();
+		} catch (Exception e1) {}
+		
+	}
+	
 }

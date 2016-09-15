@@ -1,19 +1,24 @@
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 public class PlayerStatus extends JPanel {
+	private static final long serialVersionUID = 1;
 	
 	private JLabel nameLabel;
 	private JLabel scoreLabel;
 	private int score;
 	
 	public PlayerStatus(String name, Color c) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		setLayout(new GridBagLayout());
 		setBackground(c);
 		
 		if (name.length() == 0)
@@ -21,23 +26,20 @@ public class PlayerStatus extends JPanel {
 		score = 0;
 		
 		nameLabel = new JLabel(name);
-		//nameLabel.setMinimumSize(new Dimension(300, 30));
 		nameLabel.setHorizontalAlignment(JLabel.LEFT);
-		nameLabel.setVerticalAlignment(JLabel.CENTER);
-		nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-		nameLabel.setOpaque(true);
+		nameLabel.setVerticalAlignment(JLabel.CENTER);		
+		nameLabel.setBorder(BorderFactory.createEmptyBorder(4, 10, 0, 10));
 		nameLabel.setForeground(Color.WHITE);
-		nameLabel.setBackground(c);
 		nameLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
 		scoreLabel = new JLabel("0 pt");
-		scoreLabel.setFont(new Font("Calibri", Font.BOLD, 20));
-		scoreLabel.setMinimumSize(new Dimension(30, 30));
+		scoreLabel.setFont(new Font("Calibri", Font.BOLD, 20));		
 		scoreLabel.setVerticalAlignment(JLabel.CENTER);
-		scoreLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		scoreLabel.setBorder(BorderFactory.createEmptyBorder(4, 10, 0, 10));
 		scoreLabel.setForeground(Color.WHITE);
-		this.add(nameLabel);
-		this.add(scoreLabel);
+		
+		this.add(nameLabel, gbc);
+		this.add(scoreLabel, gbc);
 	}
 
 	public JLabel getNameLabel() {

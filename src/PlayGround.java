@@ -43,7 +43,6 @@ public class PlayGround extends JPanel {
 
 	private volatile ImageLayer backgroundLayer;
 	private ImageLayer curvesLayer;
-	private ImageLayer extrasLayer;
 
 	private ImageLayer compressedLayer;
 	private ImageLayer timeLayer;
@@ -67,6 +66,7 @@ public class PlayGround extends JPanel {
 	private boolean playgroundLoading;
 
 	private List<PowerUp> powerUps;
+	private List<PowerUpTask> powerUpTasks;
 
 	private boolean noBorder = false;
 
@@ -108,7 +108,7 @@ public class PlayGround extends JPanel {
 		}
 
 		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
-		this.playgroundLoading = true;		
+		this.playgroundLoading = true;
 	}
 
 	/*
@@ -142,6 +142,7 @@ public class PlayGround extends JPanel {
 				this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();
 
 				this.powerUps = new ArrayList<>();
+				this.powerUpTasks = new ArrayList<>();
 				this.powerUpLoader = new PowerUpLoader(this.backgroundLayer, this.powerUps);
 			} else {
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
@@ -161,7 +162,6 @@ public class PlayGround extends JPanel {
 			this.initPaint(g);
 
 		} else {
-
 			g.drawImage(this.backgroundLayer.getImg(), 0, 0, null);
 
 			for (int i = 0; i < players; ++i) {
@@ -410,9 +410,13 @@ public class PlayGround extends JPanel {
 					GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);
 
 		}
-		
-		this.powerUps.clear();
 
+		this.powerUps.clear();
+		for (ListIterator<PowerUpTask> iter = this.powerUpTasks.listIterator(); iter.hasNext();) {
+			PowerUpTask ref = iter.next();
+			ref.finish();
+		}
+		this.powerUpTasks.clear();
 	}
 
 	/***************************************************************************************************************************************************************
@@ -595,7 +599,7 @@ public class PlayGround extends JPanel {
 					break;
 				case "erase.png":
 					PowerUpLoader.action_erase(this);
-					return;					
+					return;
 				case "own_fly.png":
 					PowerUpLoader.action_ownFly(this, curve, index);
 					break;
@@ -618,24 +622,27 @@ public class PlayGround extends JPanel {
 					PowerUpLoader.action_otherThick(this, index);
 					break;
 				}
-				
+
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
-				this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(), this.backgroundLayer.getImg().getHeight());
-				
+				this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(),
+						this.backgroundLayer.getImg().getHeight());
+
 				try {
 					iter.remove();
-				} catch (java.util.ConcurrentModificationException e) {}
-				
+				} catch (java.util.ConcurrentModificationException e) {
+				}
+
 				for (ListIterator<PowerUp> iter2 = this.powerUps.listIterator(); iter2.hasNext();) {
 					PowerUp p2 = iter2.next();
 					this.powerUpLoader.drawPowerUpIcon(p2);
 				}
-				/*this.backgroundLayer.getGr().fillOval(
-						p.getX() - PowerUp.POWERUP_RADIUS - 1,
-						p.getY() - PowerUp.POWERUP_RADIUS - 1, 
-						2 * PowerUp.POWERUP_RADIUS + 1,
-						2 * PowerUp.POWERUP_RADIUS + 1);*/
-				
+				/*
+				 * this.backgroundLayer.getGr().fillOval( p.getX() -
+				 * PowerUp.POWERUP_RADIUS - 1, p.getY() - PowerUp.POWERUP_RADIUS
+				 * - 1, 2 * PowerUp.POWERUP_RADIUS + 1, 2 *
+				 * PowerUp.POWERUP_RADIUS + 1);
+				 */
+
 			}
 		}
 	}
@@ -739,5 +746,9 @@ public class PlayGround extends JPanel {
 
 	public Curve[] getCurves() {
 		return curves;
+	}
+
+	public List<PowerUpTask> getPowerUpTasks() {
+		return powerUpTasks;
 	}
 }

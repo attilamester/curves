@@ -13,6 +13,8 @@ import javax.swing.border.LineBorder;
 
 public class LandingWindow extends JFrame {
 	
+	private static final long serialVersionUID = 1;
+	
 	private Container contentPane;
 	private Container defaultContent;
 	
@@ -84,6 +86,7 @@ public class LandingWindow extends JFrame {
 	 * 
 	 *************************************************************/
 	private class LandingButton extends JLabel {
+		private static final long serialVersionUID = 1;		
 		
 		public LandingButton(String label, Color bg) {
 			super(label, JLabel.CENTER);

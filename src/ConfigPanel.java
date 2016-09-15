@@ -36,6 +36,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class ConfigPanel extends JPanel {
+	private static final long serialVersionUID = 1;
 	
 	private Random rnd;
 	
@@ -255,8 +256,10 @@ public class ConfigPanel extends JPanel {
 	}
 	
 	static class PlayerConfigRow extends JPanel {
+		private static final long serialVersionUID = 1;
 		
 		static class TextFieldPlaceholder extends JTextField implements FocusListener {
+			private static final long serialVersionUID = 1;
 			
 			private String placeHolder;
 			private Color placeHolderColor;
@@ -301,6 +304,7 @@ public class ConfigPanel extends JPanel {
 		}
 		
 		static class DetectControlButton extends JTextField implements FocusListener {
+			private static final long serialVersionUID = 1;
 
 			private String label;
 			private boolean listening;

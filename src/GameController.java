@@ -16,6 +16,9 @@ public class GameController {
 	public static int ROUND_COUNT = 10;
 	public static final int FRAME_SIZE_X = Main.SCREEN_WIDTH;
 	public static final int FRAME_SIZE_Y = Main.SCREEN_HEIGHT;
+	public static final int PLAYER_STATUS_PANE_HEIGHT = 30;
+	public static final int PROGRESS_BAR_HEIGHT = 5;
+	
 	public static final int DEFAULT_THICK = 4;
 	public static final Color DEFAULT_COLOR = Color.BLUE;
 	public static final Color PLAYGROUND_BACKGROUND = new Color(30, 30, 30);

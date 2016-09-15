@@ -70,11 +70,9 @@ public class PowerUpLoader {
 	}
 	
 	public void drawPowerUpIcon(PowerUp powerup) {		
-		BufferedImage icon =  null;
-		int iconHeight = 0;
+		BufferedImage icon =  null;		
 		try {
-			icon = ImageIO.read(new File("images\\powerups\\" + powerup.getName()));
-			iconHeight = icon.getHeight();			
+			icon = ImageIO.read(new File("images\\powerups\\" + powerup.getName()));						
 		} catch (IOException e) { return; }
 		
 		this.backgroundLayer.getGr().drawImage(icon, powerup.getX() - PowerUp.POWERUP_RADIUS, powerup.getY() - PowerUp.POWERUP_RADIUS, null);
@@ -84,7 +82,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE / 2) + PowerUp.POWERUP_SIZE / 2;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE / 2)+ PowerUp.POWERUP_SIZE / 2;
 		
-		return new PowerUp(POWERUP_NAMES[9/*rnd.nextInt(POWERUP_COUNT )*/], x, y);
+		return new PowerUp(POWERUP_NAMES[rnd.nextInt(POWERUP_COUNT)], x, y);
 	}
 	
 	/*************************************************************************************************************
@@ -97,8 +95,8 @@ public class PowerUpLoader {
 		int _minDelay = minDelay;
 		int _frequency = frequency;
 		this.minDelay = 0;
-		this.frequency = 2000;
-		Timer timer = new Timer(5000, new ActionListener() {
+		this.frequency = 500;
+		Timer timer = new Timer(2000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				minDelay = _minDelay;
@@ -112,15 +110,17 @@ public class PowerUpLoader {
 	public static void action_noBorder(PlayGround pl) {
 		pl.setBorder(BorderFactory.createLineBorder(new Color(75,75,75), GameController.PLAYGROUND_BORDER_WIDTH));
 		pl.setNoBorder(true);
-		Timer timer = new Timer(5000, new ActionListener() {
+		
+		PowerUpTask task = new PowerUpTask(5000, false, pl.getCurveWindow().getGeneralProgressPane(), new Callable<Void>() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public Void call() throws Exception {
 				pl.setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
 				pl.setNoBorder(false);
+				return null;
 			}
 		});
-		timer.setRepeats(false);
-		timer.start();
+		task.start();
+		pl.getPowerUpTasks().add(task);
 	}
 	
 	public static void action_erase(PlayGround pl) {
@@ -144,7 +144,8 @@ public class PowerUpLoader {
 	public static void action_ownFly(PlayGround pl, Curve curve, int index) {
 		curve.setPaused(true);
 		curve.setFlyCount(curve.getFlyCount() + 1);
-		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
+		
+		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				if (curve.getFlyCount() == 1)
@@ -153,28 +154,36 @@ public class PowerUpLoader {
 				return null;
 			}
 		});
+		task.start();
+		pl.getPowerUpTasks().add(task);
 	}
 	
 	public static void action_ownSlow(PlayGround pl, Curve curve, int index) {
 		curve.slowDown();		
-		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
+		
+		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				curve.speedUp();
 				return null;
 			}
 		});
+		task.start();
+		pl.getPowerUpTasks().add(task);
 	}
 
 	public static void action_ownSpeed(PlayGround pl, Curve curve, int index) {
 		curve.speedUp();		
-		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
+		
+		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				curve.slowDown();
 				return null;
 			}
 		});
+		task.start();
+		pl.getPowerUpTasks().add(task);
 	}
 	
 	public static void action_otherSlow(PlayGround pl, int index) {
@@ -194,8 +203,26 @@ public class PowerUpLoader {
 	}
 	
 	public static void action_otherSwapControl(PlayGround pl, int index) {
-		
+		for (int i = 0; i < pl.getPlayers(); ++i) {
+			if (i == index)
+				continue;
+			PowerUpLoader.action_ownSwapControl(pl, pl.getCurves()[i], i);
+		}
 	}
+	
+	public static void action_ownSwapControl(PlayGround pl, Curve curve, int index) {
+		pl.getCurveWindow().getCtrl().get(index).swap();
+		
+		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				pl.getCurveWindow().getCtrl().get(index).swap();
+				return null;
+			}
+		});
+		task.start();
+		pl.getPowerUpTasks().add(task);
+	}	
 	
 	public static void action_otherThick(PlayGround pl, int index) {
 		for (int i = 0; i < pl.getPlayers(); ++i) {
@@ -207,13 +234,16 @@ public class PowerUpLoader {
 	
 	public static void action_ownThick(PlayGround pl, Curve curve, int index) {
 		curve.thickUp();		
-		PowerUpTask task = new PowerUpTask(5000, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
+		
+		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index), new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				curve.thickDown();
 				return null;
 			}
 		});
+		task.start();
+		pl.getPowerUpTasks().add(task);
 	}
 	
 }
