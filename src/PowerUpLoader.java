@@ -6,13 +6,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.Timer;
 
 public class PowerUpLoader {
@@ -23,8 +23,8 @@ public class PowerUpLoader {
 	private int frequency; /// max milli sec. between powerups
 	private int minDelay;
 	private Random rnd;
-	private List<PowerUp> powerUps;
 	
+	private List<PowerUp> powerUps;
 	private List<PowerUpTask> powerUpTasks;
 	
 	private static final String[] POWERUP_NAMES = {
@@ -42,8 +42,10 @@ public class PowerUpLoader {
 	private static final int POWERUP_COUNT = 10;
 	private static final int MAX_POWERUPS = 15;	
 	
-	public PowerUpLoader(ImageLayer backgroundLayer, List<PowerUp> powerUps) {
+	public PowerUpLoader(ImageLayer backgroundLayer) {
 		this.backgroundLayer = backgroundLayer;
+		
+		this.powerUps = new ArrayList<PowerUp>();
 		
 		this.rnd = new Random();
 		this.frequency = 1000;
@@ -88,24 +90,40 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE) + PowerUp.POWERUP_SIZE / 2;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE)+ PowerUp.POWERUP_SIZE / 2;
 		
-		int index = 0;
+		int index = 1;
 		if (index == 0)
 			index = rnd.nextInt(POWERUP_COUNT);
 		return new PowerUp(POWERUP_NAMES[index], x, y);
 	}
-	
+		
+	public List<PowerUp> getPowerUps() {
+		return powerUps;
+	}
+
 	public List<PowerUpTask> getPowerUpTasks() {
 		return powerUpTasks;
 	}
 	
 	public void finishAllTasks() {
 		for (ListIterator<PowerUpTask> iter = this.powerUpTasks.listIterator(); iter.hasNext();) {
-			PowerUpTask ref = iter.next();
-			ref.finish();
+			try {
+				PowerUpTask ref = iter.next();			
+				ref.finish();
+			} catch (ConcurrentModificationException e) {}
 		}
 		this.powerUpTasks.clear();
 	}
+	
+	public void clearPowerUps() {
+		this.powerUps.clear();
+	}
 
+	public void reDrawPowerUps() {
+		for (ListIterator<PowerUp> iter = this.powerUps.listIterator(); iter.hasNext();) {
+			PowerUp p = iter.next();
+			this.drawPowerUpIcon(p);
+		}		
+	}
 	/*************************************************************************************************************
 	 * 
 	 * CUSTOM POWERUP ACTIONS
@@ -163,7 +181,7 @@ public class PowerUpLoader {
 		gr.clearRect(0, 0, w, h);
 		gr.dispose();
 		
-		pl.getPowerUps().clear();				
+		this.clearPowerUps();
 	}
 	
 	public void action_ownFly(PlayGround pl, Curve curve, int index) {

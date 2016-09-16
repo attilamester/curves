@@ -1,4 +1,3 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -21,10 +20,16 @@ public class PowerUpTask {
 	private boolean PERSONAL;
 	private Callable<?> callback;
 	
+	private static final int FINISHED = 1;
+	private static final int PROGRESS = 0;
+	
+	private int state;
+	
 	public PowerUpTask(int time, boolean PERSONAL, JPanel panel) {
 		this.panel = panel;
 		this.time = time;
 		this.PERSONAL = PERSONAL;
+		this.state = PowerUpTask.PROGRESS;
 		
 		if (PERSONAL) {
 			createPersonalLoadingBar();
@@ -34,8 +39,8 @@ public class PowerUpTask {
 		
 		this.powerUpEffect = new Timer(time, new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				PowerUpTask.this.finish();				
+			public void actionPerformed(ActionEvent e) {				
+				PowerUpTask.this.finish();
 			}
 		});
 		powerUpEffect.setRepeats(false);		
@@ -57,7 +62,7 @@ public class PowerUpTask {
 		progressBar.setMaximum(100);
 		progressBar.setValue(0);
 		
-		panel.add(progressBar);		
+		panel.add(progressBar);
 		panel.revalidate();
 		
 		
@@ -66,10 +71,7 @@ public class PowerUpTask {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (progressBar.getValue() == 100) {
-					progressBarEffect.stop();	
-					panel.remove(progressBar);
-					panel.revalidate();
-					panel.repaint();
+					progressBarEffect.stop();
 					return;
 				}
 				progressBar.setValue(progressBar.getValue() + 1);
@@ -88,10 +90,11 @@ public class PowerUpTask {
 			@Override
 			public void actionPerformed(ActionEvent e) {				
 				if (i == GameController.PROGRESS_BAR_STEPS) {					
-					progressBarEffect.stop();										
-					progressBar.setValue(0);					
+					progressBarEffect.stop();
+					progressBar.setValue(0);
 					progressBar.revalidate();
 					progressBar.repaint();
+					finish();
 					return;
 				}
 				if (progressBar.getValue() < i) {
@@ -110,16 +113,36 @@ public class PowerUpTask {
 	}
 	
 	public void finish() {
+		if (this.state == PowerUpTask.FINISHED)
+			return;		
+		this.state = PowerUpTask.FINISHED;
+		
+		removeProgressBar();
+		
 		try {
 			this.callback.call();			
-		} catch (Exception e1) {}
-		if(panel.getComponentCount() != 0 && this.PERSONAL) {
-			panel.remove(progressBar);
+		} catch (Exception e1) {}			
+	}
+	
+	private void removeProgressBar() {
+		if (this.PERSONAL) {
+			if(panel.getComponentCount() != 0) {
+				panel.remove(progressBar);
+				panel.revalidate();
+				panel.repaint();
+			}
+		} else {			
+			progressBar.setValue(0);			
+			progressBar.revalidate();
+			progressBar.repaint();
 			panel.revalidate();
 			panel.repaint();
 		}
-		if (!this.PERSONAL) {			
-		}
+	}
+
+
+	public int getState() {
+		return state;
 	}
 	
 }

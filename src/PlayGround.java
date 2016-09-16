@@ -65,8 +65,6 @@ public class PlayGround extends JPanel {
 
 	private boolean playgroundLoading;
 
-	private List<PowerUp> powerUps;
-
 	private int noBorder = 0;
 	
 	private final int playerBits = 4;
@@ -141,9 +139,8 @@ public class PlayGround extends JPanel {
 				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
 
 				this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();
-
-				this.powerUps = new ArrayList<>();
-				this.powerUpLoader = new PowerUpLoader(this.backgroundLayer, this.powerUps);
+				
+				this.powerUpLoader = new PowerUpLoader(this.backgroundLayer);
 			} else {
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
 				this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(),
@@ -383,6 +380,9 @@ public class PlayGround extends JPanel {
 				 * end game statistics window
 				 */
 			} else {
+				this.powerUpLoader.clearPowerUps();				
+				this.powerUpLoader.finishAllTasks();				
+				
 				CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner, this.colors.get(alive));
 				this.playersStillAlive.clear();
 
@@ -426,9 +426,6 @@ public class PlayGround extends JPanel {
 					GameController.DEFAULT_CURVE_ANGLE, colors.get(i), dir);
 
 		}
-
-		this.powerUps.clear();
-		this.powerUpLoader.finishAllTasks();
 	}
 
 	/***************************************************************************************************************************************************************
@@ -606,7 +603,7 @@ public class PlayGround extends JPanel {
 	}
 
 	private void checkForPowerUp(Curve curve, int index) {
-		for (ListIterator<PowerUp> iter = this.powerUps.listIterator(); iter.hasNext();) {
+		for (ListIterator<PowerUp> iter = this.powerUpLoader.getPowerUps().listIterator(); iter.hasNext();) {
 			PowerUp p = iter.next();
 			double x = curve.getX();
 			double y = curve.getY();
@@ -652,13 +649,10 @@ public class PlayGround extends JPanel {
 
 				try {
 					iter.remove();
-				} catch (java.util.ConcurrentModificationException e) {
-				}
+				} catch (java.util.ConcurrentModificationException e) {}
 
-				for (ListIterator<PowerUp> iter2 = this.powerUps.listIterator(); iter2.hasNext();) {
-					PowerUp p2 = iter2.next();
-					this.powerUpLoader.drawPowerUpIcon(p2);
-				}
+				this.getPowerUpLoader().reDrawPowerUps();
+				
 				/*
 				 * this.backgroundLayer.getGr().fillOval( p.getX() -
 				 * PowerUp.POWERUP_RADIUS - 1, p.getY() - PowerUp.POWERUP_RADIUS
@@ -750,11 +744,7 @@ public class PlayGround extends JPanel {
 	public ImageLayer getCompressedLayer() {
 		return compressedLayer;
 	}
-
-	public List<PowerUp> getPowerUps() {
-		return powerUps;
-	}
-
+	
 	public void incNoBorder() {
 		++this.noBorder;
 	}
