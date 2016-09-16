@@ -20,10 +20,9 @@ public class PowerUpTask {
 	private int time;
 	private Callable<?> callback;
 	
-	public PowerUpTask(int time, boolean PERSONAL, JPanel panel, Callable<?> func) {
+	public PowerUpTask(int time, boolean PERSONAL, JPanel panel) {
 		this.panel = panel;
 		this.time = time;
-		this.callback = func;
 		
 		if (PERSONAL) {
 			createPersonalLoadingBar();
@@ -42,6 +41,11 @@ public class PowerUpTask {
 		
 	}
 	
+	
+	public void setCallback(Callable<?> callback) {
+		this.callback = callback;
+	}
+
 	private void createPersonalLoadingBar() {
 		progressBar = new JProgressBar();		
 		progressBar.setOrientation(SwingConstants.VERTICAL);
@@ -126,9 +130,8 @@ public class PowerUpTask {
 		if(panel.getComponentCount() != 0) {
 			panel.remove(progressBar);
 			panel.revalidate();
+			panel.repaint();
 		}
-		panel.repaint();
-		
 	}
 	
 }

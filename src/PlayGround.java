@@ -66,9 +66,8 @@ public class PlayGround extends JPanel {
 	private boolean playgroundLoading;
 
 	private List<PowerUp> powerUps;
-	private List<PowerUpTask> powerUpTasks;
 
-	private boolean noBorder = false;
+	private int noBorder = 0;
 
 	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls,
 			List<Color> colors) {
@@ -142,7 +141,6 @@ public class PlayGround extends JPanel {
 				this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();
 
 				this.powerUps = new ArrayList<>();
-				this.powerUpTasks = new ArrayList<>();
 				this.powerUpLoader = new PowerUpLoader(this.backgroundLayer, this.powerUps);
 			} else {
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
@@ -412,11 +410,7 @@ public class PlayGround extends JPanel {
 		}
 
 		this.powerUps.clear();
-		for (ListIterator<PowerUpTask> iter = this.powerUpTasks.listIterator(); iter.hasNext();) {
-			PowerUpTask ref = iter.next();
-			ref.finish();
-		}
-		this.powerUpTasks.clear();
+		this.powerUpLoader.finishAllTasks();
 	}
 
 	/***************************************************************************************************************************************************************
@@ -431,24 +425,24 @@ public class PlayGround extends JPanel {
 		}
 
 		if (x <= padding) {
-			if (this.noBorder)
+			if (this.noBorder > 0)
 				curve.setX(this.backgroundLayer.getImg().getWidth() - padding);
 			else
 				return true;
 		} else if (x >= this.backgroundLayer.getImg().getWidth() - padding) {
-			if (this.noBorder)
+			if (this.noBorder > 0)
 				curve.setX(padding);
 			else
 				return true;
 		}
 
 		if (y <= padding) {
-			if (this.noBorder)
+			if (this.noBorder > 0)
 				curve.setY(this.backgroundLayer.getImg().getHeight() - padding);
 			else
 				return true;
 		} else if (y >= this.backgroundLayer.getImg().getHeight() - padding) {
-			if (this.noBorder)
+			if (this.noBorder > 0)
 				curve.setY(padding);
 			else
 				return true;
@@ -595,31 +589,31 @@ public class PlayGround extends JPanel {
 					this.powerUpLoader.action_moreExtra();
 					break;
 				case "no_border.png":
-					PowerUpLoader.action_noBorder(this);
+					this.powerUpLoader.action_noBorder(this);
 					break;
 				case "erase.png":
-					PowerUpLoader.action_erase(this);
+					this.powerUpLoader.action_erase(this);
 					return;
 				case "own_fly.png":
-					PowerUpLoader.action_ownFly(this, curve, index);
+					this.powerUpLoader.action_ownFly(this, curve, index);
 					break;
 				case "own_slow.png":
-					PowerUpLoader.action_ownSlow(this, curve, index);
+					this.powerUpLoader.action_ownSlow(this, curve, index);
 					break;
 				case "own_speed.png":
-					PowerUpLoader.action_ownSpeed(this, curve, index);
+					this.powerUpLoader.action_ownSpeed(this, curve, index);
 					break;
 				case "other_slow.png":
-					PowerUpLoader.action_otherSlow(this, index);
+					this.powerUpLoader.action_otherSlow(this, index);
 					break;
 				case "other_speed.png":
-					PowerUpLoader.action_otherSpeed(this, index);
+					this.powerUpLoader.action_otherSpeed(this, index);
 					break;
 				case "other_swap_control.png":
-					PowerUpLoader.action_otherSwapControl(this, index);
+					this.powerUpLoader.action_otherSwapControl(this, index);
 					break;
-				case "other_thick":
-					PowerUpLoader.action_otherThick(this, index);
+				case "other_thick.png":
+					this.powerUpLoader.action_otherThick(this, index);
 					break;
 				}
 
@@ -732,9 +726,18 @@ public class PlayGround extends JPanel {
 		return powerUps;
 	}
 
-	public void setNoBorder(boolean noBorder) {
-		this.noBorder = noBorder;
+	public void incNoBorder() {
+		++this.noBorder;
 	}
+	
+	public void decNoBorder() {
+		--this.noBorder;
+	}
+	
+	public int getNoBorder() {
+		return this.noBorder;
+	}
+	
 
 	public CurveWindow getCurveWindow() {
 		return curveWindow;
@@ -746,9 +749,5 @@ public class PlayGround extends JPanel {
 
 	public Curve[] getCurves() {
 		return curves;
-	}
-
-	public List<PowerUpTask> getPowerUpTasks() {
-		return powerUpTasks;
 	}
 }
