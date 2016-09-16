@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 
 public class Curve {
 	
@@ -18,20 +19,17 @@ public class Curve {
 	private boolean leftIsPressed;
 	private boolean rightIsPressed;
 	
-	private boolean paused;
-	private double pausedX;
-	private double pausedY;
+	private boolean paused;	
 
-	private ImageLayer curveLayer;
-	//private ImageLayer dashLayer;
 	private long lastCollidedAt;
 	private int collisionCount;
 	
 	private int flyCount;
 	
+	private int circleNumber;
+	
 	public Curve (double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		this.direction = new Direction(0, 0);
-		this.curveLayer = new ImageLayer(GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y, null);
 		this.initData(x, y, radius, turnAngle, color, direction);
 	}
 	
@@ -51,6 +49,7 @@ public class Curve {
 		this.lastCollidedAt = 0;
 		this.collisionCount = 0;
 		this.flyCount = 0;
+		this.circleNumber = 0;
 	}
 	
 	public double getX() {
@@ -130,30 +129,10 @@ public class Curve {
 		this.paused = paused;
 	}
 	
-	public double getPausedX() {
-		return pausedX;
-	}
-
-	public void setPausedX(double pausedX) {
-		this.pausedX = pausedX;
-	}
-
-	public double getPausedY() {
-		return pausedY;
-	}
-
-	public void setPausedY(double pausedY) {
-		this.pausedY = pausedY;
-	}
-	
 	public double getM() {
 		return direction.getJ() / direction.getI();
 	}
 	
-	public ImageLayer getCurveLayer() {
-		return this.curveLayer;
-	}
-		
 	public long getLastCollidedAt() {
 		return lastCollidedAt;
 	}
@@ -182,6 +161,14 @@ public class Curve {
 		return Math.hypot(direction.getI(), direction.getJ());
 	}
 	
+	public int getCircleNumber() {
+		return circleNumber;
+	}
+
+	public void setCircleNumber(int circleNumber) {
+		this.circleNumber = circleNumber;
+	}
+
 	// nem akar menni a jo egnek se :(  :/ :D :))
 	public void resetDashLayer() {
 		/*Graphics2D gr = (Graphics2D)this.dashLayer.getGr();

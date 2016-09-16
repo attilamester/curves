@@ -1,5 +1,8 @@
 import java.awt.Color;
 
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+
 public class GameController {
 	
 	public LandingWindow landingWindow;
@@ -14,17 +17,33 @@ public class GameController {
 	 ************************************************************************/
 	public static boolean finished;
 	public static int ROUND_COUNT = 10;
+	
 	public static final int FRAME_SIZE_X = Main.SCREEN_WIDTH;
 	public static final int FRAME_SIZE_Y = Main.SCREEN_HEIGHT;
+	
 	public static final int PLAYER_STATUS_PANE_HEIGHT = 30;
-	public static final int PROGRESS_BAR_HEIGHT = 5;
+	public static final int PROGRESS_BAR_HEIGHT = 1;
+	public static final int PROGRESS_BAR_STEPS = 100;
 	
 	public static final int DEFAULT_THICK = 4;
 	public static final Color DEFAULT_COLOR = Color.BLUE;
+	
 	public static final Color PLAYGROUND_BACKGROUND = new Color(30, 30, 30);
 	public static final int PLAYGROUND_BORDER_WIDTH = 4;
+	public static final Border PLAYGROUND_BORDER_FACTORY = BorderFactory.createMatteBorder(
+			GameController.PLAYGROUND_BORDER_WIDTH - GameController.PROGRESS_BAR_HEIGHT,
+			GameController.PLAYGROUND_BORDER_WIDTH,
+			GameController.PLAYGROUND_BORDER_WIDTH,
+			GameController.PLAYGROUND_BORDER_WIDTH, Color.WHITE);
+	public static final Border PLAYGROUND_NO_BORDER_FACTORY = BorderFactory.createMatteBorder(
+			GameController.PLAYGROUND_BORDER_WIDTH - GameController.PROGRESS_BAR_HEIGHT,
+			GameController.PLAYGROUND_BORDER_WIDTH,
+			GameController.PLAYGROUND_BORDER_WIDTH,
+			GameController.PLAYGROUND_BORDER_WIDTH, new Color(75, 75, 75));
+	
 	public static double DEFAULT_CURVE_SPEED;
 	public static double DEFAULT_CURVE_ANGLE = 3;
+	
 	public static final int COUNT_DOWN_WIDTH  = 200;
 	public static final int COUNT_DOWN_HEIGHT = 200;
 	

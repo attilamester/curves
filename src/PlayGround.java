@@ -68,7 +68,9 @@ public class PlayGround extends JPanel {
 	private List<PowerUp> powerUps;
 
 	private int noBorder = 0;
-
+	
+	private final int playerBits = 4;
+	
 	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls,
 			List<Color> colors) {
 
@@ -106,7 +108,7 @@ public class PlayGround extends JPanel {
 			curveControllers[i] = new CurveController(curves[i]);
 		}
 
-		setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
+		setBorder(GameController.PLAYGROUND_BORDER_FACTORY);
 		this.playgroundLoading = true;
 	}
 
@@ -130,13 +132,13 @@ public class PlayGround extends JPanel {
 
 			if (this.compressedLayer == null) {
 				this.compressedLayer = new ImageLayer(this.getWidth(), this.getHeight(),
-						GameController.PLAYGROUND_BACKGROUND);
+						GameController.PLAYGROUND_BACKGROUND, BufferedImage.TYPE_INT_ARGB);
 				this.backgroundLayer = new ImageLayer(this.getWidth(), this.getHeight(),
-						GameController.PLAYGROUND_BACKGROUND);
-				this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
+						GameController.PLAYGROUND_BACKGROUND, BufferedImage.TYPE_INT_ARGB);
+				this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_ARGB);
 				// this.extrasLayer = new ImageLayer(this.getWidth(),
 				// this.getHeight(), null);
-				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
+				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
 
 				this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();
 
@@ -150,7 +152,8 @@ public class PlayGround extends JPanel {
 				this.compressedLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(),
 						this.backgroundLayer.getImg().getHeight());
 
-				this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null);
+				this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_ARGB);
+				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
 				// this.curvesLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
 				// this.curvesLayer.getGr().fillRect(0, 0,
 				// this.backgroundLayer.getImg().getWidth(),
@@ -181,7 +184,7 @@ public class PlayGround extends JPanel {
 					return;
 				}
 
-				if (curves[i].isPaused() && Math.hypot(x - curves[i].getPausedX(), y - curves[i].getPausedY()) >= r) {
+				if (curves[i].isPaused()) {
 					/**
 					 * DELETE PREVIOUS CIRCLE
 					 */
@@ -217,9 +220,24 @@ public class PlayGround extends JPanel {
 
 					// this.curvesLayer.getGr().drawImage(curves[i].getCurveLayer().getImg(),
 					// 0, 0, null);
-
+					
 					curvesLayer.getGr().setColor(curves[i].getColor());
 					curvesLayer.getGr().fillOval(x - r, y - r, 2 * r, 2 * r);
+					
+					
+					/**
+					 * COLLISION PREPARATION
+					 *  
+					 * ******** ******** ******** ********
+					 *    | -> circle count, 28 bits          
+					 */	
+					int c = curves[i].getCircleNumber();
+					int col = (i << 16) + c;
+					//System.out.println(col);
+					this.timeLayer.getGr().setColor(new Color(col));
+					this.timeLayer.getGr().fillOval(x - r, y - r, 2 * r, 2 * r);
+					curves[i].setCircleNumber(c + 1);
+					
 				}
 				// g.drawImage(curves[i].getCurveLayer().getImg(), 0, 0, null);
 				// compressedLayer.getGr().drawImage(curves[i].getCurveLayer().getImg(),
@@ -323,7 +341,7 @@ public class PlayGround extends JPanel {
 	}
 
 	public void eraseArrows() {
-		this.playgroundLoading = false;
+		this.playgroundLoading = false;		
 	}
 
 	/***************************************************************************************************************************
@@ -420,32 +438,29 @@ public class PlayGround extends JPanel {
 	 ****************************************************************************************************************************************************************/
 
 	private boolean outOfBorderBounds(Curve curve, int index, int x, int y, int padding) {
-		if (curve.isPaused() || this.playersDead.contains(new Integer(index))) {
-			return false;
-		}
-
+		
 		if (x <= padding) {
 			if (this.noBorder > 0)
-				curve.setX(this.backgroundLayer.getImg().getWidth() - padding);
+				curve.setX(this.backgroundLayer.getImg().getWidth() - padding - 1);
 			else
-				return true;
-		} else if (x >= this.backgroundLayer.getImg().getWidth() - padding) {
+				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
+		} else if (x >= this.backgroundLayer.getImg().getWidth() - padding - 1) {
 			if (this.noBorder > 0)
-				curve.setX(padding);
+				curve.setX(padding + 1);
 			else
-				return true;
+				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
 		}
 
 		if (y <= padding) {
 			if (this.noBorder > 0)
-				curve.setY(this.backgroundLayer.getImg().getHeight() - padding);
+				curve.setY(this.backgroundLayer.getImg().getHeight() - padding - 1);
 			else
-				return true;
-		} else if (y >= this.backgroundLayer.getImg().getHeight() - padding) {
+				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
+		} else if (y >= this.backgroundLayer.getImg().getHeight() - padding - 1) {
 			if (this.noBorder > 0)
-				curve.setY(padding);
+				curve.setY(padding + 1);
 			else
-				return true;
+				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
 		}
 
 		return false;
@@ -508,10 +523,13 @@ public class PlayGround extends JPanel {
 	private boolean pointIsOk(Point2D.Double point, Curve curve, int index) {
 		/**
 		 * INSIDE PREVIOUS PAINTED CIRCLE => IGNORE IT
+		 * (needed JUST if checking more points around circle perimeter)
 		 */
+		/*
 		if (this.point_distance(point.getX(), point.getY(), curve.getOldX(), curve.getOldY()) <= curve.getRadius()) {
+			System.out.println("INSIDE OLDDD");
 			return true;
-		}
+		}*/
 
 		int paintedColor;
 		try {
@@ -526,13 +544,12 @@ public class PlayGround extends JPanel {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return false;
 		}
-
+		/* COLLISION INTO OTHERS */
 		for (int i = 0; i < players; ++i) {
 			if (i == index)
 				continue;
 			if (paintedColor == curves[i].getColor().getRGB()) {
-				// death because of i. player. Congrats i. EVIL :))
-				System.out.println("naaa");
+				// death because of i. player. Congrats i. EVIL :))				
 				this.curveWindow.getPlayerStatusPanes().get((int) i).increaseScore();
 				return false;
 			}
@@ -540,12 +557,23 @@ public class PlayGround extends JPanel {
 		// cannot check default color, layer is uninitialized, alpha channel,
 		// etc
 		if (paintedColor == curve.getColor().getRGB()) {
+			
+			int col = this.timeLayer.getImg().getRGB((int) point.getX(), (int) point.getY());			
+			int playerIndex = (col >> 16) & 0xF;			
+			int circleCount = col & 0x0000FFFF;
+			System.out.println(col + " PLAYER:" + playerIndex + " CIRCLE: " + circleCount);
+			
+			if (curve.getCircleNumber() - circleCount <= 3)
+				return true;
+			
+			return false;			
+			/*
+			// TRIAL WITH NANO-TIME CHECKING BETWEEN LAST COLLISIONS - not bad, but not good
 			// may be still some pixel - bug
 			int collision = curve.getCollisionCount();
 			long now = System.nanoTime();
 			long past = curve.getLastCollidedAt();
 			long elapse = now - past;
-			System.out.println(now);
 			System.out.println("\tELAPSE:" + (elapse / 1000000));
 
 			curve.setLastCollidedAt(now);
@@ -553,13 +581,14 @@ public class PlayGround extends JPanel {
 			if (elapse < 50000000) { // again collision within 30 milliseconds,
 										// weird
 				if (collision == 5) // too many, means that no pixel-bug
-					return false;
+					//return false;
+					System.out.println("DETECTED  5   COLLISIONSS!!!!!!!!!!!!!!!!!!!");
 				curve.setCollisionCount(++collision);
 
 			} else {
 				curve.setCollisionCount(0);
 			}
-
+*/
 			/*
 			 * System.out.println("already colored here: " +
 			 * Main.getCssColor(paintedColor) + ", curve color: " +

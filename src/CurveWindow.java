@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
@@ -43,6 +42,7 @@ public class CurveWindow extends JFrame {
 	private JPanel namesPane;
 	private List<PlayerStatus> playerStatusPanes;
 	private JPanel generalProgressPane;
+	private JProgressBar generalProgressBar;
 	
 	private PlayGround playGround;
 	private DisplayRefresher displayRefresher;	
@@ -167,15 +167,26 @@ public class CurveWindow extends JFrame {
 		
 	private void addPlayerNames(List<String> names, List<Color> colors) {		
 		JLayeredPane namesWrapper = new JLayeredPane();
-		//namesWrapper.setBounds(0, 0, Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT);		
 		namesWrapper.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT));
 		
 		this.namesPane = new JPanel(new GridLayout(1, names.size()));
 		this.namesPane.setBounds(0, 0, Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT);
 		
+		/***************************************************************
+		 * PROGRESS PANE - BAR 
+		 ****************************************************************/
 		this.generalProgressPane = new JPanel(new BorderLayout());
-		this.generalProgressPane.setBounds(0, GameController.PLAYER_STATUS_PANE_HEIGHT - GameController.PROGRESS_BAR_HEIGHT, Main.SCREEN_WIDTH, GameController.PROGRESS_BAR_HEIGHT);
-		this.generalProgressPane.setBackground(Colors.TRANSPARENT);
+		this.generalProgressPane.setBounds(0, GameController.PLAYER_STATUS_PANE_HEIGHT - GameController.PROGRESS_BAR_HEIGHT, Main.SCREEN_WIDTH, GameController.PROGRESS_BAR_HEIGHT);		
+		
+		this.generalProgressBar = new JProgressBar();
+		this.generalProgressBar.setBackground(Color.WHITE);
+		this.generalProgressBar.setForeground(Color.RED);
+		this.generalProgressBar.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, GameController.PROGRESS_BAR_HEIGHT));		
+		this.generalProgressBar.setBorder(BorderFactory.createEmptyBorder());
+		this.generalProgressBar.setBorderPainted(false);
+		this.generalProgressBar.setMaximum(GameController.PROGRESS_BAR_STEPS);
+		this.generalProgressBar.setValue(0);		
+		this.generalProgressPane.add(this.generalProgressBar, BorderLayout.NORTH);	
 		
 		this.playerStatusPanes = new ArrayList<PlayerStatus	>();
 		ListIterator<String> iterNames  = names.listIterator();
@@ -186,8 +197,8 @@ public class CurveWindow extends JFrame {
 			PlayerStatus status = new PlayerStatus(name, color);
 			this.playerStatusPanes.add(status);
 			namesPane.add(status);
-		}		
-				
+		}
+		
 		namesWrapper.add(this.namesPane, JLayeredPane.DEFAULT_LAYER);
 		namesWrapper.add(this.generalProgressPane, new Integer(100));
 		

@@ -11,8 +11,8 @@ public class ImageLayer {
 	private BufferedImage img;
 	private Graphics gr;
 	
-	public ImageLayer(int width, int height, Color defaultColor) {
-		this.img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);		
+	public ImageLayer(int width, int height, Color defaultColor, int alphaMode) {
+		this.img = new BufferedImage(width, height, alphaMode);		
 		this.gr = img.getGraphics();
 		//((Graphics2D)this.gr).setRenderingHint(RenderingHints.KEY_ANTIALIASING,    RenderingHints.VALUE_ANTIALIAS_ON);
 		if (defaultColor != null) {

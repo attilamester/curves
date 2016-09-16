@@ -85,10 +85,10 @@ public class PowerUpLoader {
 	}
 	
 	private PowerUp createPowerUp() {
-		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE / 2) + PowerUp.POWERUP_SIZE / 2;
-		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE / 2)+ PowerUp.POWERUP_SIZE / 2;
+		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE) + PowerUp.POWERUP_SIZE / 2;
+		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE)+ PowerUp.POWERUP_SIZE / 2;
 		
-		int index = 1;
+		int index = 0;
 		if (index == 0)
 			index = rnd.nextInt(POWERUP_COUNT);
 		return new PowerUp(POWERUP_NAMES[index], x, y);
@@ -116,7 +116,7 @@ public class PowerUpLoader {
 		int _minDelay = minDelay;
 		int _frequency = frequency;
 		this.minDelay = 0;
-		this.frequency = 500;
+		this.frequency = 100;
 		Timer timer = new Timer(2000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -129,7 +129,7 @@ public class PowerUpLoader {
 	}
 	
 	public void action_noBorder(PlayGround pl) {
-		pl.setBorder(BorderFactory.createLineBorder(new Color(75,75,75), GameController.PLAYGROUND_BORDER_WIDTH));
+		pl.setBorder(GameController.PLAYGROUND_NO_BORDER_FACTORY);
 		pl.incNoBorder();
 		
 		PowerUpTask task = new PowerUpTask(5000, false, pl.getCurveWindow().getGeneralProgressPane());
@@ -137,7 +137,7 @@ public class PowerUpLoader {
 			@Override
 			public Void call() throws Exception {
 				if (pl.getNoBorder() == 1) {
-					pl.setBorder(BorderFactory.createLineBorder(Color.WHITE, GameController.PLAYGROUND_BORDER_WIDTH));
+					pl.setBorder(GameController.PLAYGROUND_BORDER_FACTORY);
 				}
 				pl.decNoBorder();
 				powerUpTasks.remove(task);

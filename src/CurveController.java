@@ -74,8 +74,6 @@ public class CurveController implements Runnable {
 				if (curve.isPaused())
 					return;
 				curve.setPaused(true);
-				curve.setPausedX(curve.getX());
-				curve.setPausedY(curve.getY());
 				
 				double v = curve.calcSpeed() / delay; 	// <px / ms>
 				double d = 6 * curve.getRadius(); 	 	// <px>   (3 * circle diameter)

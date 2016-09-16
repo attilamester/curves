@@ -18,11 +18,13 @@ public class PowerUpTask {
 	private Timer progressBarEffect;
 	private Timer powerUpEffect;
 	private int time;
+	private boolean PERSONAL;
 	private Callable<?> callback;
 	
 	public PowerUpTask(int time, boolean PERSONAL, JPanel panel) {
 		this.panel = panel;
 		this.time = time;
+		this.PERSONAL = PERSONAL;
 		
 		if (PERSONAL) {
 			createPersonalLoadingBar();
@@ -36,9 +38,7 @@ public class PowerUpTask {
 				PowerUpTask.this.finish();				
 			}
 		});
-		powerUpEffect.setRepeats(false);
-		
-		
+		powerUpEffect.setRepeats(false);		
 	}
 	
 	
@@ -77,41 +77,27 @@ public class PowerUpTask {
 		});		
 	}
 	
-	private void createCommonLoadingBar() {
-		int STEPS = 100;
+	private void createCommonLoadingBar() {		
 		
-		if (panel.getComponentCount() == 1) {
-			progressBar = (JProgressBar) panel.getComponent(0);
-			progressBar.setValue(0);
-		} else {
-			progressBar = new JProgressBar();
-			progressBar.setBackground(Colors.TRANSPARENT);
-			progressBar.setForeground(Color.RED);		
-			progressBar.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, 5));
-			progressBar.setBorderPainted(false);
-			progressBar.setBorder(BorderFactory.createEmptyBorder());
-			progressBar.setBorderPainted(false);
-			progressBar.setMaximum(STEPS);
-			progressBar.setValue(0);
-			
-			panel.add(progressBar, BorderLayout.NORTH);		
-			panel.revalidate();
-		}
+		progressBar = (JProgressBar) panel.getComponent(0);
+		progressBar.setValue(0);
 		
-		progressBarEffect = new Timer(time / STEPS, null);
+		progressBarEffect = new Timer(time / GameController.PROGRESS_BAR_STEPS, null);
 		progressBarEffect.addActionListener(new ActionListener() {
 			int i = 0;
 			@Override
 			public void actionPerformed(ActionEvent e) {				
-				if (i == STEPS) {					
-					progressBarEffect.stop();
-					panel.remove(progressBar);
-					panel.setBackground(Colors.TRANSPARENT);
-					panel.revalidate();
-					panel.repaint();
+				if (i == GameController.PROGRESS_BAR_STEPS) {					
+					progressBarEffect.stop();										
+					progressBar.setValue(0);					
+					progressBar.revalidate();
+					progressBar.repaint();
 					return;
 				}
-				progressBar.setValue(++i);
+				if (progressBar.getValue() < i) {
+					progressBarEffect.stop();
+				}
+				progressBar.setValue(++i);				
 			}
 		});
 	}
@@ -127,10 +113,12 @@ public class PowerUpTask {
 		try {
 			this.callback.call();			
 		} catch (Exception e1) {}
-		if(panel.getComponentCount() != 0) {
+		if(panel.getComponentCount() != 0 && this.PERSONAL) {
 			panel.remove(progressBar);
 			panel.revalidate();
 			panel.repaint();
+		}
+		if (!this.PERSONAL) {			
 		}
 	}
 	
