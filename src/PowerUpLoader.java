@@ -44,6 +44,8 @@ public class PowerUpLoader {
 	private static final int POWERUP_COUNT = 11;
 	private static final int MAX_POWERUPS = 15;	
 	
+	private Timer borderShrinker = null;
+	
 	public PowerUpLoader(ImageLayer backgroundLayer) {
 		this.backgroundLayer = backgroundLayer;
 		
@@ -91,7 +93,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE) + PowerUp.POWERUP_SIZE / 2;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE)+ PowerUp.POWERUP_SIZE / 2;
 		
-		int index = 2;
+		int index = 0;
 		if (index == 0)
 			index = rnd.nextInt(POWERUP_COUNT);
 		return new PowerUp(POWERUP_NAMES[index], x, y);
@@ -116,6 +118,9 @@ public class PowerUpLoader {
 			}
 		}
 		this.powerUpTasks.clear();
+		
+		if (this.borderShrinker != null)
+			this.borderShrinker.stop();
 	}
 	
 	public void clearPowerUps() {
@@ -173,18 +178,22 @@ public class PowerUpLoader {
 	}
 	
 	public void action_shrinkBorder(PlayGround pl) {
-		System.out.println("itt");
+		if (pl.getShrinkedX() > 0)
+			return;
 		int deltaX = 2;
-		Timer timer = new Timer(50, new ActionListener() {
+		borderShrinker = new Timer(50, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int x = pl.getWidth() - deltaX;
-				int y = (int)(pl.getHeight() * (pl.getWidth() - deltaX)) / pl.getWidth();
-				//pl.setBounds((Main.SCREEN_WIDTH - x) / 2, (Main.SCREEN_HEIGHT - y) / 2, x, y);
-				pl.setBounds(0, 0, x, y);
+				int newX = pl.getWidth() - deltaX;
+				int newY = (int)(pl.getHeight() * (pl.getWidth() - deltaX)) / pl.getWidth();
+				int deltaY = pl.getHeight() - newY;
+				pl.setShrinkedX(pl.getShrinkedX() + deltaX);
+				pl.setShrinkedY(pl.getShrinkedY() + deltaY);
+				pl.setBounds((GameController.FRAME_SIZE_X - newX) / 2, (GameController.FRAME_SIZE_Y - newY) / 2, newX, newY);
 			}
 		});
-		timer.start();
+		borderShrinker.start();
+		
 		/*
 		if (PowerUpTask.generalStarted) {
 			PowerUpTask.generalProgressValue = 0;
