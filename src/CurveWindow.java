@@ -100,7 +100,7 @@ public class CurveWindow extends JFrame {
 		
 		this.addPlayerNames(names, colors);
 		
-		this.playGround = new PlayGround(this, players, names, ctrl, colors);		
+		this.playGround = new PlayGround(this, players, names, colors);		
 		
 		this.contentPane.add(playGround, BorderLayout.CENTER);
 		this.revalidate();
@@ -117,7 +117,7 @@ public class CurveWindow extends JFrame {
 		this.setResizable(false);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	    this.setAlwaysOnTop(true);
+	    //this.setAlwaysOnTop(true);
 	    this.setUndecorated(true);
 		this.setVisible(true);
 	    

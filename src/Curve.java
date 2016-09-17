@@ -25,6 +25,7 @@ public class Curve {
 	private int collisionCount;
 	
 	private int flyCount;
+	private int swapCount;
 	
 	private int circleNumber;
 	
@@ -49,6 +50,7 @@ public class Curve {
 		this.lastCollidedAt = 0;
 		this.collisionCount = 0;
 		this.flyCount = 0;
+		this.swapCount = 0;
 		this.circleNumber = 0;
 	}
 	
@@ -155,6 +157,14 @@ public class Curve {
 
 	public void setFlyCount(int flyCount) {
 		this.flyCount = flyCount;
+	}
+	
+	public int getSwapCount() {
+		return swapCount;
+	}
+
+	public void setSwapCount(int swapCount) {
+		this.swapCount = swapCount;
 	}
 
 	public double calcSpeed() {

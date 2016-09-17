@@ -1,3 +1,4 @@
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -15,15 +16,29 @@ public class PowerUpTask {
 	private JPanel panel;
 	private JProgressBar progressBar;
 	private Timer progressBarEffect;
-	private Timer powerUpEffect;
 	private int time;
 	private boolean PERSONAL;
 	private Callable<?> callback;
 	
-	private static final int FINISHED = 1;
-	private static final int PROGRESS = 0;
+	public static final int FINISHED = 1;
+	public static final int PROGRESS = 0;
 	
 	private int state;
+	
+	public static boolean generalStarted = false;
+	public static int generalProgressValue = 0;
+	private Timer generalTimer = new Timer(GameController.GENERAL_TASK_TIMER_LENGTH / GameController.PROGRESS_BAR_STEPS, new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (PowerUpTask.generalProgressValue == GameController.PROGRESS_BAR_STEPS) {					
+				generalTimer.stop();
+				PowerUpTask.generalStarted = false;
+				finish();
+				return;
+			}
+			progressBar.setValue(++PowerUpTask.generalProgressValue);
+		}
+	});
 	
 	public PowerUpTask(int time, boolean PERSONAL, JPanel panel) {
 		this.panel = panel;
@@ -36,14 +51,6 @@ public class PowerUpTask {
 		} else {
 			createCommonLoadingBar();
 		}
-		
-		this.powerUpEffect = new Timer(time, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {				
-				PowerUpTask.this.finish();
-			}
-		});
-		powerUpEffect.setRepeats(false);		
 	}
 	
 	
@@ -72,6 +79,7 @@ public class PowerUpTask {
 			public void actionPerformed(ActionEvent e) {
 				if (progressBar.getValue() == 100) {
 					progressBarEffect.stop();
+					finish();
 					return;
 				}
 				progressBar.setValue(progressBar.getValue() + 1);
@@ -79,49 +87,34 @@ public class PowerUpTask {
 		});		
 	}
 	
-	private void createCommonLoadingBar() {		
-		
+	private void createCommonLoadingBar() {
 		progressBar = (JProgressBar) panel.getComponent(0);
+		PowerUpTask.generalProgressValue = 0;
 		progressBar.setValue(0);
-		
-		progressBarEffect = new Timer(time / GameController.PROGRESS_BAR_STEPS, null);
-		progressBarEffect.addActionListener(new ActionListener() {
-			int i = 0;
-			@Override
-			public void actionPerformed(ActionEvent e) {				
-				if (i == GameController.PROGRESS_BAR_STEPS) {					
-					progressBarEffect.stop();
-					progressBar.setValue(0);
-					progressBar.revalidate();
-					progressBar.repaint();
-					finish();
-					return;
-				}
-				if (progressBar.getValue() < i) {
-					progressBarEffect.stop();
-				}
-				progressBar.setValue(++i);				
-			}
-		});
+		progressBarEffect = this.generalTimer;
 	}
 	
 	
 	public PowerUpTask start() {
-		progressBarEffect.start();
-		powerUpEffect.start();		
+		if(this.PERSONAL) {
+			progressBarEffect.start();
+		} else {
+			generalTimer.start();
+			PowerUpTask.generalStarted = true;
+		}		
 		return this;
 	}
 	
 	public void finish() {
 		if (this.state == PowerUpTask.FINISHED)
-			return;		
+			return;
 		this.state = PowerUpTask.FINISHED;
 		
 		removeProgressBar();
 		
 		try {
-			this.callback.call();			
-		} catch (Exception e1) {}			
+			this.callback.call();
+		} catch (Exception e1) {}
 	}
 	
 	private void removeProgressBar() {
@@ -131,18 +124,17 @@ public class PowerUpTask {
 				panel.revalidate();
 				panel.repaint();
 			}
-		} else {			
-			progressBar.setValue(0);			
-			progressBar.revalidate();
-			progressBar.repaint();
-			panel.revalidate();
-			panel.repaint();
+		} else {
+			progressBarEffect.stop();
+			progressBar.setValue(0);
 		}
 	}
-
 
 	public int getState() {
 		return state;
 	}
-	
+
+	public boolean isPERSONAL() {
+		return PERSONAL;
+	}
 }

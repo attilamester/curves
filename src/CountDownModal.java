@@ -92,7 +92,7 @@ public class CountDownModal extends JDialog {
 					count.stop();
 					setVisible(false);
 					dispose();
-					curveWindow.setAlwaysOnTop(true);
+					//curveWindow.setAlwaysOnTop(true);
 					curveWindow.getPlayGround().eraseArrows();					
 					if (round == 1) {
 						curveWindow.startGame();

@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -26,10 +25,7 @@ import java.util.ListIterator;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 public class PlayGround extends JPanel {
@@ -47,7 +43,6 @@ public class PlayGround extends JPanel {
 	private ImageLayer compressedLayer;
 	private ImageLayer timeLayer;
 
-	private int defaultLayerColor;
 	private final int PADDING = GameController.FRAME_SIZE_X / 5;
 
 	/********************************
@@ -57,7 +52,6 @@ public class PlayGround extends JPanel {
 	private List<String> names;
 	private Curve[] curves;
 	private CurveController[] curveControllers;
-	private List<Control> controls;
 	private List<Color> colors;
 	private List<Integer> playersStillAlive;
 	private List<Integer> playersDead;
@@ -65,15 +59,12 @@ public class PlayGround extends JPanel {
 
 	private boolean playgroundLoading;
 
-	private int noBorder = 0;
+	private boolean noBorder = false;
 	
-	private final int playerBits = 4;
 	
-	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Control> controls,
-			List<Color> colors) {
+	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Color> colors) {
 
 		this.curveWindow = curveWindow;
-		this.controls = controls;
 		this.round = 1;
 
 		this.names = new ArrayList<String>(names);
@@ -137,8 +128,6 @@ public class PlayGround extends JPanel {
 				// this.extrasLayer = new ImageLayer(this.getWidth(),
 				// this.getHeight(), null);
 				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
-
-				this.defaultLayerColor = GameController.PLAYGROUND_BACKGROUND.getRGB();
 				
 				this.powerUpLoader = new PowerUpLoader(this.backgroundLayer);
 			} else {
@@ -236,6 +225,7 @@ public class PlayGround extends JPanel {
 					curves[i].setCircleNumber(c + 1);
 					
 				}
+				
 				// g.drawImage(curves[i].getCurveLayer().getImg(), 0, 0, null);
 				// compressedLayer.getGr().drawImage(curves[i].getCurveLayer().getImg(),
 				// 0, 0, null);
@@ -244,6 +234,17 @@ public class PlayGround extends JPanel {
 
 			g.drawImage(curvesLayer.getImg(), 0, 0, null);
 			this.compressedLayer.getGr().drawImage(curvesLayer.getImg(), 0, 0, null);
+			
+			for (int i = 0; i < players; ++i) {
+
+				int x = (int) curves[i].getX();
+				int y = (int) curves[i].getY();
+				int r = curves[i].getRadius();
+				if (curves[i].getSwapCount() % 2 == 1) {
+					g.setColor(Color.BLACK);
+					g.fillOval(x - r + 1, y - r + 1, 2 * r-2, 2 * r-2);
+				}
+			}
 			// compressedLayer.getGr().drawImage(this.curvesLayer.getImg(), 0,
 			// 0, null);
 			// compressedLayer.getGr().drawImage(this.extrasLayer.getImg(), 0,
@@ -437,24 +438,24 @@ public class PlayGround extends JPanel {
 	private boolean outOfBorderBounds(Curve curve, int index, int x, int y, int padding) {
 		
 		if (x <= padding) {
-			if (this.noBorder > 0)
+			if (this.noBorder)
 				curve.setX(this.backgroundLayer.getImg().getWidth() - padding - 1);
 			else
 				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
 		} else if (x >= this.backgroundLayer.getImg().getWidth() - padding - 1) {
-			if (this.noBorder > 0)
+			if (this.noBorder)
 				curve.setX(padding + 1);
 			else
 				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
 		}
 
 		if (y <= padding) {
-			if (this.noBorder > 0)
+			if (this.noBorder)
 				curve.setY(this.backgroundLayer.getImg().getHeight() - padding - 1);
 			else
 				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
 		} else if (y >= this.backgroundLayer.getImg().getHeight() - padding - 1) {
-			if (this.noBorder > 0)
+			if (this.noBorder)
 				curve.setY(padding + 1);
 			else
 				return (curve.isPaused() || this.playersDead.contains(new Integer(index))) ? false : true;
@@ -474,8 +475,6 @@ public class PlayGround extends JPanel {
 		}
 
 		int r = curve.getRadius();
-		double i = curve.getDirection().getI();
-		double j = curve.getDirection().getJ();
 		double k = r / Math.hypot(curve.getX() - curve.getOldX(), curve.getY() - curve.getOldY());
 
 		Point2D.Double center = new Point2D.Double(curve.getX(), curve.getY());
@@ -558,9 +557,9 @@ public class PlayGround extends JPanel {
 			int col = this.timeLayer.getImg().getRGB((int) point.getX(), (int) point.getY());			
 			int playerIndex = (col >> 16) & 0xF;			
 			int circleCount = col & 0x0000FFFF;
-			System.out.println(col + " PLAYER:" + playerIndex + " CIRCLE: " + circleCount);
+			//System.out.println(col + " PLAYER:" + playerIndex + " CIRCLE: " + circleCount);
 			
-			if (curve.getCircleNumber() - circleCount <= 3)
+			if (playerIndex == index && curve.getCircleNumber() - circleCount <= 3)
 				return true;
 			
 			return false;			
@@ -605,9 +604,6 @@ public class PlayGround extends JPanel {
 	private void checkForPowerUp(Curve curve, int index) {
 		for (ListIterator<PowerUp> iter = this.powerUpLoader.getPowerUps().listIterator(); iter.hasNext();) {
 			PowerUp p = iter.next();
-			double x = curve.getX();
-			double y = curve.getY();
-			int r = curve.getRadius();
 			double dist = point_distance(curve.getX(), curve.getY(), p.getX(), p.getY());
 			if (dist <= PowerUp.POWERUP_RADIUS) {
 				switch (p.getName()) {
@@ -616,6 +612,9 @@ public class PlayGround extends JPanel {
 					break;
 				case "no_border.png":
 					this.powerUpLoader.action_noBorder(this);
+					break;
+				case "shrink_border.png":
+					this.powerUpLoader.action_shrinkBorder(this);
 					break;
 				case "erase.png":
 					this.powerUpLoader.action_erase(this);
@@ -652,14 +651,6 @@ public class PlayGround extends JPanel {
 				} catch (java.util.ConcurrentModificationException e) {}
 
 				this.getPowerUpLoader().reDrawPowerUps();
-				
-				/*
-				 * this.backgroundLayer.getGr().fillOval( p.getX() -
-				 * PowerUp.POWERUP_RADIUS - 1, p.getY() - PowerUp.POWERUP_RADIUS
-				 * - 1, 2 * PowerUp.POWERUP_RADIUS + 1, 2 *
-				 * PowerUp.POWERUP_RADIUS + 1);
-				 */
-
 			}
 		}
 	}
@@ -745,15 +736,11 @@ public class PlayGround extends JPanel {
 		return compressedLayer;
 	}
 	
-	public void incNoBorder() {
-		++this.noBorder;
+	public void setNoBorder(boolean noBorder) {
+		this.noBorder = noBorder;
 	}
 	
-	public void decNoBorder() {
-		--this.noBorder;
-	}
-	
-	public int getNoBorder() {
+	public boolean getNoBorder() {
 		return this.noBorder;
 	}
 	
