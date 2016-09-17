@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -62,7 +63,7 @@ public class PlayGround extends JPanel {
 	private boolean noBorder = false;
 	
 	
-	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Color> colors) {
+	public PlayGround(CurveWindow curveWindow, int players, List<String> names, List<Color> colors, int playGroundSizeX, int playGroundSizeY) {
 
 		this.curveWindow = curveWindow;
 		this.round = 1;
@@ -98,6 +99,7 @@ public class PlayGround extends JPanel {
 		}
 
 		setBorder(GameController.PLAYGROUND_BORDER_FACTORY);
+		this.setSize(new Dimension(playGroundSizeX, playGroundSizeY));
 		this.playgroundLoading = true;
 	}
 

@@ -33,8 +33,8 @@ public class CurveWindow extends JFrame {
 	 ******************************************************************/
 	
 	private JMenuBar menuBar;
-	private JMenu mainMenu;
-	private JMenuItem newGameItem;
+	private JMenuItem stopMenu;
+	private JMenuItem resumeMenu;
 
 	/*****************************************************************
 	 * Names + general progress bar
@@ -71,20 +71,19 @@ public class CurveWindow extends JFrame {
 		UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.WHITE, 1));
 		menuBar = new JMenuBar();
 		
-		mainMenu = new JMenu("Options");
-		newGameItem = new JMenuItem("New game");
+		JMenu stopMenu = new JMenu("PAUSE");
+		stopMenu.setForeground(Color.WHITE);
 		
+		JMenu resumeMenu = new JMenu("RESUME");
+		resumeMenu.setForeground(Color.WHITE);
+		resumeMenu.setEnabled(false);
 		
-		JMenu stopMenu = new JMenu("<html><div>sa</div></html>");
-		mainMenu.add(stopMenu);
-		
-		mainMenu.add(newGameItem);
-		menuBar.add(mainMenu);
+		menuBar.add(stopMenu);
+		menuBar.add(resumeMenu);
 		
 		menuBar.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		menuBar.setBorder(new EmptyBorder(0, 0, 0, 0));
-		mainMenu.setForeground(Color.WHITE);
-		
+		menuBar.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, GameController.MENU_HEIGHT));
 		
 		setJMenuBar(menuBar);
 		
@@ -100,10 +99,17 @@ public class CurveWindow extends JFrame {
 		
 		this.addPlayerNames(names, colors);
 		
-		this.playGround = new PlayGround(this, players, names, colors);		
 		
-		this.contentPane.add(playGround, BorderLayout.CENTER);
-		this.revalidate();
+		this.playGround = new PlayGround(this, players, names, colors, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);		
+		
+		JPanel playGroundContainer = new JPanel();
+		playGroundContainer.setLayout(null);
+		playGroundContainer.setBackground(Color.BLACK);
+		
+		playGroundContainer.add(playGround);
+		
+		this.contentPane.add(playGroundContainer, BorderLayout.CENTER);
+		
 		this.playGround.repaint();
 		
 		this.displayRefresher = new DisplayRefresher(this.playGround);

@@ -173,17 +173,18 @@ public class PowerUpLoader {
 	}
 	
 	public void action_shrinkBorder(PlayGround pl) {
-		
-		Timer timer = new Timer(200, new ActionListener() {
+		System.out.println("itt");
+		int deltaX = 2;
+		Timer timer = new Timer(50, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int x = pl.getWidth() - 50;
-				int y=pl.getHeight() - 50;
-				pl.setSize(x , y);
-				pl.setPreferredSize(new Dimension(x, y));
+				int x = pl.getWidth() - deltaX;
+				int y = (int)(pl.getHeight() * (pl.getWidth() - deltaX)) / pl.getWidth();
+				//pl.setBounds((Main.SCREEN_WIDTH - x) / 2, (Main.SCREEN_HEIGHT - y) / 2, x, y);
 				pl.setBounds(0, 0, x, y);
 			}
 		});
+		timer.start();
 		/*
 		if (PowerUpTask.generalStarted) {
 			PowerUpTask.generalProgressValue = 0;
