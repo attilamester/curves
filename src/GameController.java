@@ -58,8 +58,7 @@ public class GameController {
 		landingWindow = new LandingWindow(configPanel);
 		
 		
-		configPanel.setSize(landingWindow.getContentPane().getWidth(), landingWindow.getContentPane().getHeight());
-		configPanel.setLandingWindow(landingWindow);
+		configPanel.setSize(landingWindow.getContentPane().getWidth(), landingWindow.getContentPane().getHeight());		
 	}
 		
 	public void startGame() {

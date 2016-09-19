@@ -62,9 +62,6 @@ public class ConfigPanel extends JPanel {
 	
 	private JLabel start;	
 	
-	private LandingWindow landingWindow;
-	
-	
 	public ConfigPanel() {
 		
 		this.rnd = new Random();
@@ -75,11 +72,6 @@ public class ConfigPanel extends JPanel {
 		addItems();
 				
 	}
-	
-	public void setLandingWindow(LandingWindow landingWindow) {
-		this.landingWindow = landingWindow;
-	}
-
 	
 	public Random getRnd() {
 		return rnd;

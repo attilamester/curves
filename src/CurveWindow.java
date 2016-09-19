@@ -108,21 +108,18 @@ public class CurveWindow extends JFrame {
 		
 		this.addPlayerNames(names, colors);
 		
-		
-		this.playGround = new PlayGround(this, players, names, colors, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);		
-		
+		/*****************/
 		JPanel playGroundContainer = new JPanel();
 		playGroundContainer.setLayout(null);
 		playGroundContainer.setBackground(Color.BLACK);
 		
+		this.playGround = new PlayGround(this, players, names, colors, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);
 		playGroundContainer.add(playGround);
-		
-		this.contentPane.add(playGroundContainer, BorderLayout.CENTER);
-		
+		this.contentPane.add(playGroundContainer, BorderLayout.CENTER);		
 		this.playGround.repaint();
 		
-		this.displayRefresher = new DisplayRefresher(this.playGround);
-		
+		/*****************/
+		this.displayRefresher = new DisplayRefresher(this.playGround);		
 		/******************************************************************
 		 * 
 		 * WINDOW PROPERTIES
@@ -134,11 +131,7 @@ public class CurveWindow extends JFrame {
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    //this.setAlwaysOnTop(true);
 	    this.setUndecorated(true);
-	    /*
-	    BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-	    Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");	 
-	 	contentPane.setCursor(blankCursor);*/
-	 	
+	    
 	 	this.setVisible(true);	    
 		
 		addWindowListeners();
