@@ -27,18 +27,8 @@ public class PowerUpTask {
 	
 	public static boolean generalStarted = false;
 	public static int generalProgressValue = 0;
-	private Timer generalTimer = new Timer(GameController.GENERAL_TASK_TIMER_LENGTH / GameController.PROGRESS_BAR_STEPS, new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (PowerUpTask.generalProgressValue == GameController.PROGRESS_BAR_STEPS) {					
-				generalTimer.stop();
-				PowerUpTask.generalStarted = false;
-				finish();
-				return;
-			}
-			progressBar.setValue(++PowerUpTask.generalProgressValue);
-		}
-	});
+	private Timer generalTimer;
+	
 	
 	public PowerUpTask(int time, boolean PERSONAL, JPanel panel) {
 		this.panel = panel;
@@ -51,6 +41,21 @@ public class PowerUpTask {
 		} else {
 			createCommonLoadingBar();
 		}
+		
+		
+		generalTimer = new Timer(GameController.GENERAL_TASK_TIMER_LENGTH / GameController.PROGRESS_BAR_STEPS, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (PowerUpTask.generalProgressValue == GameController.PROGRESS_BAR_STEPS) {					
+					generalTimer.stop();
+					PowerUpTask.generalStarted = false;
+					finish();					
+					return;
+				}
+				progressBar.setValue(++PowerUpTask.generalProgressValue);
+				panel.getParent().getParent().repaint();
+			}
+		});
 	}
 	
 	
@@ -125,7 +130,7 @@ public class PowerUpTask {
 				panel.repaint();
 			}
 		} else {
-			progressBarEffect.stop();
+			generalTimer.stop();
 			progressBar.setValue(0);
 			panel.getParent().getParent().repaint();
 		}
