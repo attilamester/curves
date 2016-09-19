@@ -49,7 +49,7 @@ public class CountDownModal extends JDialog {
 		roundLabel.setForeground(Color.WHITE);
 		roundLabel.setFont(new Font("Calibri", Font.BOLD, 20));
 		
-		countDownLabel = new JLabel("3", SwingConstants.CENTER);
+		countDownLabel = new JLabel("0", SwingConstants.CENTER);
 		countDownLabel.setOpaque(false);
 		countDownLabel.setForeground(Color.RED);
 		countDownLabel.setFont(new Font("Calibri", Font.BOLD, 20));

@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -7,9 +6,8 @@ import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
-public class PlayerStatus extends JPanel {
+public class PlayerStatus extends JPanel implements Comparable {
 	private static final long serialVersionUID = 1;
 	
 	private JLabel nameLabel;
@@ -68,5 +66,10 @@ public class PlayerStatus extends JPanel {
 	}
 	public void increaseScore() {
 		this.setScore(this.getScore() + 1);
+	}
+
+	@Override
+	public int compareTo(Object obj) {	
+		return this.score - ((PlayerStatus) obj).getScore();
 	}
 }

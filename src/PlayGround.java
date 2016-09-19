@@ -370,7 +370,7 @@ public class PlayGround extends JPanel {
 		for (Integer i : this.playersStillAlive) {
 			this.curveWindow.getPlayerStatusPanes().get((int) i).increaseScore();
 		}
-
+		
 		if (this.playersStillAlive.size() <= 1) {
 			int alive = (this.playersStillAlive.size() == 1) ? (int) this.playersStillAlive.get(0) : 0;
 			this.curveWindow.getDisplayRefresher().stopRefresher();
@@ -382,9 +382,9 @@ public class PlayGround extends JPanel {
 				winner = "#noName";
 
 			if (this.round == GameController.ROUND_COUNT) {
-				/**
-				 * end game statistics window
-				 */
+				
+				EndGameModal endGame = new EndGameModal(this.curveWindow, this.curveWindow.getPlayerStatusPanes());
+				
 			} else {
 				this.powerUpLoader.clearPowerUps();				
 				this.powerUpLoader.finishAllTasks();				
