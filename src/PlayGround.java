@@ -251,7 +251,7 @@ public class PlayGround extends JPanel {
 				int r = curves[i].getRadius();
 				if (curves[i].getSwapCount() % 2 == 1) {
 					g.setColor(Color.BLACK);
-					g.fillOval(x - r + 1, y - r + 1, r << 1 - 2, r << 1 - 2);
+					g.fillOval(x - r + 1 -(this.shrinkedX >> 1), y - r + 1 -(this.shrinkedY >> 1), (r << 1) - 2, (r << 1) - 2);
 				}
 			}
 			// compressedLayer.getGr().drawImage(this.curvesLayer.getImg(), 0,
@@ -687,6 +687,18 @@ public class PlayGround extends JPanel {
 			curveControllers[i].restart();
 		}
 	}
+	
+	public void stopEvent() {
+		for (int i = 0; i < this.players; ++i)
+			curveControllers[i].stop();
+		//this.curveWindow.getDisplayRefresher().stopRefresher();
+	}
+	
+	public void resumeEvent() {
+		for (int i = 0; i < this.players; ++i)
+			curveControllers[i].restart();
+		//this.curveWindow.getDisplayRefresher().restartRefresher();
+	}
 
 	public void leftTurnTriggered(int curve) {
 		curves[curve].setLeftPressed(true);
@@ -707,7 +719,7 @@ public class PlayGround extends JPanel {
 	public int randBetween(int a, int b) {
 		return this.rnd.nextInt(b - a) + a;
 	}
-
+	
 	private double createCoordinate_X() {
 		int marginFromCountDown = 20;
 		double x = randBetween(PADDING, GameController.FRAME_SIZE_X - PADDING);

@@ -185,11 +185,15 @@ public class PowerUpLoader {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int newX = pl.getWidth() - deltaX;
+				if (newX <= GameController.FRAME_SIZE_X * 75/100) {
+					borderShrinker.stop();
+					return;
+				}
 				int newY = (int)(pl.getHeight() * (pl.getWidth() - deltaX)) / pl.getWidth();
 				int deltaY = pl.getHeight() - newY;
 				pl.setShrinkedX(pl.getShrinkedX() + deltaX);
 				pl.setShrinkedY(pl.getShrinkedY() + deltaY);
-				pl.setBounds((GameController.FRAME_SIZE_X - newX) / 2, (GameController.FRAME_SIZE_Y - newY) / 2, newX, newY);
+				pl.setBounds((GameController.FRAME_SIZE_X - newX) >> 1, (GameController.FRAME_SIZE_Y - newY) >> 1, newX, newY);
 			}
 		});
 		borderShrinker.start();

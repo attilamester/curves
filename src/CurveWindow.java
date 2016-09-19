@@ -3,8 +3,12 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -71,10 +75,10 @@ public class CurveWindow extends JFrame {
 		UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.WHITE, 1));
 		menuBar = new JMenuBar();
 		
-		JMenu stopMenu = new JMenu("PAUSE");
+		stopMenu = new JMenu("PAUSE");
 		stopMenu.setForeground(Color.WHITE);
 		
-		JMenu resumeMenu = new JMenu("RESUME");
+		resumeMenu = new JMenu("RESUME");
 		resumeMenu.setForeground(Color.WHITE);
 		resumeMenu.setEnabled(false);
 		
@@ -168,7 +172,23 @@ public class CurveWindow extends JFrame {
 	}
 	
 	public void addMenuListeners() {
+		this.stopMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				CurveWindow.this.playGround.stopEvent();
+				stopMenu.setEnabled(false);
+				resumeMenu.setEnabled(true);
+			}
+		});
 		
+		this.resumeMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				CurveWindow.this.playGround.resumeEvent();
+				stopMenu.setEnabled(true);
+				resumeMenu.setEnabled(false);
+			}
+		});
 	}
 		
 	private void addPlayerNames(List<String> names, List<Color> colors) {		
@@ -220,7 +240,7 @@ public class CurveWindow extends JFrame {
 	public void restartGame() {
 		GameController.finished = false;
 		this.playGround.restartGame();
-		this.displayRefresher.restart();
+		this.displayRefresher.restartRefresher();
 	}
 	
 	public PlayGround getPlayGround() {
