@@ -127,6 +127,7 @@ public class PowerUpTask {
 		} else {
 			progressBarEffect.stop();
 			progressBar.setValue(0);
+			panel.getParent().getParent().repaint();
 		}
 	}
 

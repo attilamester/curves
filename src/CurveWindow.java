@@ -1,14 +1,19 @@
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -129,12 +134,17 @@ public class CurveWindow extends JFrame {
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    //this.setAlwaysOnTop(true);
 	    this.setUndecorated(true);
-		this.setVisible(true);
-	    
+	    /*
+	    BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+	    Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");	 
+	 	contentPane.setCursor(blankCursor);*/
+	 	
+	 	this.setVisible(true);	    
 		
 		addWindowListeners();
-		addMenuListeners();
-		
+		try {
+			addMenuListeners();
+		} catch(AWTException e) {}
 	}
 	
 	public void addWindowListeners() {
@@ -171,7 +181,7 @@ public class CurveWindow extends JFrame {
 	    });
 	}
 	
-	public void addMenuListeners() {
+	public void addMenuListeners()  throws AWTException {
 		this.stopMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -180,23 +190,26 @@ public class CurveWindow extends JFrame {
 				resumeMenu.setEnabled(true);
 			}
 		});
-		
+		Robot r = new Robot();
 		this.resumeMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				CurveWindow.this.playGround.resumeEvent();
 				stopMenu.setEnabled(true);
-				resumeMenu.setEnabled(false);
+				resumeMenu.setEnabled(false);				
+			    r.mouseMove(0, menuBar.getHeight() + (namesPane.getHeight() >> 1));
+			    r.mousePress( InputEvent.BUTTON1_MASK );
 			}
 		});
 	}
 		
 	private void addPlayerNames(List<String> names, List<Color> colors) {		
 		JLayeredPane namesWrapper = new JLayeredPane();
+		namesWrapper.setSize(Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT);		
 		namesWrapper.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT));
 		
 		this.namesPane = new JPanel(new GridLayout(1, names.size()));
-		this.namesPane.setBounds(0, 0, Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT);
+		this.namesPane.setBounds(0, 0, Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT);		
 		
 		/***************************************************************
 		 * PROGRESS PANE - BAR 
@@ -205,7 +218,7 @@ public class CurveWindow extends JFrame {
 		this.generalProgressPane.setBounds(0, GameController.PLAYER_STATUS_PANE_HEIGHT - GameController.PROGRESS_BAR_HEIGHT, Main.SCREEN_WIDTH, GameController.PROGRESS_BAR_HEIGHT);		
 		
 		this.generalProgressBar = new JProgressBar();
-		this.generalProgressBar.setBackground(Color.WHITE);
+		this.generalProgressBar.setBackground(Colors.TRANSPARENT);
 		this.generalProgressBar.setForeground(Color.RED);
 		this.generalProgressBar.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, GameController.PROGRESS_BAR_HEIGHT));		
 		this.generalProgressBar.setBorder(BorderFactory.createEmptyBorder());

@@ -51,10 +51,10 @@ public class LandingWindow extends JFrame {
 		
 		defaultContent = contentPane;
 		
-		this.setSize(Main.LANDING_WIDTH, Main.LANDING_HEIGHT);		
+		this.setSize(Main.LANDING_WIDTH, Main.LANDING_HEIGHT);
 		this.setResizable(false);
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);		
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setIconImage(new ImageIcon("images\\icon.png").getImage());
 		this.setVisible(true);
 		Main.setCloseOnEsc(this);

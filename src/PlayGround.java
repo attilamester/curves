@@ -106,7 +106,8 @@ public class PlayGround extends JPanel {
 		}
 
 		setBorder(GameController.PLAYGROUND_BORDER_FACTORY);
-		this.setSize(new Dimension(playGroundSizeX, playGroundSizeY));
+		//his.setSize(new Dimension(playGroundSizeX, playGroundSizeY));
+		this.setBounds(0, 0, playGroundSizeX, playGroundSizeY);
 		this.playgroundLoading = true;
 	}
 
