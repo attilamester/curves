@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -7,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.ListIterator;
@@ -33,15 +33,17 @@ public class PowerUpLoader {
 		"no_border.png",
 		"shrink_border.png",
 		"erase.png",
+		"bulldozer.png",
+		"swap.png",
 		"own_fly.png",
 		"own_slow.png",
 		"own_speed.png",
 		"other_slow.png",
 		"other_speed.png",
 		"other_swap_control.png",
-		"other_thick.png"
+		"other_thick.png"		
 	};
-	private static final int POWERUP_COUNT = 11;
+	private static final int POWERUP_COUNT = 12;
 	private static final int MAX_POWERUPS = 15;	
 	
 	private Timer borderShrinker = null;
@@ -93,7 +95,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE) + PowerUp.POWERUP_SIZE / 2;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE)+ PowerUp.POWERUP_SIZE / 2;
 		
-		int index = 1;
+		int index = 5;
 		if (index == 0)
 			index = rnd.nextInt(POWERUP_COUNT);
 		return new PowerUp(POWERUP_NAMES[index], x, y);
@@ -196,26 +198,54 @@ public class PowerUpLoader {
 				pl.setBounds((GameController.FRAME_SIZE_X - newX) >> 1, (GameController.FRAME_SIZE_Y - newY) >> 1, newX, newY);
 			}
 		});
-		borderShrinker.start();
-		
-		/*
-		if (PowerUpTask.generalStarted) {
-			PowerUpTask.generalProgressValue = 0;
-			return;
+		borderShrinker.start();		
+	}
+	
+	public void action_bulldozer(PlayGround pl) {
+		for (int i = 0; i < pl.getPlayers(); ++i) {
+			action_ownBulldozer(pl, pl.getCurves()[i], i);
 		}
-		PowerUpTask task = new PowerUpTask(GameController.GENERAL_TASK_TIMER_LENGTH, false, pl.getCurveWindow().getGeneralProgressPane());
+	}
+	
+	public void action_ownBulldozer(PlayGround pl, Curve curve, int index) {
+		curve.setBulldozerCount(curve.getBulldozerCount() + 1);
+		
+		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index));
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				pl.setBorder(GameController.PLAYGROUND_BORDER_FACTORY);
-				pl.setNoBorder(false);
-				//powerUpTasks.remove(task);
+				curve.setBulldozerCount(curve.getBulldozerCount() - 1);
 				return null;
 			}
 		});
 		task.start();
 		this.powerUpTasks.add(task);
-		*/
+	}
+	
+	public void action_swap(PlayGround pl) {
+		
+		List<Integer> players = new ArrayList<>();
+		List<Direction> directions = new ArrayList<>();
+		List<Double> oldX = new ArrayList<>();
+		List<Double> oldY = new ArrayList<>();
+		
+		for (int i = 0; i < pl.getPlayers(); ++i) {
+			players.add(new Integer(i));
+			directions.add(new Direction(pl.getCurves()[i].getDirection()));
+			oldX.add(new Double(pl.getCurves()[i].getX()));
+			oldY.add(new Double(pl.getCurves()[i].getY()));
+		}
+		
+		Collections.shuffle(players);
+		
+		for (int i = 0; i < pl.getPlayers(); ++i) {
+			
+			action_ownFly(pl, pl.getCurves()[i], i);
+			
+			pl.getCurves()[i].setDirection(directions.get(players.get(i)));
+			pl.getCurves()[i].setX(oldX.get(players.get(i)));
+			pl.getCurves()[i].setY(oldY.get(players.get(i)));			
+		}
 	}
 	
 	public void action_erase(PlayGround pl) {

@@ -10,6 +10,11 @@ public class Direction {
 	}
 	
 	public Direction() {}
+	
+	public Direction(Direction direction) {
+		this.i = direction.i;
+		this.j = direction.j;
+	}
 
 	@Override
 	public String toString() {

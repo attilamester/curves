@@ -25,6 +25,7 @@ public class Curve {
 	private int collisionCount;
 	
 	private int flyCount;
+	private int bulldozerCount;
 	private int swapCount;
 	
 	private int circleNumber;
@@ -165,6 +166,14 @@ public class Curve {
 
 	public void setSwapCount(int swapCount) {
 		this.swapCount = swapCount;
+	}
+	
+	public int getBulldozerCount() {
+		return bulldozerCount;
+	}
+
+	public void setBulldozerCount(int bulldozerCount) {
+		this.bulldozerCount = bulldozerCount;
 	}
 
 	public double calcSpeed() {

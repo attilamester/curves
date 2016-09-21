@@ -173,11 +173,13 @@ public class PlayGround extends JPanel {
 					managePlayerDeath(i);
 					return;
 				}
-
-				if (crashedToSomething(curves[i], i)) {
-					g.drawImage(curvesLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
-					managePlayerDeath(i);
-					return;
+				
+				if (curves[i].getBulldozerCount() == 0) {
+					if (crashedToSomething(curves[i], i)) {
+						g.drawImage(curvesLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
+						managePlayerDeath(i);
+						return;
+					}
 				}
 
 				if (curves[i].isPaused()) {
@@ -617,38 +619,31 @@ public class PlayGround extends JPanel {
 			if (dist <= PowerUp.POWERUP_RADIUS) {
 				switch (p.getName()) {
 				case "more_extra.png":
-					this.powerUpLoader.action_moreExtra();
-					break;
+					this.powerUpLoader.action_moreExtra(); break;
 				case "no_border.png":
-					this.powerUpLoader.action_noBorder(this);
-					break;
+					this.powerUpLoader.action_noBorder(this); break;
 				case "shrink_border.png":
-					this.powerUpLoader.action_shrinkBorder(this);
-					break;
+					this.powerUpLoader.action_shrinkBorder(this); break;
 				case "erase.png":
-					this.powerUpLoader.action_erase(this);
-					return;
+					this.powerUpLoader.action_erase(this); return;
+				case "bulldozer.png":
+					this.powerUpLoader.action_bulldozer(this); break;
+				case "swap.png":
+					this.powerUpLoader.action_swap(this); break;
 				case "own_fly.png":
-					this.powerUpLoader.action_ownFly(this, curve, index);
-					break;
+					this.powerUpLoader.action_ownFly(this, curve, index); break;
 				case "own_slow.png":
-					this.powerUpLoader.action_ownSlow(this, curve, index);
-					break;
+					this.powerUpLoader.action_ownSlow(this, curve, index); break;
 				case "own_speed.png":
-					this.powerUpLoader.action_ownSpeed(this, curve, index);
-					break;
+					this.powerUpLoader.action_ownSpeed(this, curve, index); break;
 				case "other_slow.png":
-					this.powerUpLoader.action_otherSlow(this, index);
-					break;
+					this.powerUpLoader.action_otherSlow(this, index); break;
 				case "other_speed.png":
-					this.powerUpLoader.action_otherSpeed(this, index);
-					break;
+					this.powerUpLoader.action_otherSpeed(this, index); break;
 				case "other_swap_control.png":
-					this.powerUpLoader.action_otherSwapControl(this, index);
-					break;
+					this.powerUpLoader.action_otherSwapControl(this, index); break;
 				case "other_thick.png":
-					this.powerUpLoader.action_otherThick(this, index);
-					break;
+					this.powerUpLoader.action_otherThick(this, index); break;
 				}
 
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
@@ -663,7 +658,7 @@ public class PlayGround extends JPanel {
 			}
 		}
 	}
-
+	
 	private double point_distance(double x1, double y1, double x2, double y2) {
 		return Math.hypot(x1 - x2, y1 - y2);
 	}
