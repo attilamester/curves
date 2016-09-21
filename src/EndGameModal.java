@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
@@ -23,7 +24,7 @@ public class EndGameModal extends JDialog {
 	
 	public EndGameModal(CurveWindow curveWindow, List<PlayerStatus> playerStatusPanes) {
 		contentPane = this.getContentPane();
-		contentPane.setLayout(new GridLayout(playerStatusPanes.size() + 2, 1));
+		contentPane.setLayout(new GridLayout(playerStatusPanes.size() + 3, 1));
 		
 		this.curveWindow = curveWindow;
 		
@@ -32,7 +33,7 @@ public class EndGameModal extends JDialog {
 		
 		addItems(playerStatusPanes);
 		
-		this.setSize(GameController.COUNT_DOWN_WIDTH, GameController.COUNT_DOWN_HEIGHT);
+		this.setSize(GameController.COUNT_DOWN_WIDTH, playerStatusPanes.get(0).getHeight() * (playerStatusPanes.size() + 3));
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
 		
@@ -41,8 +42,6 @@ public class EndGameModal extends JDialog {
 	}
 	
 	private void addItems(List<PlayerStatus> playerStatusPanes) {
-		JPanel topPane = new JPanel();
-		topPane.setOpaque(false);
 		JLabel info = new JLabel("The game ended here :)", JLabel.CENTER);
 		info.setOpaque(false);
 		info.setForeground(Color.WHITE);
@@ -52,19 +51,17 @@ public class EndGameModal extends JDialog {
 		info2.setOpaque(false);
 		info2.setForeground(Color.WHITE);
 		info2.setFont(new Font("Calibri", Font.BOLD, 14));
-		topPane.add(info);
-		topPane.add(info2);
+		contentPane.add(info);
+		contentPane.add(info2);
 		
-		contentPane.add(topPane);
-		
-		
-		Collections.sort(playerStatusPanes);
+		Collections.sort(playerStatusPanes,  Collections.reverseOrder());
 		
 		for (ListIterator<PlayerStatus> iter = playerStatusPanes.listIterator(); iter.hasNext();) {
 			contentPane.add(iter.next());
 		}
 		
 		JLabel end = new JLabel(new ImageIcon("images\\endBg.png"));
+		end.setSize(new Dimension(100, 50));
 		end.setBackground(new Color(0,0,0,0));
 		end.setOpaque(false);
 		contentPane.add(end);

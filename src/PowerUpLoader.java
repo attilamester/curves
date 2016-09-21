@@ -95,7 +95,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE) + PowerUp.POWERUP_SIZE / 2;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE)+ PowerUp.POWERUP_SIZE / 2;
 		
-		int index = 5;
+		int index = 0;
 		if (index == 0)
 			index = rnd.nextInt(POWERUP_COUNT);
 		return new PowerUp(POWERUP_NAMES[index], x, y);
@@ -165,7 +165,7 @@ public class PowerUpLoader {
 			PowerUpTask.generalProgressValue = 0;
 			return;
 		}
-		PowerUpTask task = new PowerUpTask(GameController.GENERAL_TASK_TIMER_LENGTH, false, pl.getCurveWindow().getGeneralProgressPane());
+		PowerUpTask task = new PowerUpTask(pl.getCurveWindow(), GameController.GENERAL_TASK_TIMER_LENGTH, false, null);
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
@@ -201,20 +201,19 @@ public class PowerUpLoader {
 		borderShrinker.start();		
 	}
 	
-	public void action_bulldozer(PlayGround pl) {
-		for (int i = 0; i < pl.getPlayers(); ++i) {
-			action_ownBulldozer(pl, pl.getCurves()[i], i);
-		}
-	}
-	
-	public void action_ownBulldozer(PlayGround pl, Curve curve, int index) {
-		curve.setBulldozerCount(curve.getBulldozerCount() + 1);
+	public void action_bulldozer(PlayGround pl, List<Integer> indexes) {
 		
-		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index));
+		for (Integer i : indexes) {			
+			pl.getCurves()[i].setBulldozerCount(pl.getCurves()[i].getBulldozerCount() + 1);			
+		}
+		
+		PowerUpTask task = new PowerUpTask(pl.getCurveWindow(), 5000, true, indexes);
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				curve.setBulldozerCount(curve.getBulldozerCount() - 1);
+				for (Integer i : indexes) {
+					pl.getCurves()[i].setBulldozerCount(pl.getCurves()[i].getBulldozerCount() - 1);
+				}
 				return null;
 			}
 		});
@@ -222,7 +221,10 @@ public class PowerUpLoader {
 		this.powerUpTasks.add(task);
 	}
 	
-	public void action_swap(PlayGround pl) {
+	
+	public void action_swapCurves(PlayGround pl) {
+		
+		List<Integer> indexes = new ArrayList<>();
 		
 		List<Integer> players = new ArrayList<>();
 		List<Direction> directions = new ArrayList<>();
@@ -230,7 +232,8 @@ public class PowerUpLoader {
 		List<Double> oldY = new ArrayList<>();
 		
 		for (int i = 0; i < pl.getPlayers(); ++i) {
-			players.add(new Integer(i));
+			indexes.add(i);
+			players.add(i);
 			directions.add(new Direction(pl.getCurves()[i].getDirection()));
 			oldX.add(new Double(pl.getCurves()[i].getX()));
 			oldY.add(new Double(pl.getCurves()[i].getY()));
@@ -238,10 +241,9 @@ public class PowerUpLoader {
 		
 		Collections.shuffle(players);
 		
-		for (int i = 0; i < pl.getPlayers(); ++i) {
-			
-			action_ownFly(pl, pl.getCurves()[i], i);
-			
+		action_fly(pl, indexes);
+		
+		for (int i = 0; i < pl.getPlayers(); ++i) {						
 			pl.getCurves()[i].setDirection(directions.get(players.get(i)));
 			pl.getCurves()[i].setX(oldX.get(players.get(i)));
 			pl.getCurves()[i].setY(oldY.get(players.get(i)));			
@@ -266,17 +268,23 @@ public class PowerUpLoader {
 		this.clearPowerUps();
 	}
 	
-	public void action_ownFly(PlayGround pl, Curve curve, int index) {
-		curve.setPaused(true);
-		curve.setFlyCount(curve.getFlyCount() + 1);
+	public void action_fly(PlayGround pl, List<Integer> indexes) {
 		
-		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index));
+		for (Integer i : indexes) {
+			pl.getCurves()[i].setPaused(true);
+			pl.getCurves()[i].setFlyCount(pl.getCurves()[i].getFlyCount() + 1);
+		}
+		
+		PowerUpTask task = new PowerUpTask(pl.getCurveWindow(), 5000, true, indexes);
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				if (curve.getFlyCount() == 1)
-					curve.setPaused(false);
-				curve.setFlyCount(curve.getFlyCount() - 1);
+				
+				for (Integer i : indexes) {
+					if (pl.getCurves()[i].getFlyCount() == 1)
+						pl.getCurves()[i].setPaused(false);
+					pl.getCurves()[i].setFlyCount(pl.getCurves()[i].getFlyCount() - 1);
+				}				
 				//powerUpTasks.remove(task);
 				return null;
 			}
@@ -285,14 +293,19 @@ public class PowerUpLoader {
 		this.powerUpTasks.add(task);
 	}
 	
-	public void action_ownSlow(PlayGround pl, Curve curve, int index) {
-		curve.slowDown();		
+	public void action_slow(PlayGround pl, List<Integer> indexes) {
 		
-		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index));
+		for (Integer i : indexes) {
+			pl.getCurves()[i].slowDown();
+		}
+		
+		PowerUpTask task = new PowerUpTask(pl.getCurveWindow(), 5000, true, indexes);
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				curve.speedUp();
+				for (Integer i : indexes) {
+					pl.getCurves()[i].speedUp();
+				}
 				//powerUpTasks.remove(task);
 				return null;
 			}
@@ -301,14 +314,19 @@ public class PowerUpLoader {
 		this.powerUpTasks.add(task);
 	}
 
-	public void action_ownSpeed(PlayGround pl, Curve curve, int index) {
-		curve.speedUp();		
+	public void action_speed(PlayGround pl, List<Integer> indexes) {
 		
-		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index));
+		for (Integer i : indexes) {
+			pl.getCurves()[i].speedUp();
+		}
+		
+		PowerUpTask task = new PowerUpTask(pl.getCurveWindow(), 5000, true, indexes);
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				curve.slowDown();
+				for (Integer i : indexes) {
+					pl.getCurves()[i].slowDown();
+				}
 				//powerUpTasks.remove(task);
 				return null;
 			}
@@ -317,40 +335,30 @@ public class PowerUpLoader {
 		this.powerUpTasks.add(task);
 	}
 	
-	public void action_otherSlow(PlayGround pl, int index) {
-		for (int i = 0; i < pl.getPlayers(); ++i) {
-			if (i == index)
+	/**
+	 * 
+	 * for (int i = 0; i < pl.getPlayers(); ++i) {
+			if (i == index || !pl.getPlayersStillAlive().contains(new Integer(i)))
 				continue;
-			action_ownSlow(pl, pl.getCurves()[i], i);
-		}
-	}
-	
-	public void action_otherSpeed(PlayGround pl, int index) {
-		for (int i = 0; i < pl.getPlayers(); ++i) {
-			if (i == index)
-				continue;
-			action_ownSpeed(pl, pl.getCurves()[i], i);
-		}	
-	}
-	
-	public void action_otherSwapControl(PlayGround pl, int index) {
-		for (int i = 0; i < pl.getPlayers(); ++i) {
-			if (i == index)
-				continue;
-			action_ownSwapControl(pl, pl.getCurves()[i], i);
-		}
-	}
-	
-	public void action_ownSwapControl(PlayGround pl, Curve curve, int index) {
-		curve.setSwapCount(curve.getSwapCount() + 1);
-		pl.getCurveWindow().getCtrl().get(index).swap();
+	 * 
+	 * 
+	 */
+
+	public void action_swapControl(PlayGround pl, List<Integer> indexes) {
 		
-		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index));
+		for (Integer i : indexes) {
+			pl.getCurves()[i].setSwapCount(pl.getCurves()[i].getSwapCount() + 1);
+			pl.getCurveWindow().getCtrl().get(i).swap();
+		}
+		
+		PowerUpTask task = new PowerUpTask(pl.getCurveWindow(), 5000, true, indexes);
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				pl.getCurveWindow().getCtrl().get(index).swap();
-				curve.setSwapCount(curve.getSwapCount() - 1);
+				for (Integer i : indexes) {
+					pl.getCurveWindow().getCtrl().get(i).swap();
+					pl.getCurves()[i].setSwapCount(pl.getCurves()[i].getSwapCount() - 1);					
+				}				
 				//powerUpTasks.remove(task);
 				return null;
 			}
@@ -359,22 +367,19 @@ public class PowerUpLoader {
 		this.powerUpTasks.add(task);
 	}	
 	
-	public void action_otherThick(PlayGround pl, int index) {
-		for (int i = 0; i < pl.getPlayers(); ++i) {
-			if (i == index)
-				continue;
-			action_ownThick(pl, pl.getCurves()[i], i);
-		}
-	}
-	
-	public void action_ownThick(PlayGround pl, Curve curve, int index) {
-		curve.thickUp();		
+	public void action_thick(PlayGround pl, List<Integer> indexes) {
 		
-		PowerUpTask task = new PowerUpTask(5000, true, pl.getCurveWindow().getPlayerStatusPanes().get(index));
+		for (Integer i : indexes) {
+			pl.getCurves()[i].thickUp();
+		}
+		
+		PowerUpTask task = new PowerUpTask(pl.getCurveWindow(), 5000, true, indexes);
 		task.setCallback(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				curve.thickDown();
+				for (Integer i : indexes) {
+					pl.getCurves()[i].thickDown();
+				}
 				//powerUpTasks.remove(task);
 				return null;
 			}

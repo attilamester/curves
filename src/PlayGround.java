@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -21,6 +20,7 @@ import java.awt.image.RGBImageFilter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
@@ -383,13 +383,14 @@ public class PlayGround extends JPanel {
 			if (winner.isEmpty())
 				winner = "#noName";
 
+			this.powerUpLoader.clearPowerUps();				
+			this.powerUpLoader.finishAllTasks();
+			
 			if (this.round == GameController.ROUND_COUNT) {
 				
 				EndGameModal endGame = new EndGameModal(this.curveWindow, this.curveWindow.getPlayerStatusPanes());
-				
+								
 			} else {
-				this.powerUpLoader.clearPowerUps();				
-				this.powerUpLoader.finishAllTasks();				
 				
 				CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner, this.colors.get(alive));
 				this.playersStillAlive.clear();
@@ -612,38 +613,45 @@ public class PlayGround extends JPanel {
 		return true;
 	}
 
-	private void checkForPowerUp(Curve curve, int index) {
+	private void checkForPowerUp(Curve curve, int index) {		
+		List<Integer> otherCurveIndexes = new ArrayList<>();
+		for (int i = 0; i < this.players; ++i) {
+			if (i == index || this.playersDead.contains(i))
+				continue;
+			otherCurveIndexes.add(i);
+		}
+		
 		for (ListIterator<PowerUp> iter = this.powerUpLoader.getPowerUps().listIterator(); iter.hasNext();) {
 			PowerUp p = iter.next();
 			double dist = point_distance(curve.getX(), curve.getY(), p.getX(), p.getY());
 			if (dist <= PowerUp.POWERUP_RADIUS) {
 				switch (p.getName()) {
-				case "more_extra.png":
-					this.powerUpLoader.action_moreExtra(); break;
-				case "no_border.png":
-					this.powerUpLoader.action_noBorder(this); break;
-				case "shrink_border.png":
-					this.powerUpLoader.action_shrinkBorder(this); break;
-				case "erase.png":
-					this.powerUpLoader.action_erase(this); return;
-				case "bulldozer.png":
-					this.powerUpLoader.action_bulldozer(this); break;
-				case "swap.png":
-					this.powerUpLoader.action_swap(this); break;
-				case "own_fly.png":
-					this.powerUpLoader.action_ownFly(this, curve, index); break;
-				case "own_slow.png":
-					this.powerUpLoader.action_ownSlow(this, curve, index); break;
-				case "own_speed.png":
-					this.powerUpLoader.action_ownSpeed(this, curve, index); break;
-				case "other_slow.png":
-					this.powerUpLoader.action_otherSlow(this, index); break;
-				case "other_speed.png":
-					this.powerUpLoader.action_otherSpeed(this, index); break;
-				case "other_swap_control.png":
-					this.powerUpLoader.action_otherSwapControl(this, index); break;
-				case "other_thick.png":
-					this.powerUpLoader.action_otherThick(this, index); break;
+					case "more_extra.png":
+						this.powerUpLoader.action_moreExtra(); break;
+					case "no_border.png":
+						this.powerUpLoader.action_noBorder(this); break;
+					case "shrink_border.png":
+						this.powerUpLoader.action_shrinkBorder(this); break;
+					case "erase.png":
+						this.powerUpLoader.action_erase(this); return;
+					case "bulldozer.png":
+						this.powerUpLoader.action_bulldozer(this, otherCurveIndexes); break;
+					case "swap.png":
+						this.powerUpLoader.action_swapCurves(this); break;
+					case "own_fly.png":
+						this.powerUpLoader.action_fly(this, Arrays.asList(index)); break;
+					case "own_slow.png":
+						this.powerUpLoader.action_slow(this, Arrays.asList(index)); break;
+					case "own_speed.png":
+						this.powerUpLoader.action_speed(this, Arrays.asList(index)); break;
+					case "other_slow.png":
+						this.powerUpLoader.action_slow(this, otherCurveIndexes); break;
+					case "other_speed.png":
+						this.powerUpLoader.action_speed(this, otherCurveIndexes); break;
+					case "other_swap_control.png":
+						this.powerUpLoader.action_swapControl(this, otherCurveIndexes); break;
+					case "other_thick.png":
+						this.powerUpLoader.action_thick(this, otherCurveIndexes); break;
 				}
 
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
@@ -759,7 +767,6 @@ public class PlayGround extends JPanel {
 	public boolean getNoBorder() {
 		return this.noBorder;
 	}
-	
 
 	public CurveWindow getCurveWindow() {
 		return curveWindow;
@@ -789,4 +796,9 @@ public class PlayGround extends JPanel {
 		this.shrinkedY = shrinkedY;
 	}
 
+	public List<Integer> getPlayersStillAlive() {
+		return playersStillAlive;
+	}
+
+	
 }

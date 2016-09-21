@@ -174,7 +174,7 @@ public class CurveWindow extends JFrame {
 	    });
 	}
 	
-	public void addMenuListeners()  throws AWTException {
+	public void addMenuListeners() throws AWTException {
 		this.stopMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -267,6 +267,10 @@ public class CurveWindow extends JFrame {
 
 	public JPanel getGeneralProgressPane() {
 		return generalProgressPane;
+	}
+	
+	public JProgressBar getGeneralProgressBar() {
+		return generalProgressBar;
 	}
 	
 }

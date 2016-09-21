@@ -237,11 +237,14 @@ public class ConfigPanel extends JPanel {
 					colors.add(ref.getColor());
 				}
 				
+				GameController.finished = false;				
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
 				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);	
 				CountDownModal cnt = new CountDownModal(curveWindow, 1, null, null);
+				
+				
 			}
 		});
 	    
