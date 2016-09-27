@@ -18,7 +18,10 @@ import javax.swing.Timer;
 
 public class PowerUpLoader {
 	
+	private PlayGround pl;
 	private ImageLayer backgroundLayer;
+	
+	
 	private Timer timer;
 	private int delay;
 	private int frequency; /// max milli sec. between powerups
@@ -41,15 +44,16 @@ public class PowerUpLoader {
 		"other_slow.png",
 		"other_speed.png",
 		"other_swap_control.png",
-		"other_thick.png"		
+		"other_thick.png"
 	};
-	private static final int POWERUP_COUNT = 12;
+	private static final int POWERUP_COUNT = POWERUP_NAMES.length;
 	private static final int MAX_POWERUPS = 15;	
 	
 	private Timer borderShrinker = null;
 	
-	public PowerUpLoader(ImageLayer backgroundLayer) {
-		this.backgroundLayer = backgroundLayer;
+	public PowerUpLoader(PlayGround pl) {
+		this.pl = pl;
+		this.backgroundLayer = pl.getBackgroundLayer();
 		
 		this.powerUps = new ArrayList<PowerUp>();
 		
@@ -92,8 +96,10 @@ public class PowerUpLoader {
 	}
 	
 	private PowerUp createPowerUp() {
-		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE) + PowerUp.POWERUP_SIZE / 2;
-		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE)+ PowerUp.POWERUP_SIZE / 2;
+		int shrinkX = pl.getShrinkedX() >> 1;
+		int shrinkY = pl.getShrinkedY() >> 1;
+		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE - shrinkX) + PowerUp.POWERUP_SIZE / 2 + shrinkX;
+		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE - shrinkY)+ PowerUp.POWERUP_SIZE / 2 + shrinkY;
 		
 		int index = 0;
 		if (index == 0)
@@ -232,6 +238,9 @@ public class PowerUpLoader {
 		List<Double> oldY = new ArrayList<>();
 		
 		for (int i = 0; i < pl.getPlayers(); ++i) {
+			if (pl.getPlayersDead().contains(new Integer(i)))
+				continue;
+			
 			indexes.add(i);
 			players.add(i);
 			directions.add(new Direction(pl.getCurves()[i].getDirection()));
@@ -244,6 +253,9 @@ public class PowerUpLoader {
 		action_fly(pl, indexes);
 		
 		for (int i = 0; i < pl.getPlayers(); ++i) {						
+			if (pl.getPlayersDead().contains(new Integer(i)))
+				continue;
+			
 			pl.getCurves()[i].setDirection(directions.get(players.get(i)));
 			pl.getCurves()[i].setX(oldX.get(players.get(i)));
 			pl.getCurves()[i].setY(oldY.get(players.get(i)));			

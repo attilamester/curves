@@ -16,7 +16,7 @@ public class GameController {
 	 * 
 	 ************************************************************************/
 	public static boolean finished;
-	public static int ROUND_COUNT = 1;
+	public static int ROUND_COUNT = 15;
 	
 	public static final int MENU_HEIGHT = 20;
 	public static final int PLAYER_STATUS_PANE_HEIGHT = 30;
@@ -48,6 +48,9 @@ public class GameController {
 	
 	public static final int COUNT_DOWN_WIDTH  = 200;
 	public static final int COUNT_DOWN_HEIGHT = 200;
+	
+	public static final int ERROR_MODAL_WIDTH  = 200;
+	public static final int ERROR_MODAL_HEIGHT = 75;
 	
 	
 		

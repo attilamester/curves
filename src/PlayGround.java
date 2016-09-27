@@ -139,7 +139,7 @@ public class PlayGround extends JPanel {
 				// this.getHeight(), null);
 				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
 				
-				this.powerUpLoader = new PowerUpLoader(this.backgroundLayer);
+				this.powerUpLoader = new PowerUpLoader(this);
 			} else {
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
 				this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(),
@@ -571,7 +571,7 @@ public class PlayGround extends JPanel {
 			int circleCount = col & 0x0000FFFF;
 			//System.out.println(col + " PLAYER:" + playerIndex + " CIRCLE: " + circleCount);
 			
-			if (playerIndex == index && curve.getCircleNumber() - circleCount <= 3)
+			if (playerIndex == index && curve.getCircleNumber() - circleCount <= 5)
 				return true;
 			
 			return false;			
@@ -620,6 +620,8 @@ public class PlayGround extends JPanel {
 				continue;
 			otherCurveIndexes.add(i);
 		}
+		List<Integer> allIndexes = new ArrayList<>(otherCurveIndexes);
+		allIndexes.add(index);
 		
 		for (ListIterator<PowerUp> iter = this.powerUpLoader.getPowerUps().listIterator(); iter.hasNext();) {
 			PowerUp p = iter.next();
@@ -635,7 +637,7 @@ public class PlayGround extends JPanel {
 					case "erase.png":
 						this.powerUpLoader.action_erase(this); return;
 					case "bulldozer.png":
-						this.powerUpLoader.action_bulldozer(this, otherCurveIndexes); break;
+						this.powerUpLoader.action_bulldozer(this, allIndexes); break;
 					case "swap.png":
 						this.powerUpLoader.action_swapCurves(this); break;
 					case "own_fly.png":
@@ -699,8 +701,13 @@ public class PlayGround extends JPanel {
 	}
 	
 	public void resumeEvent() {
-		for (int i = 0; i < this.players; ++i)
+		for (int i = 0; i < this.players; ++i) {
+			if (this.playersDead.contains(i)) {
+				continue;
+			}
 			curveControllers[i].restart();
+		}
+			
 		//this.curveWindow.getDisplayRefresher().restartRefresher();
 	}
 
@@ -798,6 +805,10 @@ public class PlayGround extends JPanel {
 
 	public List<Integer> getPlayersStillAlive() {
 		return playersStillAlive;
+	}
+
+	public List<Integer> getPlayersDead() {
+		return playersDead;
 	}
 
 	

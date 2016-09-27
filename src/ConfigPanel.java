@@ -1,12 +1,15 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
@@ -21,17 +24,25 @@ import java.util.List;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -223,18 +234,41 @@ public class ConfigPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				start.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				
+				boolean error = false;
 				List<Control> ctrl = new ArrayList<Control>();
 				List<String> names = new ArrayList<String>();
 				List<Color> colors = new ArrayList<Color>();
+				
+				int i = 0;
 				for (Component c : playersPane.getComponents()) {
 					PlayerConfigRow ref = (PlayerConfigRow) c;
-					if (ref.getLeft() == -1 || ref.getRight() == -1)
-						ctrl.add(new Control(65,83));
-					else
+					if (ref.getLeft() == -1 || ref.getRight() == -1 || ref.getLeft() == ref.getRight()) {
+						/*
+						error = true;
+						ErrorDialog dialog = new ErrorDialog("Curves must have proper controls!");
+						return;
+						*/
+						ctrl.add(new Control(65, 83));
+					} else {
 						ctrl.add(new Control(ref.getLeft(), ref.getRight()));
+					}
 					
-					names.add(ref.getName());
-					colors.add(ref.getColor());
+					names.add(ref.getName().length() > 0 ? ref.getName() : ("#player" + Integer.toString(++i)));
+					
+					/**
+					 * Color check
+					 */
+					if (colors.contains(ref.getColor())) {
+						error = true;
+						ErrorDialog dialog = new ErrorDialog("Curves must have different colors!");
+						return;
+					} else {
+						colors.add(ref.getColor());
+					}
+				}
+				
+				if (error) {
+					return;
 				}
 				
 				GameController.finished = false;				
@@ -251,6 +285,7 @@ public class ConfigPanel extends JPanel {
 	}
 	
 	static class PlayerConfigRow extends JPanel {
+
 		private static final long serialVersionUID = 1;
 		
 		static class TextFieldPlaceholder extends JTextField implements FocusListener {
@@ -296,6 +331,11 @@ public class ConfigPanel extends JPanel {
 			public String getText() {				
 				return this.placeHolderShown ? "" : super.getText();
 			}
+			
+			public void setColor(Color color) {
+				placeHolderColor = color;
+				this.setForeground(placeHolderColor);
+			}
 		}
 		
 		static class DetectControlButton extends JTextField implements FocusListener {
@@ -305,11 +345,12 @@ public class ConfigPanel extends JPanel {
 			private boolean listening;
 			private boolean hasSpecChar;
 			private int code;
+			private Color color;
 
 			public DetectControlButton(String label, Color col) {
 				super(label);
 				super.setEditable(false);
-				this.setPreferredSize(new Dimension(50, 25));		
+				this.setPreferredSize(new Dimension(50, 25));
 				this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));				
 				this.setOpaque(false);
 				this.setForeground(col);
@@ -371,14 +412,92 @@ public class ConfigPanel extends JPanel {
 						g.drawImage(img, 0, 0, 50, 25,  null);
 					} catch (IOException e) {}
 				}
-
+			}
+			
+			public void setColor(Color color) {
+				this.color = color;
+				this.setForeground(color);
 			}
 		}
 		
-		public TextFieldPlaceholder name;
-		public Color color;
-		public DetectControlButton leftCtrl;
-		public DetectControlButton rightCtrl;
+		static class CurveColorChooser extends JComboBox {
+			
+			private Color color;
+				
+			public CurveColorChooser(PlayerConfigRow row) {
+				super(Colors.DEFAULT_CURVE_COLORS);
+				
+				this.setPreferredSize(new Dimension(50, 25));
+				this.setSelectedIndex(-1);
+				/***************************************************************
+				 * COMBO BOX BORDER BUG WORKAROUND
+				 * http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4515838
+				 ***************************************************************/
+				for (int i = 0; i < this.getComponentCount(); i++) 
+				{
+				    if (this.getComponent(i) instanceof JComponent) {
+				        ((JComponent) this.getComponent(i)).setBorder(new EmptyBorder(0, 0,0,0));
+				    }
+
+
+				    if (this.getComponent(i) instanceof AbstractButton) {
+				        ((AbstractButton) this.getComponent(i)).setBorderPainted(false);
+				    }
+				}
+				/**************************************************************/
+				//this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
+				this.setRenderer(new ComboBoxRenderer());
+				
+				this.addActionListener(new ActionListener() {
+					@Override
+					 public void actionPerformed(ActionEvent e) {
+						Color selectedColor = (Color) getSelectedItem();
+				        row.setColor(selectedColor);
+					}
+				});
+				this.getEditor().getEditorComponent().addMouseListener(new MouseAdapter() {
+					@Override
+					public void mousePressed(MouseEvent e) {
+					//	setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
+					//	System.out.println("asd");
+					}
+				});
+				
+			}
+			public Color getColor() {
+				return color;
+			}
+					
+			static class ComboBoxRenderer extends JPanel implements ListCellRenderer {
+				
+				private Color optionColor;
+				
+				public ComboBoxRenderer() {
+					super();
+					this.setPreferredSize(new Dimension(50, 20));
+					this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+				}
+				@Override
+				public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+					if (value instanceof Color) {
+						optionColor  = (Color) value;
+					}
+		            return this;
+				}
+				@Override
+				public void paint(Graphics g) {
+					setBackground(optionColor);
+					super.paintComponent(g);					
+				}
+				
+			}
+		}
+		
+		private TextFieldPlaceholder name;
+		private DetectControlButton leftCtrl;
+		private DetectControlButton rightCtrl;
+		private Color color;
+		private CurveColorChooser colorChooser;
 		
 		public PlayerConfigRow(Random rnd) {
 			setLayout(new FlowLayout());
@@ -389,11 +508,14 @@ public class ConfigPanel extends JPanel {
 			leftCtrl = new DetectControlButton(" LEFT", color);
 			rightCtrl = new DetectControlButton(" RIGHT", color);
 			
+			colorChooser = new CurveColorChooser(this);
+			
 			setBackground(GameController.PLAYGROUND_BACKGROUND);
 			
 			add(name);
 			add(leftCtrl);
 			add(rightCtrl);
+			add(colorChooser);
 		}
 		
 		public String getName() {
@@ -410,6 +532,52 @@ public class ConfigPanel extends JPanel {
 		
 		public Color getColor() {
 			return color;
+		}
+		
+		public void setColor(Color color) {
+			this.color = color;
+			this.name.setColor(color);
+			this.leftCtrl.setColor(color);
+			this.rightCtrl.setColor(color);
+		}
+	}
+	
+	static class ErrorDialog extends JDialog {
+		
+		public ErrorDialog(String messageText) {
+			Container pane = this.getContentPane();
+			
+			pane.setLayout(new BorderLayout());
+			
+			JLabel message = new JLabel(messageText, JLabel.CENTER);
+			message.setForeground(Color.RED);
+			
+			JLabel ok = new JLabel("Ok", JLabel.CENTER);
+			ok.setFont(new Font("Calibri", Font.BOLD, 20));
+			ok.setBackground(GameController.PLAYGROUND_BACKGROUND);
+			ok.setForeground(Color.WHITE);
+			ok.setSize(new Dimension(20,20));
+			ok.setPreferredSize(new Dimension(20,20));
+			
+			pane.add(message, BorderLayout.CENTER);
+			pane.add(ok, BorderLayout.SOUTH);
+			
+			ok.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					//setBackground(GameController.PLAYGROUND_BACKGROUND);
+					dispose();
+				}
+			});			
+			
+			pane.setBackground(GameController.PLAYGROUND_BACKGROUND);
+			this.getRootPane().setBorder(new LineBorder(Color.WHITE));
+			this.setSize(GameController.ERROR_MODAL_WIDTH, GameController.ERROR_MODAL_HEIGHT);
+			this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
+			this.setUndecorated(true);
+			this.setAlwaysOnTop(true);
+			this.setModal(true);
+			this.setVisible(true);
 		}
 	}
 }
