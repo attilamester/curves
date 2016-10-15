@@ -15,6 +15,7 @@ public class Colors {
 	
 	public static final Color BACK_PANE = new Color(132, 145, 255);
 	public static final Color TRANSPARENT = new Color(0f, 0f, 0f, 0f);
+	public static final Color ANIMATION_BACKGROUND = new Color(38, 38, 38);
 	
 	public static final Color[] DEFAULT_CURVE_COLORS = {
 		new Color(250, 10, 10),

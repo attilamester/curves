@@ -136,7 +136,7 @@ public class ServerThread implements Runnable {
 			Thread thisThread = Thread.currentThread();
 			int i;
 			while (thisThread == this.control) {
-
+				System.out.println("[S] READING");
 				String line = this.readFromClient();
 				System.out.println("[S"+id+"] Got from C: " + line);
 				System.out.println("[S"+id+"] SENDING:" + line);

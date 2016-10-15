@@ -17,7 +17,7 @@ public class ClientThread implements Runnable {
 	private PrintWriter out;
 	private BufferedReader in;
 
-	public ClientThread(String hostName, int port) {
+	public ClientThread(String hostName, int port) throws IOException {
 		this.hostName = hostName;
 		this.port = port;
 
@@ -48,19 +48,11 @@ public class ClientThread implements Runnable {
 		}
 	}
 
-	private void connectToHost() {
-		try {
-			this.clientSocket = new Socket(hostName, port);
-		} catch (IOException e) {
-			System.out.println("Couldn't create client socket");
-		}
-
-		try {
-			in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			out = new PrintWriter(clientSocket.getOutputStream(), true);
-		} catch (IOException e) {
-			System.out.println("Couldn't create client pipes");
-		}
+	private void connectToHost() throws IOException {
+		this.clientSocket = new Socket(hostName, port);
+		in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		out = new PrintWriter(clientSocket.getOutputStream(), true);
+		
 	}
 
 	@Override
