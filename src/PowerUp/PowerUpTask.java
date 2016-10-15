@@ -1,3 +1,4 @@
+package PowerUp;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,10 +14,12 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import CurveWindow.CurveWindow;
+import Generals.GameController;
+
 public class PowerUpTask {
 	
 	private CurveWindow curveWindow;
-	private PlayGround playGround;
 	
 	private List<Integer> playerIndexes;
 	
@@ -40,7 +43,6 @@ public class PowerUpTask {
 	
 	public PowerUpTask (CurveWindow curveWindow, int time, boolean PERSONAL, List<Integer> playerIndexes) {
 		this.curveWindow = curveWindow;
-		this.playGround = curveWindow.getPlayGround();
 		
 		this.playerIndexes = playerIndexes;
 		

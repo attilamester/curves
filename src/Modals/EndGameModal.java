@@ -1,3 +1,4 @@
+package Modals;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -5,14 +6,27 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+
+import CurveWindow.CurveWindow;
+import CurveWindow.PlayerStatus;
+import Generals.GameController;
+import Generals.Main;
 
 public class EndGameModal extends JDialog {
 	private static final long serialVersionUID = 1;
@@ -24,16 +38,17 @@ public class EndGameModal extends JDialog {
 	
 	public EndGameModal(CurveWindow curveWindow, List<PlayerStatus> playerStatusPanes) {
 		contentPane = this.getContentPane();
-		contentPane.setLayout(new GridLayout(playerStatusPanes.size() + 3, 1));
+		contentPane.setLayout(new GridLayout(playerStatusPanes.size() + 4, 1));
 		
 		this.curveWindow = curveWindow;
 		
 		this.contentPane = this.getContentPane();
 		contentPane.setBackground(bg);
 		
+		Collections.sort(playerStatusPanes,  Collections.reverseOrder());
 		addItems(playerStatusPanes);
 		
-		this.setSize(GameController.COUNT_DOWN_WIDTH, playerStatusPanes.get(0).getHeight() * (playerStatusPanes.size() + 3));
+		this.setSize(GameController.COUNT_DOWN_WIDTH, playerStatusPanes.get(0).getHeight() * (playerStatusPanes.size() + 4));
 		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
 		
@@ -54,11 +69,16 @@ public class EndGameModal extends JDialog {
 		contentPane.add(info);
 		contentPane.add(info2);
 		
-		Collections.sort(playerStatusPanes,  Collections.reverseOrder());
-		
 		for (ListIterator<PlayerStatus> iter = playerStatusPanes.listIterator(); iter.hasNext();) {
 			contentPane.add(iter.next());
 		}
+		
+		JCheckBox check = new JCheckBox("Save this score");
+		check.setBackground(GameController.PLAYGROUND_BACKGROUND);
+		check.setForeground(Color.WHITE);
+		check.setFocusPainted(false);
+		
+		contentPane.add(check);
 		
 		JLabel end = new JLabel(new ImageIcon("images\\endBg.png"));
 		end.setSize(new Dimension(100, 50));
@@ -70,8 +90,41 @@ public class EndGameModal extends JDialog {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				dispose();
+				if (check.isSelected()) {
+					saveScore(playerStatusPanes);
+				}
 				curveWindow.dispose();
 			}
 		});
+	}
+	
+	private void saveScore(List<PlayerStatus> playerStatusPanes) {
+		File f = new File(GameController.SCORE_FILE_PATH);
+		if(!f.exists()) {
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Could not create score-file");
+				return;
+			}
+		}
+		try {
+			FileWriter bw = new FileWriter(f, true);
+			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			bw.write("\n" + dateFormat.format(new Date()) + "\n");
+			for (ListIterator<PlayerStatus> iter = playerStatusPanes.listIterator(); iter.hasNext();) {
+				PlayerStatus ref = iter.next();
+				String line = new String(ref.getName() + " - " + ref.getScore()) + "\n";
+				bw.write(line);
+			}
+			bw.flush();
+			bw.close();
+		}
+		catch(FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "Could not read score-file");
+		}
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "Error while reading score-file");
+		}
 	}
 }

@@ -1,14 +1,14 @@
+package Generals;
 import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
+import LandingPages.LandingWindow;
+
 public class GameController {
 	
 	public LandingWindow landingWindow;
-	
-	//private CurveWindow curveWindow;
-	private ConfigPanel configPanel;	
 	
 	/***********************************************************************
 	 * 
@@ -52,16 +52,11 @@ public class GameController {
 	public static final int ERROR_MODAL_WIDTH  = 200;
 	public static final int ERROR_MODAL_HEIGHT = 75;
 	
+	public static final String SCORE_FILE_PATH = ".\\scores.txt";
 	
 		
 	public GameController() {
-		
-		configPanel = new ConfigPanel();
-		
-		landingWindow = new LandingWindow(configPanel);
-		
-		
-		configPanel.setSize(landingWindow.getContentPane().getWidth(), landingWindow.getContentPane().getHeight());		
+		landingWindow = new LandingWindow();
 	}
 		
 	public void startGame() {

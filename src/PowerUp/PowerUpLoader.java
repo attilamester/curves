@@ -1,3 +1,4 @@
+package PowerUp;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,11 @@ import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
+
+import Curve.Direction;
+import CurveWindow.ImageLayer;
+import CurveWindow.PlayGround;
+import Generals.GameController;
 
 public class PowerUpLoader {
 	
@@ -116,7 +122,6 @@ public class PowerUpLoader {
 	}
 	
 	public void finishAllTasks() {
-		int i = 1;
 		for (ListIterator<PowerUpTask> iter = this.powerUpTasks.listIterator(); iter.hasNext();) {
 			PowerUpTask ref = iter.next();
 			if (ref.getState() == PowerUpTask.PROGRESS) {
@@ -240,22 +245,20 @@ public class PowerUpLoader {
 		for (int i = 0; i < pl.getPlayers(); ++i) {
 			if (pl.getPlayersDead().contains(new Integer(i)))
 				continue;
-			
 			indexes.add(i);
 			players.add(i);
+		}
+		
+		for (int i = 0; i < pl.getPlayers(); ++i) {
 			directions.add(new Direction(pl.getCurves()[i].getDirection()));
 			oldX.add(new Double(pl.getCurves()[i].getX()));
 			oldY.add(new Double(pl.getCurves()[i].getY()));
 		}
 		
 		Collections.shuffle(players);
-		
 		action_fly(pl, indexes);
 		
-		for (int i = 0; i < pl.getPlayers(); ++i) {						
-			if (pl.getPlayersDead().contains(new Integer(i)))
-				continue;
-			
+		for (int i = 0; i < players.size(); ++i) {
 			pl.getCurves()[i].setDirection(directions.get(players.get(i)));
 			pl.getCurves()[i].setX(oldX.get(players.get(i)));
 			pl.getCurves()[i].setY(oldY.get(players.get(i)));			
@@ -346,20 +349,11 @@ public class PowerUpLoader {
 		task.start();
 		this.powerUpTasks.add(task);
 	}
-	
-	/**
-	 * 
-	 * for (int i = 0; i < pl.getPlayers(); ++i) {
-			if (i == index || !pl.getPlayersStillAlive().contains(new Integer(i)))
-				continue;
-	 * 
-	 * 
-	 */
 
 	public void action_swapControl(PlayGround pl, List<Integer> indexes) {
 		
 		for (Integer i : indexes) {
-			pl.getCurves()[i].setSwapCount(pl.getCurves()[i].getSwapCount() + 1);
+			pl.getCurves()[i].swapControl(true);
 			pl.getCurveWindow().getCtrl().get(i).swap();
 		}
 		
@@ -369,7 +363,7 @@ public class PowerUpLoader {
 			public Void call() throws Exception {
 				for (Integer i : indexes) {
 					pl.getCurveWindow().getCtrl().get(i).swap();
-					pl.getCurves()[i].setSwapCount(pl.getCurves()[i].getSwapCount() - 1);					
+					pl.getCurves()[i].swapControl(false);					
 				}				
 				//powerUpTasks.remove(task);
 				return null;

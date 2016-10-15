@@ -1,3 +1,4 @@
+package CurveWindow;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -7,7 +8,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class PlayerStatus extends JPanel implements Comparable {
+public class PlayerStatus extends JPanel implements Comparable<PlayerStatus> {
 	private static final long serialVersionUID = 1;
 	
 	private JLabel nameLabel;
@@ -43,6 +44,10 @@ public class PlayerStatus extends JPanel implements Comparable {
 	public JLabel getNameLabel() {
 		return nameLabel;
 	}
+	
+	public String getName() {
+		return nameLabel.getText();
+	}
 
 	public void setNameLabel(JLabel nameLabel) {
 		this.nameLabel = nameLabel;
@@ -69,7 +74,7 @@ public class PlayerStatus extends JPanel implements Comparable {
 	}
 
 	@Override
-	public int compareTo(Object obj) {	
-		return this.score - ((PlayerStatus) obj).getScore();
+	public int compareTo(PlayerStatus obj) {	
+		return this.score - (obj).getScore();
 	}
 }

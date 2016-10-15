@@ -1,3 +1,4 @@
+package CurveWindow;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -28,6 +29,16 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+
+import Curve.Curve;
+import Curve.CurveController;
+import Curve.Direction;
+import Generals.GameController;
+import Generals.Main;
+import Modals.CountDownModal;
+import Modals.EndGameModal;
+import PowerUp.PowerUp;
+import PowerUp.PowerUpLoader;
 
 public class PlayGround extends JPanel {
 
@@ -364,7 +375,8 @@ public class PlayGround extends JPanel {
 		if (this.playersDead.contains(new Integer(player))) {
 			return;
 		}
-
+		
+		Main.playSound("impact.mp3");
 		this.playersDead.add(new Integer(player));
 
 		this.curveControllers[player].stop();
@@ -388,11 +400,11 @@ public class PlayGround extends JPanel {
 			
 			if (this.round == GameController.ROUND_COUNT) {
 				
-				EndGameModal endGame = new EndGameModal(this.curveWindow, this.curveWindow.getPlayerStatusPanes());
+				/*EndGameModal endGame = */new EndGameModal(this.curveWindow, this.curveWindow.getPlayerStatusPanes());
 								
 			} else {
 				
-				CountDownModal endRound = new CountDownModal(this.curveWindow, ++round, winner, this.colors.get(alive));
+				/*CountDownModal endRound = */new CountDownModal(this.curveWindow, ++round, winner, this.colors.get(alive));
 				this.playersStillAlive.clear();
 
 				Timer timer = new Timer(2000, new ActionListener() {
@@ -571,12 +583,16 @@ public class PlayGround extends JPanel {
 			int circleCount = col & 0x0000FFFF;
 			//System.out.println(col + " PLAYER:" + playerIndex + " CIRCLE: " + circleCount);
 			
-			if (playerIndex == index && curve.getCircleNumber() - circleCount <= 5)
+			if (playerIndex == index && curve.getCircleNumber() - circleCount <= 10) {
+				//System.out.println(curve.getCircleNumber());
+				//System.out.println(circleCount);
 				return true;
+			}
+				
 			
 			return false;			
 			/*
-			// TRIAL WITH NANO-TIME CHECKING BETWEEN LAST COLLISIONS - not bad, but not good
+			// TRIAL WITH NANO-TIME CHECKING BETWEEN LAST COLLISIONS - not bad, not good either
 			// may be still some pixel - bug
 			int collision = curve.getCollisionCount();
 			long now = System.nanoTime();

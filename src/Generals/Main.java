@@ -1,3 +1,4 @@
+package Generals;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
@@ -15,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
 public class Main {
 	
 	/***********************************************************************
@@ -27,7 +29,7 @@ public class Main {
 	public static final int SCREEN_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
 	
 	public static final int LANDING_WIDTH  = 400;
-	public static final int LANDING_HEIGHT = 450;
+	public static final int LANDING_HEIGHT = 500;
 	
 	public static void setCloseOnEsc(JFrame c) {
 		c.addKeyListener(new KeyAdapter() {
@@ -100,11 +102,41 @@ public class Main {
 		return (pixel & 0x000000ff);
 	}
 	
+	/***********************************************************************
+	 * 
+	 * SOUND STUFF
+	 * 
+	 ************************************************************************/
+	
+	public static synchronized void playSound(final String url) {
+		/*
+		  new Thread(new Runnable() {
+		    public void run() {
+		      try {
+		    	  File audioFile = new File(".\\sounds\\a.mp3");
+		    	  
+		    	  AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+		    	  AudioFormat format = audioStream.getFormat();
+		    	  
+		    	  DataLine.Info info = new DataLine.Info(Clip.class, format);
+		    	  Clip audioClip = (Clip) AudioSystem.getLine(info);
+		    	  
+		    	  audioClip.open(audioStream);
+		    	  audioClip.start();
+		      } catch (Exception e) {
+		        System.err.println(e.getMessage());
+		        System.err.println(e.getStackTrace());
+		      }
+		    }
+		  }).start();*/
+		}
+	
 	private static GameController game;
 	
 	public static void main(String[] args) {
 		
 		game = new GameController();
+		
 	}
 
 }

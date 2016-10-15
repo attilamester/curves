@@ -1,3 +1,4 @@
+package LandingPages;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -27,7 +28,6 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -45,6 +45,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import Curve.Control;
+import CurveWindow.CurveWindow;
+import Generals.Colors;
+import Generals.GameController;
+import Generals.Main;
+import Modals.CountDownModal;
 
 public class ConfigPanel extends JPanel {
 	private static final long serialVersionUID = 1;
@@ -73,12 +80,12 @@ public class ConfigPanel extends JPanel {
 	
 	private JLabel start;	
 	
-	public ConfigPanel() {
+	public ConfigPanel(int width, int height) {
 		
 		this.rnd = new Random();
 		
 		this.setLayout(new BorderLayout());		
-		this.setSize(Main.LANDING_WIDTH, 400);		
+		this.setSize(width, height);		
 		
 		addItems();
 				
@@ -109,7 +116,7 @@ public class ConfigPanel extends JPanel {
 	private void addSpeedSlider() {
 		Color bg = Colors.MAIN_COLORS[0];
 		
-		this.speedSlider = new JSlider(JSlider.HORIZONTAL, 1, 500, 100);
+		this.speedSlider = new JSlider(JSlider.HORIZONTAL, 1, 500, 175);
 		speedSlider.setBackground(bg);
 		
 		speedLabel = new JLabel("Curve speed:");
@@ -260,7 +267,7 @@ public class ConfigPanel extends JPanel {
 					 */
 					if (colors.contains(ref.getColor())) {
 						error = true;
-						ErrorDialog dialog = new ErrorDialog("Curves must have different colors!");
+						/*ErrorDialog dialog = */new ErrorDialog("Curves must have different colors!");
 						return;
 					} else {
 						colors.add(ref.getColor());
@@ -276,7 +283,7 @@ public class ConfigPanel extends JPanel {
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
 				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);	
-				CountDownModal cnt = new CountDownModal(curveWindow, 1, null, null);
+				/*CountDownModal cnt = */new CountDownModal(curveWindow, 1, null, null);
 				
 				
 			}
@@ -341,11 +348,10 @@ public class ConfigPanel extends JPanel {
 		static class DetectControlButton extends JTextField implements FocusListener {
 			private static final long serialVersionUID = 1;
 
-			private String label;
 			private boolean listening;
-			private boolean hasSpecChar;
+			//private boolean hasSpecChar;
 			private int code;
-			private Color color;
+			//private Color color;
 
 			public DetectControlButton(String label, Color col) {
 				super(label);
@@ -355,9 +361,8 @@ public class ConfigPanel extends JPanel {
 				this.setOpaque(false);
 				this.setForeground(col);
 				
-				this.label = label;
 				this.listening = false;
-				this.hasSpecChar = false;
+				//this.hasSpecChar = false;
 				this.code = -1;
 								
 				addFocusListener(this);
@@ -415,12 +420,13 @@ public class ConfigPanel extends JPanel {
 			}
 			
 			public void setColor(Color color) {
-				this.color = color;
+				//this.color = color;
 				this.setForeground(color);
 			}
 		}
 		
-		static class CurveColorChooser extends JComboBox {
+		static class CurveColorChooser extends JComboBox<Color> {
+			private static final long serialVersionUID = 1;
 			
 			private Color color;
 				
@@ -469,6 +475,7 @@ public class ConfigPanel extends JPanel {
 			}
 					
 			static class ComboBoxRenderer extends JPanel implements ListCellRenderer {
+				private static final long serialVersionUID = 1;
 				
 				private Color optionColor;
 				
@@ -543,6 +550,7 @@ public class ConfigPanel extends JPanel {
 	}
 	
 	static class ErrorDialog extends JDialog {
+		private static final long serialVersionUID = 1;
 		
 		public ErrorDialog(String messageText) {
 			Container pane = this.getContentPane();
@@ -580,4 +588,9 @@ public class ConfigPanel extends JPanel {
 			this.setVisible(true);
 		}
 	}
+
+	public JPanel getTopPane() {
+		return topPane;
+	}
+	
 }

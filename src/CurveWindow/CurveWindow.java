@@ -1,19 +1,16 @@
+package CurveWindow;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.Robot;
-import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -28,6 +25,11 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+
+import Curve.Control;
+import Generals.Colors;
+import Generals.GameController;
+import Generals.Main;
 
 public class CurveWindow extends JFrame {
 	
@@ -61,8 +63,8 @@ public class CurveWindow extends JFrame {
 	 *  
 	 ******************************************************************/
 	private List<Control> ctrl;
-	private List<String> names;
-	private List<Color> colors;
+	//private List<String> names;
+	//private List<Color> colors;
 	
 	public CurveWindow (int players, List<Control> ctrl, List<String> names, List<Color> colors) {
 		super("Get the hang of it! ");
@@ -103,8 +105,8 @@ public class CurveWindow extends JFrame {
 		 ******************************************************************/
 		
 		this.ctrl = ctrl;
-		this.names = names;
-		this.colors = colors;
+		//this.names = names;
+		//this.colors = colors;
 		
 		this.addPlayerNames(names, colors);
 		

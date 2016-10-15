@@ -1,9 +1,5 @@
-import java.awt.AlphaComposite;
+package Curve;
 import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 
 public class Curve {
 	
@@ -166,6 +162,17 @@ public class Curve {
 
 	public void setSwapCount(int swapCount) {
 		this.swapCount = swapCount;
+	}
+	
+	public void swapControl(boolean processStarted) {
+		if (processStarted) {
+			++this.swapCount;
+		} else {
+			--this.swapCount;
+		}
+		boolean tmp = this.leftIsPressed;
+		this.leftIsPressed = this.rightIsPressed; 
+		this.rightIsPressed = tmp;
 	}
 	
 	public int getBulldozerCount() {

@@ -1,3 +1,4 @@
+package LandingPages;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -11,6 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 
+import Generals.Colors;
+import Generals.Main;
+
 public class LandingWindow extends JFrame {
 	
 	private static final long serialVersionUID = 1;
@@ -18,7 +22,9 @@ public class LandingWindow extends JFrame {
 	private Container contentPane;
 	private Container defaultContent;
 	
-	private LandingButton newGame;
+	private LandingButton newLocalGame;
+	private LandingButton newLanGame;
+	private LandingButton joinLanGame;
 	private LandingButton highScores;
 	private LandingButton settings;
 	
@@ -28,22 +34,27 @@ public class LandingWindow extends JFrame {
 	 * 
 	 *************************************************************/
 	private ConfigPanel configPanel;
+	private LanGamePanel lanGamePanel;
+	private JoinGamePanel joinGamePanel;
+	private HighScoresPanel highScoresPanel;
 	
 	
-	public LandingWindow(ConfigPanel configPanel) {
+	public LandingWindow() {
 		super("Get the hang of it!");
 		
-		this.configPanel = configPanel;
-		
 		contentPane = this.getContentPane();
-		contentPane.setLayout(new GridLayout(3, 1));
+		contentPane.setLayout(new GridLayout(5, 1));
 		contentPane.setBackground(new Color(30, 30, 30));
 		
-		newGame = new LandingButton("New Game", Colors.MAIN_COLORS[0]);
-		highScores = new LandingButton("High scores", Colors.MAIN_COLORS[1]);
-		settings = new LandingButton("Settings", Colors.MAIN_COLORS[2]);
+		newLocalGame = new LandingButton("New Game", Colors.MAIN_COLORS[0]);
+		newLanGame   = new LandingButton("New LAN Game", Colors.MAIN_COLORS[1]);
+		joinLanGame  = new LandingButton("Join Game", Colors.MAIN_COLORS[2]);
+		highScores   = new LandingButton("High scores", Colors.MAIN_COLORS[3]);
+		settings     = new LandingButton("Settings", Colors.MAIN_COLORS[4]);
 		
-		contentPane.add(newGame);
+		contentPane.add(newLocalGame);
+		contentPane.add(newLanGame);
+		contentPane.add(joinLanGame);
 		contentPane.add(highScores);
 		contentPane.add(settings);
 		
@@ -69,10 +80,48 @@ public class LandingWindow extends JFrame {
 	 * 
 	 *************************************************************/
 	private void addActions() {
-		newGame.addMouseListener(new MouseAdapter() {
+		this.newLocalGame.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {				
-				LandingWindow.this.setContentPane(configPanel);							 
+			public void mouseClicked(MouseEvent e) {
+				if (configPanel == null) {
+					configPanel = new ConfigPanel(contentPane.getWidth(), contentPane.getHeight());
+				}
+				LandingWindow.this.setContentPane(configPanel);
+				contentPane.revalidate();
+				contentPane.repaint();
+			}
+		});
+
+		this.newLanGame.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (lanGamePanel == null) {
+					lanGamePanel = new LanGamePanel(contentPane.getWidth(), contentPane.getHeight());
+				}
+				LandingWindow.this.setContentPane(lanGamePanel);
+				contentPane.revalidate();
+				contentPane.repaint();
+			}
+		});
+		
+		this.joinLanGame.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (joinGamePanel == null) {
+					joinGamePanel = new JoinGamePanel(contentPane.getWidth(), contentPane.getHeight());
+				}
+				LandingWindow.this.setContentPane(joinGamePanel);
+				contentPane.revalidate();
+				contentPane.repaint();
+			}
+		});
+		
+		this.highScores.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				highScoresPanel = new HighScoresPanel(contentPane.getWidth(), contentPane.getHeight());
+				
+				LandingWindow.this.setContentPane(highScoresPanel);
 				contentPane.revalidate();
 				contentPane.repaint();
 			}

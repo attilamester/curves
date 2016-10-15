@@ -1,9 +1,11 @@
-import java.awt.Color;
+package Curve;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
 import javax.swing.Timer;
+
+import Generals.GameController;
 
 public class CurveController implements Runnable {
 	
@@ -19,7 +21,6 @@ public class CurveController implements Runnable {
 	private int endWhole;
 	private int count;
 	private int time;
-	private Color original;
 	
 	private int delay;
 	private Timer timer;
@@ -29,7 +30,6 @@ public class CurveController implements Runnable {
 	public CurveController(Curve curve) {
 		this.curve = curve;
 		
-		original = curve.getColor();
 		count = 0;
 		rnd = new Random();
 		
