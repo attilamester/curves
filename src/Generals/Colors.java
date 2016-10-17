@@ -1,4 +1,4 @@
-package Generals;
+package generals;
 import java.awt.Color;
 
 public class Colors {

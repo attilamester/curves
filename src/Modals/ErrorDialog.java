@@ -1,4 +1,4 @@
-package Modals;
+package modals;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -12,8 +12,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 
-import Generals.GameController;
-import Generals.Main;
+import generals.GameController;
+import generals.Main;
 
 
 public class ErrorDialog extends JDialog {

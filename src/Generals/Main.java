@@ -1,4 +1,4 @@
-package Generals;
+package generals;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
@@ -16,6 +16,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import networking.GameClient;
+import networking.GameServer;
+
 
 public class Main {
 	
@@ -29,7 +32,7 @@ public class Main {
 	public static final int SCREEN_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
 	
 	public static final int LANDING_WIDTH  = 400;
-	public static final int LANDING_HEIGHT = 500;
+	public static final int LANDING_HEIGHT = 550;
 	
 	public static void setCloseOnEsc(JFrame c) {
 		c.addKeyListener(new KeyAdapter() {
@@ -55,9 +58,9 @@ public class Main {
 			}
 			@Override
 			public void mouseClicked(MouseEvent e) {				
-				game.landingWindow.setContentPane(game.landingWindow.getDefaultContent());
-				game.landingWindow.revalidate();
-				game.landingWindow.repaint();
+				game.getLandingWindow().setContentPane(game.getLandingWindow().getDefaultContent());
+				game.getLandingWindow().revalidate();
+				game.getLandingWindow().repaint();
 			}
 		});
 		
@@ -131,12 +134,38 @@ public class Main {
 		  }).start();*/
 		}
 	
-	private static GameController game;
+	private static GameController game = null;
+	private static GameServer gameServer = null;
+	private static GameClient gameClient = null;
 	
 	public static void main(String[] args) {
 		
 		game = new GameController();
 		
 	}
+
+	public static GameController getGameController() {
+		return game;
+	}
+
+	public static GameServer getGameServer() {
+		return gameServer;
+	}
+
+	public static void setGameServer(GameServer gameServer) {
+		Main.gameServer = gameServer;
+	}
+
+	public static GameClient getGameClient() {
+		return gameClient;
+	}
+
+	public static void setGameClient(GameClient gameClient) {
+		Main.gameClient = gameClient;
+	}
+	
+	
+	
+	
 
 }

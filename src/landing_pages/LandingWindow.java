@@ -1,4 +1,4 @@
-package LandingPages;
+package landing_pages;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -12,8 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
 
-import Generals.Colors;
-import Generals.Main;
+import generals.Colors;
+import generals.Main;
 
 public class LandingWindow extends JFrame {
 	
@@ -33,9 +33,9 @@ public class LandingWindow extends JFrame {
 	 * OUTER REFERENCES
 	 * 
 	 *************************************************************/
-	private ConfigPanel configPanel;
-	private LanGamePanel lanGamePanel;
-	private JoinGamePanel joinGamePanel;
+	private LocalGameConfigPanel localGameConfigPanel;
+	private LanGameConfigPanel lanGamePanel;
+	private JoinGameConfigPanel joinGamePanel;
 	private HighScoresPanel highScoresPanel;
 	
 	
@@ -83,10 +83,10 @@ public class LandingWindow extends JFrame {
 		this.newLocalGame.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (configPanel == null) {
-					configPanel = new ConfigPanel(contentPane.getWidth(), contentPane.getHeight());
+				if (localGameConfigPanel == null) {
+					localGameConfigPanel = new LocalGameConfigPanel(contentPane.getWidth(), contentPane.getHeight());
 				}
-				LandingWindow.this.setContentPane(configPanel);
+				LandingWindow.this.setContentPane(localGameConfigPanel);
 				contentPane.revalidate();
 				contentPane.repaint();
 			}
@@ -96,7 +96,7 @@ public class LandingWindow extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (lanGamePanel == null) {
-					lanGamePanel = new LanGamePanel(contentPane.getWidth(), contentPane.getHeight());
+					lanGamePanel = new LanGameConfigPanel(contentPane.getWidth(), contentPane.getHeight());
 				}
 				LandingWindow.this.setContentPane(lanGamePanel);
 				contentPane.revalidate();
@@ -108,7 +108,7 @@ public class LandingWindow extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (joinGamePanel == null) {
-					joinGamePanel = new JoinGamePanel(contentPane.getWidth(), contentPane.getHeight());
+					joinGamePanel = new JoinGameConfigPanel(contentPane.getWidth(), contentPane.getHeight());
 				}
 				LandingWindow.this.setContentPane(joinGamePanel);
 				contentPane.revalidate();
@@ -166,4 +166,20 @@ public class LandingWindow extends JFrame {
 			});
 		}
 	}
+
+
+	public LocalGameConfigPanel getLocalGameConfigPanel() {
+		return localGameConfigPanel;
+	}
+
+	public LanGameConfigPanel getLanGameConfigPanel() {
+		return lanGamePanel;
+	}
+
+	public JoinGameConfigPanel getJoinGameConfigPanel() {
+		return joinGamePanel;
+	}
+	
+	
+	
 }

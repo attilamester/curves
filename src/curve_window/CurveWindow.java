@@ -1,4 +1,4 @@
-package CurveWindow;
+package curve_window;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,10 +26,10 @@ import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-import Curve.Control;
-import Generals.Colors;
-import Generals.GameController;
-import Generals.Main;
+import curve.Control;
+import generals.Colors;
+import generals.GameController;
+import generals.Main;
 
 public class CurveWindow extends JFrame {
 	

@@ -1,4 +1,4 @@
-package Curve;
+package curve;
 
 public class Direction {
 	

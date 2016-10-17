@@ -1,4 +1,4 @@
-package LandingPages;
+package landing_pages;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,15 +30,18 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import Generals.Colors;
-import Generals.GameController;
-import Generals.Main;
-import LandingPages.ConfigPanel.PlayerConfigRow;
-import Modals.ErrorDialog;
-import Networking.ClientThread;
-import Networking.GameServer;
+import generals.Colors;
+import generals.GameController;
+import generals.Main;
+import landing_pages.LocalGameConfigPanel.PlayerConfigRow;
+import modals.ErrorDialog;
+import network_packages.PreGameInfo;
+import network_packages.SocketPackage;
+import networking.ClientThread;
+import networking.GameClient;
+import networking.LanIpTester;
 
-public class JoinGamePanel extends JPanel {
+public class JoinGameConfigPanel extends JPanel {
 	private static final long serialVersionUID = 1;
 
 	private Random rnd;
@@ -46,7 +49,7 @@ public class JoinGamePanel extends JPanel {
 	private JPanel allPlayersPane;
 	private JPanel connectPane;
 	private JPanel loadingPane;
-	
+
 	private JPanel otherPlayersPane;
 	private JPanel otherPlayersPaneHeader;
 	private JPanel otherPlayersPaneContent;
@@ -59,10 +62,10 @@ public class JoinGamePanel extends JPanel {
 
 	private JSpinner myPlayerCount;
 	private List<PlayerConfigRow> myPlayers;
-	
+
 	private JSpinner subnetSpinner;
 
-	public JoinGamePanel(int width, int height) {
+	public JoinGameConfigPanel(int width, int height) {
 
 		this.setLayout(new BorderLayout());
 		this.setSize(width, height);
@@ -76,16 +79,8 @@ public class JoinGamePanel extends JPanel {
 		rnd = new Random();
 
 		prepareGui();
-
-		//ClientThread client = new ClientThread("127.0.0.1", port);
-		//client.start();
-
-		/*new Thread(
-			new LanIpCollector(this))
-		.start();*/
 	}
 
-	
 	public void searchDoneForHost(List<String> hosts) {
 		otherPlayersPaneContent.removeAll();
 		otherPlayersPaneContent.revalidate();
@@ -93,36 +88,44 @@ public class JoinGamePanel extends JPanel {
 			System.out.println(s);
 		}
 	}
-	
-	private void connectToHost() {
-		
-		String host = "192.168.0." + Integer.toString((Integer)this.subnetSpinner.getValue());
-		
-		
-		try {
-			Socket socket = new Socket(host, GameServer.DEFAULT_SERVER_PORT);
-		} catch (IOException e) {
-			addConnectPane();
-			new ErrorDialog("Could not connect to peer");
-		}
-		
+
+	private void tryConnectToHost() {
+
+		String host = "192.168.0." + Integer.toString((Integer) this.subnetSpinner.getValue());
+
+		LanIpTester ipTester = new LanIpTester(this, host);
+		new Thread(ipTester).start();
+
+	}
+
+	public void connectingError(String message) {
+		addConnectPane();
+		new ErrorDialog(message);
+	}
+
+	public void connectingSuccess(Socket createdSocket) {
 		otherPlayersPaneContent.removeAll();
 		otherPlayersPaneContent.revalidate();
-		
-		ClientThread client = null;
-		
+		otherPlayersPaneContent.repaint();
+		otherPlayersPaneHeader.setBackground(Color.GREEN);
+
 		try {
-			client = new ClientThread(host, GameServer.DEFAULT_SERVER_PORT);
-			//client.start();
+			Main.setGameClient(new GameClient(Main.getGameController(), createdSocket));
+
+			Main.getGameClient().respondToServer(new SocketPackage(-1, SocketPackage.PACKAGE_HAND_SHAKE));
+			//SocketPackage pack = (SocketPackage) Main.getGameClient().getClientThread().readObject();
+			//Main.getGameClient().getClientThread().setClientID(pack.getClientID());
+
+			Main.getGameClient().respondToServer(new PreGameInfo(Main.getGameClient().getClientID(), this.myPlayers));
 		} catch (IOException e) {
-			
-		}
-		
-		
+			System.out.println("NOT Wrote to S");
+		} /*catch (ClassNotFoundException e) {
+		}*/
+
 	}
-	
+
 	/***********************************************************************************
-	 *  GUI
+	 * GUI
 	 ************************************************************************************/
 	private void prepareGui() {
 		allPlayersPane = new JPanel(new GridLayout(2, 1));
@@ -138,7 +141,7 @@ public class JoinGamePanel extends JPanel {
 		otherPlayersPaneHeader = new JPanel(new GridLayout(1, 2));
 		otherPlayersPaneContent = new JPanel(new BorderLayout());
 		otherPlayersPaneContent.setBackground(Colors.ANIMATION_BACKGROUND);
-		
+
 		JLabel title = new JLabel("Remote IP:");
 		title.setOpaque(true);
 		title.setBorder(new EmptyBorder(5, 10, 5, 0));
@@ -150,7 +153,7 @@ public class JoinGamePanel extends JPanel {
 		JLabel ip_ = new JLabel("192.168.0.", JLabel.RIGHT);
 		ip_.setBackground(Colors.MAIN_COLORS[1]);
 		ip_.setForeground(Color.WHITE);
-		
+
 		SpinnerModel subnetModel = new SpinnerNumberModel(100, 1, 255, 1);
 		this.subnetSpinner = new JSpinner(subnetModel);
 		((JSpinner.DefaultEditor) subnetSpinner.getEditor()).getTextField().setEditable(false);
@@ -160,12 +163,10 @@ public class JoinGamePanel extends JPanel {
 		Component c = subnetSpinner.getEditor().getComponent(0);
 		c.setFont(new Font("Calibri", Font.BOLD, 18));
 		c.setBackground(Colors.MAIN_COLORS[1]);
-		
+
 		ipAddressPane.add(ip_);
 		ipAddressPane.add(subnetSpinner);
-		
-		
-		
+
 		otherPlayersPaneHeader.add(title);
 		otherPlayersPaneHeader.add(ipAddressPane);
 
@@ -176,20 +177,20 @@ public class JoinGamePanel extends JPanel {
 
 		otherPlayersPane.add(otherPlayersPaneHeader, BorderLayout.NORTH);
 		otherPlayersPane.add(otherPlayersPaneContentScrollPane, BorderLayout.CENTER);
-		
+
 		allPlayersPane.add(otherPlayersPane);
-		
+
 		/****************************************
 		 * LOADING ? CONNECTING
 		 *****************************************/
-		
+
 		createConnectingPane();
 		createLoadingPane();
-		
+
 		addConnectPane();
-		
+
 	}
-	
+
 	private void createConnectingPane() {
 		connectPane = new JPanel(new GridBagLayout());
 		connectPane.setOpaque(false);
@@ -201,54 +202,58 @@ public class JoinGamePanel extends JPanel {
 		connect.setFont(new Font("Calibri", Font.BOLD, 18));
 		connectPane.add(connect);
 		otherPlayersPaneContent.add(connectPane);
-		
+
 		connect.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				setCursor(new Cursor(Cursor.HAND_CURSOR));
 			}
+
 			@Override
 			public void mouseExited(MouseEvent e) {
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				addLoadingPane();
-				connectToHost();
+				tryConnectToHost();
 			}
 		});
 	}
-	
+
 	private void addConnectPane() {
 		otherPlayersPaneContent.removeAll();
-		otherPlayersPaneContent.add(this.connectPane);	
+		subnetSpinner.setEnabled(true);
+		otherPlayersPaneContent.add(this.connectPane);
 		otherPlayersPaneContent.revalidate();
+		otherPlayersPaneContent.repaint();
 	}
-	
+
 	private void createLoadingPane() {
 		loadingPane = new JPanel(new BorderLayout());
 		loadingPane.setOpaque(false);
-		
+
 		ImageIcon icon = new ImageIcon("images\\loading.gif");
-		JLabel loading = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
-		
+		JLabel loading = new JLabel(new ImageIcon(icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT)));
+
 		JLabel loadingLabel = new JLabel("Searching for host ...", JLabel.CENTER);
 		loadingLabel.setBorder(new EmptyBorder(5, 10, 5, 0));
 		loadingLabel.setForeground(Color.WHITE);
-		
+
 		loadingPane.add(loading, BorderLayout.CENTER);
 		loadingPane.add(loadingLabel, BorderLayout.NORTH);
-		
+
 	}
-	
+
 	private void addLoadingPane() {
+		subnetSpinner.setEnabled(false);
 		otherPlayersPaneContent.removeAll();
 		otherPlayersPaneContent.add(this.loadingPane);
 		otherPlayersPaneContent.revalidate();
 		otherPlayersPaneContent.repaint();
 	}
-
 
 	private void addLocalPlayers() {
 		myPlayersPane = new JPanel(new BorderLayout());
@@ -325,6 +330,19 @@ public class JoinGamePanel extends JPanel {
 		this.myPlayersPaneContent.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		this.myPlayersPaneContentScrollPane.getViewport().setBackground(GameController.PLAYGROUND_BACKGROUND);
 		this.myPlayersPaneContentScrollPane.setBorder(BorderFactory.createEmptyBorder());
+	}
+
+	public synchronized void arrivedNewPlayerConfigs(int clientID, List<PlayerConfigRow> players) {
+		System.out.println(players.size());
+		this.otherPlayersPaneContent.removeAll();
+		this.otherPlayersPaneContent.setLayout(new GridLayout(players.size(), 1));
+
+		for (PlayerConfigRow row : players) {
+			this.otherPlayersPaneContent.add(row);
+		}
+
+		this.otherPlayersPaneContent.revalidate();
+		this.otherPlayersPaneContent.repaint();
 	}
 
 }

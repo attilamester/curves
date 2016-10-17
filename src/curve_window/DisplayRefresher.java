@@ -1,10 +1,10 @@
-package CurveWindow;
+package curve_window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Timer;
 
-import Generals.GameController;
+import generals.GameController;
 
 public class DisplayRefresher extends Thread {
 	

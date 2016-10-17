@@ -1,4 +1,4 @@
-package Modals;
+package modals;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -15,9 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-import CurveWindow.CurveWindow;
-import Generals.GameController;
-import Generals.Main;
+import curve_window.CurveWindow;
+import generals.GameController;
+import generals.Main;
 
 public class CountDownModal extends JDialog {
 	private static final long serialVersionUID = 1;

@@ -1,4 +1,4 @@
-package LandingPages;
+package landing_pages;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.io.BufferedReader;
@@ -15,8 +15,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import Generals.GameController;
-import Generals.Main;
+import generals.GameController;
+import generals.Main;
 
 public class HighScoresPanel extends JPanel {
 	private static final long serialVersionUID = 1;

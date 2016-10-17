@@ -1,4 +1,4 @@
-package PowerUp;
+package power_up;
 
 public class PowerUp {
 	

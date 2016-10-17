@@ -1,4 +1,4 @@
-package Curve;
+package curve;
 import java.awt.Color;
 
 public class Curve {

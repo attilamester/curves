@@ -1,4 +1,4 @@
-package Modals;
+package modals;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -23,10 +23,10 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import CurveWindow.CurveWindow;
-import CurveWindow.PlayerStatus;
-import Generals.GameController;
-import Generals.Main;
+import curve_window.CurveWindow;
+import curve_window.PlayerStatus;
+import generals.GameController;
+import generals.Main;
 
 public class EndGameModal extends JDialog {
 	private static final long serialVersionUID = 1;

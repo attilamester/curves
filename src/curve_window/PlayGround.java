@@ -1,4 +1,4 @@
-package CurveWindow;
+package curve_window;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -30,15 +30,15 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import Curve.Curve;
-import Curve.CurveController;
-import Curve.Direction;
-import Generals.GameController;
-import Generals.Main;
-import Modals.CountDownModal;
-import Modals.EndGameModal;
-import PowerUp.PowerUp;
-import PowerUp.PowerUpLoader;
+import curve.Curve;
+import curve.CurveController;
+import curve.Direction;
+import generals.GameController;
+import generals.Main;
+import modals.CountDownModal;
+import modals.EndGameModal;
+import power_up.PowerUp;
+import power_up.PowerUpLoader;
 
 public class PlayGround extends JPanel {
 

@@ -1,4 +1,4 @@
-package LandingPages;
+package landing_pages;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -19,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -43,15 +44,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import Curve.Control;
-import CurveWindow.CurveWindow;
-import Generals.Colors;
-import Generals.GameController;
-import Generals.Main;
-import Modals.CountDownModal;
-import Modals.ErrorDialog;
+import curve.Control;
+import curve_window.CurveWindow;
+import generals.Colors;
+import generals.GameController;
+import generals.Main;
+import modals.CountDownModal;
+import modals.ErrorDialog;
 
-public class ConfigPanel extends JPanel {
+public class LocalGameConfigPanel extends JPanel {
 	private static final long serialVersionUID = 1;
 	
 	private Random rnd;
@@ -74,11 +75,11 @@ public class ConfigPanel extends JPanel {
 	private JSlider angleSlider;
 	
 	private JSpinner playerCount;
-	private List<PlayerConfigRow> players;
+	private volatile List<PlayerConfigRow> players;
 	
 	private JLabel start;	
 	
-	public ConfigPanel(int width, int height) {
+	public LocalGameConfigPanel(int width, int height) {
 		
 		this.rnd = new Random();
 		
@@ -174,7 +175,7 @@ public class ConfigPanel extends JPanel {
 			}
 		});
 		
-		playerNrLabel = new JLabel("Number of players:");
+		playerNrLabel = new JLabel("Local players:");
 		playerNrLabel.setOpaque(true);
 		playerNrLabel.setBorder(new EmptyBorder(5, 10, 5, 0));
 		playerNrLabel.setBackground(bg);
@@ -289,11 +290,11 @@ public class ConfigPanel extends JPanel {
 	    
 	}
 	
-	static class PlayerConfigRow extends JPanel {
+	public static class PlayerConfigRow extends JPanel implements Serializable {
 
 		private static final long serialVersionUID = 1;
 		
-		static class TextFieldPlaceholder extends JTextField implements FocusListener {
+		public static class TextFieldPlaceholder extends JTextField implements FocusListener, Serializable {
 			private static final long serialVersionUID = 1;
 			
 			private String placeHolder;
@@ -340,6 +341,10 @@ public class ConfigPanel extends JPanel {
 			public void setColor(Color color) {
 				placeHolderColor = color;
 				this.setForeground(placeHolderColor);
+			}
+
+			public Color getPlaceHolderColor() {
+				return placeHolderColor;
 			}
 		}
 		
@@ -499,10 +504,10 @@ public class ConfigPanel extends JPanel {
 		}
 		
 		private TextFieldPlaceholder name;
-		private DetectControlButton leftCtrl;
-		private DetectControlButton rightCtrl;
+		private transient DetectControlButton leftCtrl;
+		private transient DetectControlButton rightCtrl;
 		private Color color;
-		private CurveColorChooser colorChooser;
+		private transient CurveColorChooser colorChooser;
 		
 		public PlayerConfigRow(Random rnd) {
 			setLayout(new FlowLayout());
@@ -545,6 +550,11 @@ public class ConfigPanel extends JPanel {
 			this.leftCtrl.setColor(color);
 			this.rightCtrl.setColor(color);
 		}
+		
+		public TextFieldPlaceholder getTextFieldPlaceholder() {
+			return this.name;
+		}
+		
 	}
 	
 	
@@ -552,5 +562,25 @@ public class ConfigPanel extends JPanel {
 	public JPanel getTopPane() {
 		return topPane;
 	}
+
+	public JScrollPane getScrollPane() {
+		return scrollPane;
+	}
+
+	public JPanel getPlayersPane() {
+		return playersPane;
+	}
+	
+	public JPanel getContentPane() {
+		return contentPane;
+	}
+
+	public List<PlayerConfigRow> getPlayers() {
+		return players;
+	}
+
+	
+	
+	
 	
 }

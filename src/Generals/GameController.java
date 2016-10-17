@@ -1,14 +1,14 @@
-package Generals;
+package generals;
 import java.awt.Color;
 
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
-import LandingPages.LandingWindow;
+import landing_pages.LandingWindow;
 
 public class GameController {
 	
-	public LandingWindow landingWindow;
+	private LandingWindow landingWindow;
 	
 	/***********************************************************************
 	 * 
@@ -68,5 +68,11 @@ public class GameController {
 	public void endGame() {
 		
 	}
+
+	public LandingWindow getLandingWindow() {
+		return landingWindow;
+	}
+	
+	
 	
 }	

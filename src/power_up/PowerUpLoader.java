@@ -1,4 +1,4 @@
-package PowerUp;
+package power_up;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -17,10 +17,10 @@ import java.util.concurrent.Callable;
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
 
-import Curve.Direction;
-import CurveWindow.ImageLayer;
-import CurveWindow.PlayGround;
-import Generals.GameController;
+import curve.Direction;
+import curve_window.ImageLayer;
+import curve_window.PlayGround;
+import generals.GameController;
 
 public class PowerUpLoader {
 	

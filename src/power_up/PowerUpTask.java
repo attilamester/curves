@@ -1,4 +1,4 @@
-package PowerUp;
+package power_up;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,8 +14,8 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-import CurveWindow.CurveWindow;
-import Generals.GameController;
+import curve_window.CurveWindow;
+import generals.GameController;
 
 public class PowerUpTask {
 	
