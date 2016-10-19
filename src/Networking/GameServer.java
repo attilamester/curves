@@ -35,37 +35,21 @@ public class GameServer {
 		switch (((SocketPackage)o).getType()) {
 			case SocketPackage.PACKAGE_HAND_SHAKE:
 				this.respondToClient(clientID, new SocketPackage(clientID, SocketPackage.PACKAGE_HAND_SHAKE));
+				this.respondToClient(clientID, new PreGameInfo(0,
+					this.gameController.getLandingWindow().getLanGameConfigPanel().collectTextFields()));
 				break;
 				
 			case SocketPackage.PACKAGE_PRE_GAME:
 				PreGameInfo packet = (PreGameInfo)o;
 				this.gameController.getLandingWindow().getLanGameConfigPanel().arrivedNewPlayerConfigs(
-					packet.getClientID(), packet.getPlayers());
+					clientID, packet.getPlayers());
 				break;
 		}
 	}
 
-	/**
-	 * Function to be invoked on CLIENT program
-	 * 
-	 */	
-	public void receivedFromServer(Object o) {
-		switch (((SocketPackage)o).getType()) {
-		case SocketPackage.PACKAGE_HAND_SHAKE:
-			//this.respondToClient(clientID, new SocketPackage(clientID, SocketPackage.PACKAGE_HAND_SHAKE));
-			break;
-			
-		case SocketPackage.PACKAGE_PRE_GAME:
-			PreGameInfo packet = (PreGameInfo)o;
-			this.gameController.getLandingWindow().getJoinGameConfigPanel().arrivedNewPlayerConfigs(
-				packet.getClientID(), packet.getPlayers());
-			break;
-	}
-	}
-	
 	private void respondToClient(int clientID, Object o) {
 		try {
-			this.serverThread.getClients().get(clientID).writeObject(o);
+			this.serverThread.getClients().get(clientID).writeToClient(o);
 		} catch (IOException e) {}
 	}
 	

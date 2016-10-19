@@ -2,7 +2,6 @@ package landing_pages;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ContainerAdapter;
@@ -12,6 +11,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +25,7 @@ import javax.swing.border.EmptyBorder;
 import generals.Colors;
 import generals.GameController;
 import generals.Main;
-import landing_pages.LocalGameConfigPanel.PlayerConfigRow.TextFieldPlaceholder;
+import landing_pages.PlayerConfigRow.TextFieldPlaceholder;
 import network_packages.PreGameInfo;
 import networking.GameServer;
 import networking.ServerThread.ClientHandler;
@@ -33,10 +33,11 @@ import networking.ServerThread.ClientHandler;
 public class LanGameConfigPanel extends LocalGameConfigPanel {
 	private static final long serialVersionUID = 1;
 	
+	private JPanel allPlayersPane;
 	private JPanel remotePlayersPane;
 	private JLabel remotePlayersPaneHeader;
 	private JPanel remotePlayersPaneContent;
-	
+	private JScrollPane remotePlayersPaneContentScrollPane;
 	private Map<Integer, List<TextFieldPlaceholder>> remotePlayers;
 	
 	public LanGameConfigPanel(int width, int height) {
@@ -66,8 +67,8 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 	}
 	
 	private void setTitleActions() {
-		JPanel topPane = this.getTopPane();
-		topPane.setLayout(new GridLayout(4, 2));
+		JPanel topPane = this.getTopConfigPane();
+		topPane.setLayout(new GridLayout(3, 2));
 
 		JLabel roomLabel = new JLabel("Room IP:");
 		roomLabel.setOpaque(true);
@@ -102,89 +103,103 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 		this.remotePlayersPaneContent = new JPanel(new GridLayout(1, 1));
 		this.remotePlayersPaneContent.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		
-		JScrollPane remoteScroll = new JScrollPane(this.remotePlayersPaneContent);
-		remoteScroll.getViewport().setBackground(GameController.PLAYGROUND_BACKGROUND);
-		remoteScroll.setBorder(BorderFactory.createEmptyBorder());
+		this.remotePlayersPaneContentScrollPane = new JScrollPane(this.remotePlayersPaneContent);
+		this.remotePlayersPaneContentScrollPane.getViewport().setBackground(GameController.PLAYGROUND_BACKGROUND);
+		this.remotePlayersPaneContentScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		
 		this.remotePlayersPane = new JPanel(new BorderLayout());
 		this.remotePlayersPane.add(this.remotePlayersPaneHeader, BorderLayout.NORTH);
-		this.remotePlayersPane.add(remoteScroll, BorderLayout.CENTER);
+		this.remotePlayersPane.add(this.remotePlayersPaneContentScrollPane, BorderLayout.CENTER);
 		
-		JPanel playersPane = new JPanel(new GridLayout(2, 1));
-		playersPane.add(this.getScrollPane());
-		playersPane.add(remotePlayersPane);
+		allPlayersPane = new JPanel(new GridLayout(2, 1));
+		allPlayersPane.add(this.getLocalPlayersPane());
+		allPlayersPane.add(remotePlayersPane);
 		
-		this.getContentPane().add(playersPane, BorderLayout.CENTER);
+		this.getContentPane().add(allPlayersPane, BorderLayout.CENTER);
 		
 	}
 	
 	private void addComponentListener(){
-		this.getPlayersPane().addContainerListener(new ContainerAdapter() {
+		this.getLocalPlayersPaneContent().addContainerListener(new ContainerAdapter() {
 			@Override
 			public void componentAdded(ContainerEvent e) {
-				System.out.println(getPlayers().size());
-				for (ClientHandler client : Main.getGameServer().getServerThread().getClients().values()) {
-					try {
-						client.writeObject(new PreGameInfo(0, LanGameConfigPanel.this.getPlayers()));
-					} catch (IOException ex) {}
-				}
+				/**
+				 * CHECK IF SERVER EXISTS!!!
+				 */
+				shareServerPlayersToClients();
 			}
 			@Override
 			public void componentRemoved(ContainerEvent e) {
-				System.out.println(getPlayers().size());
-				for (ClientHandler client : Main.getGameServer().getServerThread().getClients().values()) {
-					try {
-						client.writeObject(new PreGameInfo(0, getPlayers()));
-					} catch (IOException ex) {}
-				}
+				shareServerPlayersToClients();	
 			}
 		});
 		
 	}
 	
-	public synchronized void arrivedNewPlayerConfigs(int clientID, List<PlayerConfigRow> players) {
+	public void shareServerPlayersToClients() {
+		for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
+			try {
+				clientHandler.writeToClient(new PreGameInfo(0, collectTextFields()));
+			} catch (IOException ex) {}
+		}
+	}
+	
+	public synchronized void arrivedNewPlayerConfigs(int clientID, List<TextFieldPlaceholder> players) {
+		System.out.println("[S] Got list of " + players.size() + " from " + clientID);
+		for (TextFieldPlaceholder textBox : players) {
+			System.out.println(textBox.getText() + textBox.getColor());
+		}
 		
 		if (!this.remotePlayers.containsKey(clientID)) {
+			System.out.println("itt ");
 			List<TextFieldPlaceholder> remotePlayersInfos = new ArrayList<>();
-			for (PlayerConfigRow row : players) {
-				TextFieldPlaceholder box = row.getTextFieldPlaceholder();
-				box.setEditable(false);
-				box.setFocusable(false);
-				box.setPreferredSize(new Dimension(150, 25));
-				
-				remotePlayersInfos.add(box);
+			for (TextFieldPlaceholder textBox : players) {
+				remotePlayersInfos.add(textBox);
 			}
 			this.remotePlayers.put(clientID, remotePlayersInfos);
 		} else {
 			this.remotePlayers.get(clientID).clear();
-			for (PlayerConfigRow row : players) {
-				TextFieldPlaceholder box = row.getTextFieldPlaceholder();
-				box.setEditable(false);
-				box.setPreferredSize(new Dimension(150, 25));
-				box.setFocusable(false);
-				
-				this.remotePlayers.get(clientID).add(box);
+			for (TextFieldPlaceholder textBox : players) {
+				this.remotePlayers.get(clientID).add(textBox);
 			}
 		}
-		int size = 0;
-		for (Map.Entry<Integer, List<TextFieldPlaceholder>> entry : this.remotePlayers.entrySet()) {
-			size += entry.getValue().size();
+		
+		/******************
+		 * 
+		 * BROADCAST TO OTHERS
+		 */
+		List<TextFieldPlaceholder> allOtherClientsPlayers = new ArrayList<>();
+		for (Iterator<Integer> iter = this.remotePlayers.keySet().iterator(); iter.hasNext();) {
+			int currentClient = iter.next();
+			allOtherClientsPlayers.clear();
+			
+			for (Map.Entry<Integer, List<TextFieldPlaceholder>> entry : this.remotePlayers.entrySet()) {
+				if (entry.getKey() == currentClient) {
+					continue;
+				}
+				allOtherClientsPlayers.addAll(entry.getValue());
+				
+				try {
+				Main.getGameServer().getServerThread().getClients().get(currentClient).writeToClient(
+					new PreGameInfo(42, allOtherClientsPlayers));
+				} catch (IOException ex) {}
+			}
 		}
 		
+		
+		/*****************
+		 * 
+		 * ADD TO LOCAL PANEL
+		 */
 		
 		this.remotePlayersPaneContent.removeAll();
-		this.remotePlayersPaneContent.setLayout(new GridLayout(size, 1));
 		
+		List<TextFieldPlaceholder> allPlayers = new ArrayList<>();
 		for (Map.Entry<Integer, List<TextFieldPlaceholder>> entry : this.remotePlayers.entrySet()) {
-			
-			for (TextFieldPlaceholder box : entry.getValue()) {
-				JPanel panel = new JPanel();
-				panel.setBackground(GameController.PLAYGROUND_BACKGROUND);
-				panel.add(box);
-				this.remotePlayersPaneContent.add(panel);
-			}
-			
+			allPlayers.addAll(entry.getValue());
 		}
+		
+		this.addRemotePlayersToPanel(this.remotePlayersPaneContent, allPlayers);
 		
 		
 		this.remotePlayersPaneContent.revalidate();

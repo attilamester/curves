@@ -9,13 +9,14 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -27,63 +28,50 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import generals.Colors;
 import generals.GameController;
 import generals.Main;
-import landing_pages.LocalGameConfigPanel.PlayerConfigRow;
+import landing_pages.PlayerConfigRow.TextFieldPlaceholder;
 import modals.ErrorDialog;
 import network_packages.PreGameInfo;
 import network_packages.SocketPackage;
-import networking.ClientThread;
 import networking.GameClient;
 import networking.LanIpTester;
 
-public class JoinGameConfigPanel extends JPanel {
+public class JoinGameConfigPanel extends LocalGameConfigPanel {
 	private static final long serialVersionUID = 1;
 
-	private Random rnd;
-
 	private JPanel allPlayersPane;
+	private JPanel remotePlayersPane;
+	private JPanel remotePlayersPaneHeader;
+	private JPanel remotePlayersPaneContent;
+	private JScrollPane remotePlayersPaneContentScrollPane;
+
 	private JPanel connectPane;
 	private JPanel loadingPane;
-
-	private JPanel otherPlayersPane;
-	private JPanel otherPlayersPaneHeader;
-	private JPanel otherPlayersPaneContent;
-	private JScrollPane otherPlayersPaneContentScrollPane;
-
-	private JPanel myPlayersPane;
-	private JPanel myPlayersPaneHeader;
-	private JPanel myPlayersPaneContent;
-	private JScrollPane myPlayersPaneContentScrollPane;
-
-	private JSpinner myPlayerCount;
-	private List<PlayerConfigRow> myPlayers;
-
+	
+	private List<TextFieldPlaceholder> serverPlayers;
+	private List<TextFieldPlaceholder> otherClientsPlayers;
+	
 	private JSpinner subnetSpinner;
 
 	public JoinGameConfigPanel(int width, int height) {
-
-		this.setLayout(new BorderLayout());
-		this.setSize(width, height);
-
-		addItems();
+		super(width, height);
+		
+		serverPlayers = new ArrayList<>();
+		otherClientsPlayers = new ArrayList<>();
+		
+		
+		customizePanel();
+		
+		addComponentListener();
+		
 	}
-
-	private void addItems() {
-		Main.addBackPane(this);
-
-		rnd = new Random();
-
-		prepareGui();
-	}
-
+	
 	public void searchDoneForHost(List<String> hosts) {
-		otherPlayersPaneContent.removeAll();
-		otherPlayersPaneContent.revalidate();
+		remotePlayersPaneContent.removeAll();
+		remotePlayersPaneContent.revalidate();
 		for (String s : hosts) {
 			System.out.println(s);
 		}
@@ -104,43 +92,48 @@ public class JoinGameConfigPanel extends JPanel {
 	}
 
 	public void connectingSuccess(Socket createdSocket) {
-		otherPlayersPaneContent.removeAll();
-		otherPlayersPaneContent.revalidate();
-		otherPlayersPaneContent.repaint();
-		otherPlayersPaneHeader.setBackground(Color.GREEN);
+		remotePlayersPaneContent.removeAll();
+		remotePlayersPaneContent.revalidate();
+		remotePlayersPaneContent.repaint();
+		remotePlayersPaneHeader.setBackground(Color.GREEN);
 
 		try {
 			Main.setGameClient(new GameClient(Main.getGameController(), createdSocket));
-
 			Main.getGameClient().respondToServer(new SocketPackage(-1, SocketPackage.PACKAGE_HAND_SHAKE));
-			//SocketPackage pack = (SocketPackage) Main.getGameClient().getClientThread().readObject();
-			//Main.getGameClient().getClientThread().setClientID(pack.getClientID());
-
-			Main.getGameClient().respondToServer(new PreGameInfo(Main.getGameClient().getClientID(), this.myPlayers));
+			// SocketPackage pack = (SocketPackage)
+			// Main.getGameClient().getClientThread().readObject();
+			// Main.getGameClient().getClientThread().setClientID(pack.getClientID());
+			Main.getGameClient().respondToServer(new PreGameInfo(Main.getGameClient().getClientID(), collectTextFields()));
 		} catch (IOException e) {
 			System.out.println("NOT Wrote to S");
-		} /*catch (ClassNotFoundException e) {
-		}*/
+		} /*
+			 * catch (ClassNotFoundException e) { }
+			 */
 
 	}
 
 	/***********************************************************************************
 	 * GUI
 	 ************************************************************************************/
-	private void prepareGui() {
-		allPlayersPane = new JPanel(new GridLayout(2, 1));
-
+	private void customizePanel() {
+		setTitleActions();
 		addRemotePlayers();
-		addLocalPlayers();
-
-		this.add(allPlayersPane);
 	}
 
+	private void setTitleActions() {
+		JPanel topConfigsPane = this.getTopConfigPane();
+		topConfigsPane.remove(this.speedLabel);
+		topConfigsPane.remove(this.speedSlider);
+		topConfigsPane.remove(this.angleLabel);
+		topConfigsPane.remove(this.angleSlider);
+	}
+	
 	private void addRemotePlayers() {
-		otherPlayersPane = new JPanel(new BorderLayout());
-		otherPlayersPaneHeader = new JPanel(new GridLayout(1, 2));
-		otherPlayersPaneContent = new JPanel(new BorderLayout());
-		otherPlayersPaneContent.setBackground(Colors.ANIMATION_BACKGROUND);
+		
+		remotePlayersPane = new JPanel(new BorderLayout());
+		remotePlayersPaneHeader = new JPanel(new GridLayout(1, 2));
+		remotePlayersPaneContent = new JPanel(new BorderLayout());
+		remotePlayersPaneContent.setBackground(Colors.ANIMATION_BACKGROUND);
 
 		JLabel title = new JLabel("Remote IP:");
 		title.setOpaque(true);
@@ -167,19 +160,23 @@ public class JoinGameConfigPanel extends JPanel {
 		ipAddressPane.add(ip_);
 		ipAddressPane.add(subnetSpinner);
 
-		otherPlayersPaneHeader.add(title);
-		otherPlayersPaneHeader.add(ipAddressPane);
+		remotePlayersPaneHeader.add(title);
+		remotePlayersPaneHeader.add(ipAddressPane);
 
-		otherPlayersPaneContentScrollPane = new JScrollPane(otherPlayersPaneContent);
-		otherPlayersPaneContentScrollPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
-		otherPlayersPaneContentScrollPane.getViewport().setBackground(GameController.PLAYGROUND_BACKGROUND);
-		otherPlayersPaneContentScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		remotePlayersPaneContentScrollPane = new JScrollPane(remotePlayersPaneContent);
+		remotePlayersPaneContentScrollPane.setBackground(GameController.PLAYGROUND_BACKGROUND);
+		remotePlayersPaneContentScrollPane.getViewport().setBackground(GameController.PLAYGROUND_BACKGROUND);
+		remotePlayersPaneContentScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
-		otherPlayersPane.add(otherPlayersPaneHeader, BorderLayout.NORTH);
-		otherPlayersPane.add(otherPlayersPaneContentScrollPane, BorderLayout.CENTER);
+		remotePlayersPane.add(remotePlayersPaneHeader, BorderLayout.NORTH);
+		remotePlayersPane.add(remotePlayersPaneContentScrollPane, BorderLayout.CENTER);
 
-		allPlayersPane.add(otherPlayersPane);
-
+		
+		allPlayersPane = new JPanel(new GridLayout(2, 1));
+		allPlayersPane.add(remotePlayersPane);
+		allPlayersPane.add(this.getLocalPlayersPane());
+		
+		this.getContentPane().add(allPlayersPane, BorderLayout.CENTER);
 		/****************************************
 		 * LOADING ? CONNECTING
 		 *****************************************/
@@ -201,7 +198,7 @@ public class JoinGameConfigPanel extends JPanel {
 		connect.setBorder(new LineBorder(Color.GREEN, 2));
 		connect.setFont(new Font("Calibri", Font.BOLD, 18));
 		connectPane.add(connect);
-		otherPlayersPaneContent.add(connectPane);
+		remotePlayersPaneContent.add(connectPane);
 
 		connect.addMouseListener(new MouseAdapter() {
 			@Override
@@ -224,11 +221,11 @@ public class JoinGameConfigPanel extends JPanel {
 	}
 
 	private void addConnectPane() {
-		otherPlayersPaneContent.removeAll();
+		remotePlayersPaneContent.removeAll();
 		subnetSpinner.setEnabled(true);
-		otherPlayersPaneContent.add(this.connectPane);
-		otherPlayersPaneContent.revalidate();
-		otherPlayersPaneContent.repaint();
+		remotePlayersPaneContent.add(this.connectPane);
+		remotePlayersPaneContent.revalidate();
+		remotePlayersPaneContent.repaint();
 	}
 
 	private void createLoadingPane() {
@@ -249,100 +246,49 @@ public class JoinGameConfigPanel extends JPanel {
 
 	private void addLoadingPane() {
 		subnetSpinner.setEnabled(false);
-		otherPlayersPaneContent.removeAll();
-		otherPlayersPaneContent.add(this.loadingPane);
-		otherPlayersPaneContent.revalidate();
-		otherPlayersPaneContent.repaint();
+		remotePlayersPaneContent.removeAll();
+		remotePlayersPaneContent.add(this.loadingPane);
+		remotePlayersPaneContent.revalidate();
+		remotePlayersPaneContent.repaint();
 	}
 
-	private void addLocalPlayers() {
-		myPlayersPane = new JPanel(new BorderLayout());
-		myPlayersPaneHeader = new JPanel(new GridLayout(1, 2));
-		myPlayersPaneContent = new JPanel(new GridLayout(1, 1));
-		myPlayersPaneContentScrollPane = new JScrollPane(myPlayersPaneContent);
-		myPlayersPane.add(myPlayersPaneHeader, BorderLayout.NORTH);
-		myPlayersPane.add(myPlayersPaneContentScrollPane, BorderLayout.CENTER);
-
-		addNumberSpinner();
-		addMyPlayers();
-
-		allPlayersPane.add(myPlayersPane);
-	}
-
-	private void addNumberSpinner() {
-		Color bg = Colors.MAIN_COLORS[1];
-
-		SpinnerModel model = new SpinnerNumberModel(1, 1, 10, 1);
-		this.myPlayerCount = new JSpinner(model);
-		((JSpinner.DefaultEditor) myPlayerCount.getEditor()).getTextField().setEditable(false);
-		((JSpinner.DefaultEditor) myPlayerCount.getEditor()).getTextField().setForeground(Color.WHITE);
-		myPlayerCount.setPreferredSize(new Dimension(50, 25));
-		myPlayerCount.setBorder(BorderFactory.createEmptyBorder());
-
-		Component c = myPlayerCount.getEditor().getComponent(0);
-		c.setFont(new Font("Calibri", Font.BOLD, 18));
-		c.setBackground(bg);
-
-		myPlayerCount.addChangeListener(new ChangeListener() {
+	private void addComponentListener() {
+		this.localPlayersPaneContent.addContainerListener(new ContainerAdapter() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
-				int nr = (int) myPlayerCount.getValue();
-				if (nr > myPlayers.size()) {
-					myPlayersPaneContent.setLayout(new GridLayout(nr, 1));
-					PlayerConfigRow row = new PlayerConfigRow(rnd);
-					myPlayers.add(row);
-					myPlayersPaneContent.add(row);
-					myPlayersPaneContent.revalidate();
-				} else {
-					myPlayersPaneContent.setLayout(new GridLayout(myPlayers.size() - 1, 1));
-					PlayerConfigRow ref = myPlayers.get(myPlayers.size() - 1);
-					myPlayers.remove(ref);
-					myPlayersPaneContent.remove(ref);
-					myPlayersPaneContent.revalidate();
-				}
+			public void componentAdded(ContainerEvent e) {
+				if (Main.getGameClient() != null)
+					Main.getGameClient().respondToServer(new PreGameInfo(0, collectTextFields()));
+			}
+
+			@Override
+			public void componentRemoved(ContainerEvent e) {
+				if (Main.getGameClient() != null)
+					Main.getGameClient().respondToServer(new PreGameInfo(0, collectTextFields()));
 			}
 		});
 
-		JLabel playerNrLabel = new JLabel("Number of players:");
-		playerNrLabel.setOpaque(true);
-		playerNrLabel.setBorder(new EmptyBorder(5, 10, 5, 0));
-		playerNrLabel.setBackground(bg);
-		playerNrLabel.setForeground(Color.WHITE);
-		playerNrLabel.setLabelFor(myPlayerCount);
-
-		myPlayersPaneHeader.add(playerNrLabel);
-		myPlayersPaneHeader.add(myPlayerCount);
-
-		myPlayersPane.add(myPlayersPaneHeader, BorderLayout.NORTH);
-
 	}
 
-	private void addMyPlayers() {
-
-		int nr = (int) myPlayerCount.getValue();
-		this.myPlayersPaneContent.setLayout(new GridLayout(nr, 1));
-		this.myPlayers = new ArrayList<>();
-		for (int i = 0; i < nr; ++i) {
-			PlayerConfigRow row = new PlayerConfigRow(rnd);
-			this.myPlayers.add(row);
-			this.myPlayersPaneContent.add(row);
+	public synchronized void arrivedNewPlayerConfigs(int clientID, List<TextFieldPlaceholder> players) {
+		
+		this.remotePlayersPaneContent.removeAll();
+		
+		List<TextFieldPlaceholder> allOtherPlayers = new ArrayList<>();
+		
+		if (clientID == 0) {
+			//packet arrived from server => contains server-players
+			this.serverPlayers.clear();
+			this.serverPlayers.addAll(players);
+		} else {
+			this.otherClientsPlayers.clear();
+			this.otherClientsPlayers.addAll(players);
 		}
-		this.myPlayersPaneContent.setBackground(GameController.PLAYGROUND_BACKGROUND);
-		this.myPlayersPaneContentScrollPane.getViewport().setBackground(GameController.PLAYGROUND_BACKGROUND);
-		this.myPlayersPaneContentScrollPane.setBorder(BorderFactory.createEmptyBorder());
-	}
+		allOtherPlayers.addAll(serverPlayers);
+		allOtherPlayers.addAll(otherClientsPlayers);
+		this.addRemotePlayersToPanel(remotePlayersPaneContent, allOtherPlayers);
 
-	public synchronized void arrivedNewPlayerConfigs(int clientID, List<PlayerConfigRow> players) {
-		System.out.println(players.size());
-		this.otherPlayersPaneContent.removeAll();
-		this.otherPlayersPaneContent.setLayout(new GridLayout(players.size(), 1));
-
-		for (PlayerConfigRow row : players) {
-			this.otherPlayersPaneContent.add(row);
-		}
-
-		this.otherPlayersPaneContent.revalidate();
-		this.otherPlayersPaneContent.repaint();
+		this.remotePlayersPaneContent.revalidate();
+		this.remotePlayersPaneContent.repaint();
 	}
 
 }

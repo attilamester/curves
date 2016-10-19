@@ -1,11 +1,8 @@
 package networking;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.io.StreamCorruptedException;
 import java.net.Socket;
 
@@ -14,19 +11,15 @@ import generals.Main;
 public class ClientThread implements Runnable {
 
 	private volatile Thread control;
-	private boolean serverSuspended;
+	private boolean clientSuspended;
 
-	private String hostName;
-	private int port;
 	private Socket clientSocket;
 	private int clientID;
 
 	private ObjectOutputStream objectOutputStream;
 	private ObjectInputStream objectInputStream;
 
-	public ClientThread(/*String hostName, int port*/Socket socket) throws IOException {
-		this.hostName = hostName;
-		this.port = port;
+	public ClientThread(Socket socket) throws IOException {
 		this.clientSocket = socket;
 		this.clientID = -1;
 		
@@ -37,7 +30,7 @@ public class ClientThread implements Runnable {
 
 	public void start() {
 		control = new Thread(this);
-		serverSuspended = false;
+		clientSuspended = false;
 		control.start();
 	}
 
@@ -48,12 +41,12 @@ public class ClientThread implements Runnable {
 	}
 
 	public void suspend() {
-		this.serverSuspended = true;
+		this.clientSuspended = true;
 	}
 
 	public void resume() {
 		synchronized (this) {
-			this.serverSuspended = false;
+			this.clientSuspended = false;
 			notifyAll();
 		}
 	}
@@ -67,20 +60,33 @@ public class ClientThread implements Runnable {
 
 	@Override
 	public void run() {
-
+		Object obj = null;
 		Thread thisThread = Thread.currentThread();
 		while (thisThread == this.control) {
 			
 			try {
-				Object o = null;
-				o = this.readObject();
-				Main.getGameClient().receivedFromServer(o);
+				
+				if (this.clientSuspended) {
+					synchronized (this) {
+						while (this.clientSuspended)
+							wait();
+					}
+				}
+				
+				obj = this.readFromServer();
+				Main.getGameClient().receivedFromServer(obj);
+				
+			} catch (InterruptedException e) {
+				break;
 			} catch (ClassNotFoundException e) {
 				System.out.println("eerr1");
 			} catch (InvalidClassException e) {
 				System.out.println("eerr2");
 			} catch (StreamCorruptedException e) {
-				System.out.println("eerr");
+				try {
+					this.clientSocket.close();
+				} catch (IOException ee) {}
+				break;
 			} catch (IOException e) {
 				try {
 					this.clientSocket.close();
@@ -92,8 +98,7 @@ public class ClientThread implements Runnable {
 		
 		try {
 			this.clientSocket.close();
-		} catch (IOException e) {
-		}
+		} catch (IOException e) {}
 
 	}
 
@@ -106,11 +111,13 @@ public class ClientThread implements Runnable {
 		this.clientSocket = clientSocket;
 	}
 	
-	public void writeObject(Object obj) throws IOException {
+	public void writeToServer(Object obj) throws IOException {
 		this.objectOutputStream.writeObject(obj);
+		this.objectOutputStream.flush();
+		this.objectOutputStream.reset();
 	}
 	
-	public Object readObject() throws IOException, ClassNotFoundException {
+	public Object readFromServer() throws IOException, ClassNotFoundException {
 		return this.objectInputStream.readObject(); 
 	}
 

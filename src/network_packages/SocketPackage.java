@@ -8,12 +8,16 @@ public class SocketPackage  implements Serializable {
 	public static final int PACKAGE_HAND_SHAKE = 0;
 	public static final int PACKAGE_PRE_GAME = 1;
 	
+	private static int count = 0;
+	
+	private int id;
 	private int clientID;
 	private int type;
 	
 	public SocketPackage(int clientID, int type) {
 		this.clientID = clientID;
 		this.type = type;
+		this.id = SocketPackage.count++;
 	}
 
 	public int getClientID() {
@@ -22,6 +26,10 @@ public class SocketPackage  implements Serializable {
 
 	public int getType() {
 		return type;
+	}
+	
+	public int getId() {
+		return id;
 	}
 	
 }
