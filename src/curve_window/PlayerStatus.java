@@ -3,12 +3,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.Serializable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class PlayerStatus extends JPanel implements Comparable<PlayerStatus> {
+public class PlayerStatus extends JPanel implements Comparable<PlayerStatus>, Serializable {
 	private static final long serialVersionUID = 1;
 	
 	private JLabel nameLabel;

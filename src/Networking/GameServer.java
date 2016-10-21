@@ -3,6 +3,7 @@ package networking;
 import java.io.IOException;
 
 import generals.GameController;
+import network_packages.PlayInfo;
 import network_packages.PreGameInfo;
 import network_packages.ReadyRequest;
 import network_packages.SocketPackage;
@@ -55,6 +56,12 @@ public class GameServer {
 			case SocketPackage.PACKAGE_READY_REQUEST:
 				ReadyRequest request = (ReadyRequest)obj;
 				this.gameController.getLandingWindow().getLanGameConfigPanel().newReadyRequest(clientID, request.isReady());
+				break;
+			
+			case SocketPackage.PACKAGE_PLAY_INFO:
+				this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(clientID, (PlayInfo)obj);
+				break;
+				
 		}
 	}
 

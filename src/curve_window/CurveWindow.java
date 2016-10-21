@@ -244,6 +244,7 @@ public class CurveWindow extends JFrame {
 		this.contentPane.add(namesWrapper, BorderLayout.NORTH);
 		
 	}
+	
 
 	public void startGame() {
 		this.playGround.startGame();

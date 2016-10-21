@@ -37,6 +37,7 @@ import generals.GameController;
 import generals.Main;
 import modals.CountDownModal;
 import modals.EndGameModal;
+import network_packages.PlayInfo;
 import power_up.PowerUp;
 import power_up.PowerUpLoader;
 
@@ -101,6 +102,22 @@ public class PlayGround extends JPanel {
 		this.ALL_PLAYER_COUNT = this.ALL_NAMES.size();
 		this.deadPLayerCount = 0;
 
+		
+		System.out.println("Local names:");
+		for(String p : localNames) {
+			System.out.println(p);
+		}
+		for(Color c : localColors) {
+			System.out.println(c);
+		}
+		System.out.println("Remote names:");
+		for(String p : remoteNames) {
+			System.out.println(p);
+		}
+		for(Color c : remoteColors) {
+			System.out.println(c);
+		}
+		
 		
 		createPlayers(this.localPlayers, localNames, localColors);
 		createPlayers(this.remotePlayers, remoteNames, remoteColors);
@@ -173,10 +190,15 @@ public class PlayGround extends JPanel {
 			this.initPaint(g);
 
 		} else {
+			if (Main.getGameServer() == null) {
+				Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), this.localPlayers));
+			}
+			
+			
 			g.drawImage(this.backgroundLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
-
+			
 			for(Player player : this.localPlayers) {
-
+				
 				int x = (int) player.getCurve().getX();
 				int y = (int) player.getCurve().getY();
 				int r = player.getCurve().getRadius();
@@ -257,7 +279,22 @@ public class PlayGround extends JPanel {
 				// 0, 0, null);
 				checkForPowerUp(player);
 			}
-
+			
+			/** Paint other curves' head */
+			for (Player player : this.remotePlayers) {
+				Curve curve = player.getCurve();
+				int x = (int) curve.getX();
+				int y = (int) curve.getY();
+				int r = curve.getRadius();
+				if (player.getCurve().isPaused()) {
+					g.setColor(player.getColor());
+					g.fillOval(x - r -(this.shrinkedX >> 1), y - r -(this.shrinkedY >> 1), r << 1, r << 1);
+				} else {
+					curvesLayer.getGr().setColor(player.getColor());
+					curvesLayer.getGr().fillOval(x - r, y - r, r << 1, r << 1);
+				}
+			}
+			
 			g.drawImage(curvesLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
 			this.compressedLayer.getGr().drawImage(curvesLayer.getImg(), 0, 0, null);
 			
@@ -271,11 +308,7 @@ public class PlayGround extends JPanel {
 					g.fillOval(x - r + 1 -(this.shrinkedX >> 1), y - r + 1 -(this.shrinkedY >> 1), (r << 1) - 2, (r << 1) - 2);
 				}
 			}
-			// compressedLayer.getGr().drawImage(this.curvesLayer.getImg(), 0,
-			// 0, null);
-			// compressedLayer.getGr().drawImage(this.extrasLayer.getImg(), 0,
-			// 0, null);
-
+			
 		}
 	}
 
@@ -834,6 +867,21 @@ public class PlayGround extends JPanel {
 
 	public void setShrinking(boolean isShrinking) {
 		this.isShrinking = isShrinking;
+	}
+	
+	
+	public void arrivedPlayerList(int clientID, PlayInfo info) {
+		synchronized (new Object()) {
+			List<Player> clientsPlayers = info.getPlayers();
+			for (Player p : this.remotePlayers) {
+				
+				for (Player pp : clientsPlayers) {
+					if (p.getId() == pp.getId()) {
+						p = pp;
+					}
+				}
+			}
+		}
 	}
 	
 }

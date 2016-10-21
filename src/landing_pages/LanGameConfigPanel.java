@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import curve.Control;
+import curve.Player;
 import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;
@@ -251,6 +252,7 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				}
 				
 				CurveWindow curveWindow = new CurveWindow(ctrl, localNames, localColors, remoteNames, remoteColors);
+				Main.getGameController().setCurveWindow(curveWindow);
 				new CountDownModal(curveWindow, 1, null, null);
 			}
 		});
@@ -301,6 +303,7 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 			
 		}
 	}
+	
 	
 	public void newReadyRequest(int clientID, boolean ready) {
 		this.remoteClientsReadyState.put(clientID, ready);

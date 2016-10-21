@@ -1,10 +1,14 @@
 package curve;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import curve_window.PlayerStatus;
 
-public class Player {
+public class Player implements Serializable {
+	private static final long serialVersionUID = 1;
 	
 	private static int ID_COUNT = 0;
 	
@@ -13,7 +17,7 @@ public class Player {
 	private int score;
 	private Color color;
 	private Curve curve;
-	private CurveController controller;
+	private transient CurveController controller;
 	private Control control;
 	private boolean alive;
 	private PlayerStatus playerStatusPane;
@@ -29,7 +33,7 @@ public class Player {
 		this.alive = true;
 		this.playerStatusPane = new PlayerStatus(name, color);
 	}
-
+	
 	public int getId() {
 		return id;
 	}
@@ -102,6 +106,4 @@ public class Player {
 	public Control getControl() {
 		return control;
 	}
-	
-
 }

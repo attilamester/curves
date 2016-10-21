@@ -4,11 +4,13 @@ import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
+import curve_window.CurveWindow;
 import landing_pages.LandingWindow;
 
 public class GameController {
 	
 	private LandingWindow landingWindow;
+	private CurveWindow curveWindow = null;
 	
 	/***********************************************************************
 	 * 
@@ -71,6 +73,14 @@ public class GameController {
 
 	public LandingWindow getLandingWindow() {
 		return landingWindow;
+	}
+
+	public CurveWindow getCurveWindow() {
+		return curveWindow;
+	}
+
+	public void setCurveWindow(CurveWindow curveWindow) {
+		this.curveWindow = curveWindow;
 	}
 	
 	
