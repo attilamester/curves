@@ -1,4 +1,5 @@
 package networking;
+
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
@@ -7,6 +8,7 @@ import java.io.StreamCorruptedException;
 import java.net.Socket;
 
 import generals.Main;
+import network_packages.EndOfRelationship;
 
 public class ClientThread implements Runnable {
 
@@ -38,6 +40,13 @@ public class ClientThread implements Runnable {
 		Thread tmp = control;
 		control = null;
 		tmp.interrupt();
+		try {
+			this.writeToServer(new EndOfRelationship(this.clientID));
+			
+			this.objectInputStream.close();
+			this.objectOutputStream.close();
+			this.clientSocket.close();
+		} catch (IOException e) {} 
 	}
 
 	public void suspend() {

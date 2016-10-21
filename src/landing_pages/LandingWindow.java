@@ -84,7 +84,7 @@ public class LandingWindow extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (localGameConfigPanel == null) {
-					localGameConfigPanel = new LocalGameConfigPanel(contentPane.getWidth(), contentPane.getHeight());
+					localGameConfigPanel = new LocalGameConfigPanel(contentPane.getWidth(), contentPane.getHeight(), null);
 				}
 				LandingWindow.this.setContentPane(localGameConfigPanel);
 				contentPane.revalidate();

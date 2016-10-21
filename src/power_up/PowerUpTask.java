@@ -14,6 +14,7 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import curve.Player;
 import curve_window.CurveWindow;
 import generals.GameController;
 
@@ -21,7 +22,7 @@ public class PowerUpTask {
 	
 	private CurveWindow curveWindow;
 	
-	private List<Integer> playerIndexes;
+	private List<Player> players;
 	
 	private List<JProgressBar> progressBars;
 	private Timer progressBarEffect;
@@ -41,10 +42,10 @@ public class PowerUpTask {
 	
 	private int state;
 	
-	public PowerUpTask (CurveWindow curveWindow, int time, boolean PERSONAL, List<Integer> playerIndexes) {
+	public PowerUpTask (CurveWindow curveWindow, int time, boolean PERSONAL, List<Player> players) {
 		this.curveWindow = curveWindow;
 		
-		this.playerIndexes = playerIndexes;
+		this.players = players;
 		
 		this.duration = time;
 		this.PERSONAL = PERSONAL;
@@ -78,9 +79,9 @@ public class PowerUpTask {
 	}
 
 	private void createPersonalLoadingBar() {
-		this.progressBars = new ArrayList<>(this.playerIndexes.size());
+		this.progressBars = new ArrayList<>(this.players.size());
 		
-		for (Integer i : this.playerIndexes) {			
+		for (Player i : this.players) {			
 			JProgressBar progressBar = new JProgressBar();		
 			progressBar.setOrientation(SwingConstants.VERTICAL);
 			progressBar.setPreferredSize(new Dimension(10, GameController.PLAYER_STATUS_PANE_HEIGHT));
@@ -93,8 +94,9 @@ public class PowerUpTask {
 			
 			this.progressBars.add(progressBar);
 			
-			curveWindow.getPlayerStatusPanes().get(i).add(progressBar);
-			curveWindow.getPlayerStatusPanes().get(i).revalidate();
+			i.getPlayerStatusPane().add(progressBar);
+			i.getPlayerStatusPane().revalidate();
+			i.getPlayerStatusPane().repaint();
 		}
 		
 		progressBarEffect = new Timer(duration / 100, null);
@@ -147,9 +149,9 @@ public class PowerUpTask {
 		if (this.PERSONAL) {
 			
 			int nr = 0;
-			for (Integer i : this.playerIndexes) {
+			for (Player i : this.players) {
 				
-				JPanel panel = curveWindow.getPlayerStatusPanes().get(i);
+				JPanel panel = i.getPlayerStatusPane();
 				
 				if(panel.getComponentCount() != 0) {
 					panel.remove(progressBars.get(nr++));

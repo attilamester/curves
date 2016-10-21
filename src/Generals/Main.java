@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.Callable;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -45,7 +46,7 @@ public class Main {
 		});		
 	}
 	
-	public static void addBackPane(JPanel panel) {
+	public static void addBackPane(JPanel panel, Callable<Void> func) {
 		JLabel back = new JLabel(new ImageIcon("images\\back.png"));		
 		back.addMouseListener(new MouseAdapter() {
 			@Override
@@ -61,6 +62,10 @@ public class Main {
 				game.getLandingWindow().setContentPane(game.getLandingWindow().getDefaultContent());
 				game.getLandingWindow().revalidate();
 				game.getLandingWindow().repaint();
+				
+				try {
+					func.call();
+				} catch (Exception ex) {}
 			}
 		});
 		
@@ -69,6 +74,7 @@ public class Main {
 		backPane.setSize(panel.getWidth(), 50);
 		backPane.add(back);
 		
+		//panel.remove(((BorderLayout)panel.getLayout()).getLayoutComponent(BorderLayout.NORTH));
 		panel.add(backPane, BorderLayout.NORTH);
 	}
 	

@@ -8,6 +8,9 @@ import java.io.StreamCorruptedException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Map;
+
+import network_packages.EndOfRelationship;
 
 public class ServerThread implements Runnable {
 
@@ -48,6 +51,13 @@ public class ServerThread implements Runnable {
 		Thread tmp = control;
 		control = null;
 		tmp.interrupt();
+		for (Map.Entry<Integer, ClientHandler> entry : this.clientHandlers.entrySet()) {
+			entry.getValue().stop();
+		}
+		this.clientHandlers.clear();
+		try {
+			this.serverSocket.close();
+		} catch (IOException e) {}
 	}
 
 	public void suspend() {
@@ -87,7 +97,7 @@ public class ServerThread implements Runnable {
 			} catch (InterruptedException e) {
 				break;
 			} catch (IOException e) {
-				e.printStackTrace();
+				break;
 			}
 		}
 	}
@@ -98,6 +108,11 @@ public class ServerThread implements Runnable {
 
 	public HashMap<Integer, ClientHandler> getClients() {
 		return clientHandlers;
+	}
+	
+	public void closeClient(int clientID) {
+		this.clientHandlers.get(clientID).stop();
+		this.clientHandlers.remove(clientID);
 	}
 
 	public class ClientHandler implements Runnable {
@@ -138,6 +153,13 @@ public class ServerThread implements Runnable {
 		public void stop() {
 			Thread tmp = control;
 			control = null;
+			try {
+				this.writeToClient(new EndOfRelationship(0));
+				
+				this.objectInputStream.close();
+				this.objectOutputStream.close();
+			} catch (IOException e) {}
+			
 			tmp.interrupt();
 		}
 

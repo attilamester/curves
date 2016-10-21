@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import generals.GameController;
 import network_packages.PreGameInfo;
+import network_packages.ReadyRequest;
 import network_packages.SocketPackage;
 
 public class GameServer {
@@ -30,20 +31,30 @@ public class GameServer {
 	 * Function to be invoked on SERVER program
 	 * 
 	 */	
-	public synchronized void receivedFromClient(int clientID, Object o) {
+	public synchronized void receivedFromClient(int clientID, Object obj) {
 		
-		switch (((SocketPackage)o).getType()) {
+		switch (((SocketPackage)obj).getType()) {
 			case SocketPackage.PACKAGE_HAND_SHAKE:
 				this.respondToClient(clientID, new SocketPackage(clientID, SocketPackage.PACKAGE_HAND_SHAKE));
 				this.respondToClient(clientID, new PreGameInfo(0,
 					this.gameController.getLandingWindow().getLanGameConfigPanel().collectTextFields()));
 				break;
-				
+			
+			case SocketPackage.PACKAGE_BREAK_UP:
+				this.serverThread.closeClient(clientID);
+				this.gameController.getLandingWindow().getLanGameConfigPanel()
+					.clientQuit(clientID);
+				break;	
+			
 			case SocketPackage.PACKAGE_PRE_GAME:
-				PreGameInfo packet = (PreGameInfo)o;
+				PreGameInfo packet = (PreGameInfo)obj;
 				this.gameController.getLandingWindow().getLanGameConfigPanel().arrivedNewPlayerConfigs(
 					clientID, packet.getPlayers());
 				break;
+			
+			case SocketPackage.PACKAGE_READY_REQUEST:
+				ReadyRequest request = (ReadyRequest)obj;
+				this.gameController.getLandingWindow().getLanGameConfigPanel().newReadyRequest(clientID, request.isReady());
 		}
 	}
 
@@ -57,5 +68,7 @@ public class GameServer {
 		return serverThread;
 	}
 	
-
+	public void shutDown() {
+		this.serverThread.stop();
+	}
 }

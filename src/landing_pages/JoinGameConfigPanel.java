@@ -11,15 +11,19 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ContainerAdapter;
 import java.awt.event.ContainerEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,12 +33,16 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import curve.Control;
+import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;
 import generals.Main;
 import landing_pages.PlayerConfigRow.TextFieldPlaceholder;
+import modals.CountDownModal;
 import modals.ErrorDialog;
 import network_packages.PreGameInfo;
+import network_packages.ReadyRequest;
 import network_packages.SocketPackage;
 import networking.GameClient;
 import networking.LanIpTester;
@@ -43,6 +51,7 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 	private static final long serialVersionUID = 1;
 
 	private JPanel allPlayersPane;
+	
 	private JPanel remotePlayersPane;
 	private JPanel remotePlayersPaneHeader;
 	private JPanel remotePlayersPaneContent;
@@ -55,28 +64,30 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 	private List<TextFieldPlaceholder> otherClientsPlayers;
 	
 	private JSpinner subnetSpinner;
+	private JCheckBox readyCheckBox;
+	private boolean readyDeselectWasTriggered = false;
+	
+	List<Control> localCtrls = new ArrayList<Control>();
+	List<String> localNames = new ArrayList<String>();
+	List<Color> localColors = new ArrayList<Color>();
 
 	public JoinGameConfigPanel(int width, int height) {
-		super(width, height);
+		super(width, height, new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				Main.getGameController().getLandingWindow().getJoinGameConfigPanel().quitServer();
+				return null;
+			}
+		});
 		
 		serverPlayers = new ArrayList<>();
 		otherClientsPlayers = new ArrayList<>();
 		
 		
 		customizePanel();
-		
 		addComponentListener();
-		
 	}
 	
-	public void searchDoneForHost(List<String> hosts) {
-		remotePlayersPaneContent.removeAll();
-		remotePlayersPaneContent.revalidate();
-		for (String s : hosts) {
-			System.out.println(s);
-		}
-	}
-
 	private void tryConnectToHost() {
 
 		String host = "192.168.0." + Integer.toString((Integer) this.subnetSpinner.getValue());
@@ -85,7 +96,7 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		new Thread(ipTester).start();
 
 	}
-
+	
 	public void connectingError(String message) {
 		addConnectPane();
 		new ErrorDialog(message);
@@ -95,8 +106,9 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		remotePlayersPaneContent.removeAll();
 		remotePlayersPaneContent.revalidate();
 		remotePlayersPaneContent.repaint();
-		remotePlayersPaneHeader.setBackground(Color.GREEN);
-
+		
+		readyCheckBox.setEnabled(true);
+		
 		try {
 			Main.setGameClient(new GameClient(Main.getGameController(), createdSocket));
 			Main.getGameClient().respondToServer(new SocketPackage(-1, SocketPackage.PACKAGE_HAND_SHAKE));
@@ -105,11 +117,7 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 			// Main.getGameClient().getClientThread().setClientID(pack.getClientID());
 			Main.getGameClient().respondToServer(new PreGameInfo(Main.getGameClient().getClientID(), collectTextFields()));
 		} catch (IOException e) {
-			System.out.println("NOT Wrote to S");
-		} /*
-			 * catch (ClassNotFoundException e) { }
-			 */
-
+		}
 	}
 
 	/***********************************************************************************
@@ -118,6 +126,15 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 	private void customizePanel() {
 		setTitleActions();
 		addRemotePlayers();
+		customizeBottomButtonActions();
+		/****************************************
+		 * LOADING ? CONNECTING
+		 *****************************************/
+
+		createConnectingPane();
+		createLoadingPane();
+
+		addConnectPane();
 	}
 
 	private void setTitleActions() {
@@ -128,8 +145,7 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		topConfigsPane.remove(this.angleSlider);
 	}
 	
-	private void addRemotePlayers() {
-		
+	private void addRemotePlayers() {		
 		remotePlayersPane = new JPanel(new BorderLayout());
 		remotePlayersPaneHeader = new JPanel(new GridLayout(1, 2));
 		remotePlayersPaneContent = new JPanel(new BorderLayout());
@@ -177,17 +193,33 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		allPlayersPane.add(this.getLocalPlayersPane());
 		
 		this.getContentPane().add(allPlayersPane, BorderLayout.CENTER);
-		/****************************************
-		 * LOADING ? CONNECTING
-		 *****************************************/
-
-		createConnectingPane();
-		createLoadingPane();
-
-		addConnectPane();
-
 	}
 
+	private void customizeBottomButtonActions() {
+		JPanel panel = this.getButtonsPane();
+		panel.removeAll();
+		readyCheckBox = new JCheckBox("Ready");
+		readyCheckBox.setBorderPainted(false);
+		readyCheckBox.setOpaque(false);
+		//readyCheckBox.setIcon(new ImageIcon(".\\images\\checkBox_false.png"));
+		//readyCheckBox.setSelectedIcon(new ImageIcon(".\\images\\checkBox_true.png"));
+		readyCheckBox.setFont(new Font("Calibri", Font.PLAIN, 20));
+		readyCheckBox.setFocusable(false);
+		readyCheckBox.setEnabled(false);
+		panel.add(readyCheckBox);
+		readyCheckBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					roomIsReady();
+				} else if (!readyDeselectWasTriggered){
+					roomIsNotReady();
+				}
+			}
+		});
+		
+	}
+	
 	private void createConnectingPane() {
 		connectPane = new JPanel(new GridBagLayout());
 		connectPane.setOpaque(false);
@@ -285,10 +317,75 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		}
 		allOtherPlayers.addAll(serverPlayers);
 		allOtherPlayers.addAll(otherClientsPlayers);
-		this.addRemotePlayersToPanel(remotePlayersPaneContent, allOtherPlayers);
+		this.addTextFieldListToPanel(remotePlayersPaneContent, allOtherPlayers);
 
 		this.remotePlayersPaneContent.revalidate();
 		this.remotePlayersPaneContent.repaint();
+	}
+	
+	private void roomIsReady() {
+		localCtrls.clear();
+		localNames.clear();
+		localColors.clear();
+		
+		if (!checkPlayersCorrectness(localPlayerConfigRows, localCtrls, localNames, localColors)) {
+			this.readyDeselectWasTriggered = true;
+			this.readyCheckBox.setSelected(false);
+			return;
+		}
+		
+		for (Component comp : this.remotePlayersPaneContent.getComponents()) {
+			Color color = ((TextFieldPlaceholder)(((JPanel)comp).getComponent(0))).getColor();
+			String name = ((TextFieldPlaceholder)(((JPanel)comp).getComponent(0))).getText();
+			if (localColors.contains(color) || localNames.contains(name)) {
+				this.readyDeselectWasTriggered = true;
+				this.readyCheckBox.setSelected(false);
+				new ErrorDialog("Colors and Names must be unique!");
+				return;
+			}
+		}
+		
+		this.readyDeselectWasTriggered = false;
+		this.playerCount.setEnabled(false);
+		for (PlayerConfigRow row : this.localPlayerConfigRows) {
+			row.setEnabled(false);
+		}
+		
+		Main.getGameClient().respondToServer(new ReadyRequest(true));
+	}
+	
+	private void roomIsNotReady() {
+		this.playerCount.setEnabled(true);
+		for (PlayerConfigRow row : this.localPlayerConfigRows) {
+			row.setEnabled(true);
+		}
+		Main.getGameClient().respondToServer(new ReadyRequest(false));
+	}
+	
+	public void startGame(double curveAngle, double curveSpeed, List<String> names, List<Color> colors) {
+		GameController.DEFAULT_CURVE_ANGLE = curveAngle;
+		GameController.DEFAULT_CURVE_SPEED = curveSpeed;
+		
+		//CurveWindow curveWindow = new CurveWindow(names.size(), localCtrls, names, colors);	
+		//new CountDownModal(curveWindow, 1, null, null);
+		
+	}
+	
+	public void serverWasClosed() {
+		this.otherClientsPlayers.clear();
+		this.addConnectPane();
+		new ErrorDialog("Server was closed.");
+	}
+	
+	public void quitServer() {
+		if (Main.getGameClient() != null) {
+			Main.getGameClient().shutDown();
+		}
+		this.serverPlayers.clear();
+		this.otherClientsPlayers.clear();
+		this.addConnectPane();
+		this.readyCheckBox.setSelected(false);
+		this.readyCheckBox.setEnabled(false);
 	}
 
 }

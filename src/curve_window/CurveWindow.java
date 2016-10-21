@@ -5,15 +5,17 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -27,6 +29,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import curve.Control;
+import curve.Player;
 import generals.Colors;
 import generals.GameController;
 import generals.Main;
@@ -36,7 +39,8 @@ public class CurveWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private Container contentPane;
-	
+	private int curveWindowSizeX;
+	private int curveWindowSizeY;
 	/******************************************************************
 	 * 
 	 * Menu bar
@@ -50,8 +54,11 @@ public class CurveWindow extends JFrame {
 	/*****************************************************************
 	 * Names + general progress bar
 	 *****************************************************************/	
-	private JPanel namesPane;
-	private List<PlayerStatus> playerStatusPanes;
+	private List<Control> ctrlsToListen;
+	
+	private JPanel namesPane;	
+	private Map<String, Integer> namesScores;
+	private Map<String, PlayerStatus> playerStatusPanes;
 	private JPanel generalProgressPane;
 	private JProgressBar generalProgressBar;
 	
@@ -62,18 +69,21 @@ public class CurveWindow extends JFrame {
 	 * ESSENTIALS
 	 *  
 	 ******************************************************************/
-	private List<Control> ctrl;
-	//private List<String> names;
-	//private List<Color> colors;
 	
-	public CurveWindow (int players, List<Control> ctrl, List<String> names, List<Color> colors) {
-		super("Get the hang of it! ");
+	
+	
+	public CurveWindow (List<Control> ctrlsToListen, List<String> localNames, List<Color> localColors, List<String> remoteNames, List<Color> remoteColors) {
+		super();
 		
 		contentPane = this.getContentPane();
-		
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setLayout(new BorderLayout());
 		
+		Rectangle r = Main.getGameController().getLandingWindow().getBounds();
+		curveWindowSizeX = Main.SCREEN_WIDTH;
+		curveWindowSizeY = Main.SCREEN_HEIGHT;
+		int leftX =0;// (int)r.getMinX();
+		int topY  =0;// (int)r.getMinY();
 		/******************************************************************
 		 * 
 		 * Menu bar
@@ -104,33 +114,33 @@ public class CurveWindow extends JFrame {
 		 *  
 		 ******************************************************************/
 		
-		this.ctrl = ctrl;
-		//this.names = names;
-		//this.colors = colors;
-		
-		this.addPlayerNames(names, colors);
+		this.ctrlsToListen = ctrlsToListen;
 		
 		/*****************/
 		JPanel playGroundContainer = new JPanel();
 		playGroundContainer.setLayout(null);
 		playGroundContainer.setBackground(Color.BLACK);
 		
-		this.playGround = new PlayGround(this, players, names, colors, GameController.FRAME_SIZE_X, GameController.FRAME_SIZE_Y);
+		this.playGround = new PlayGround(this, localNames, localColors, remoteNames, remoteColors, curveWindowSizeX, curveWindowSizeY - GameController.MENU_HEIGHT - GameController.PLAYER_STATUS_PANE_HEIGHT);
 		playGroundContainer.add(playGround);
-		this.contentPane.add(playGroundContainer, BorderLayout.CENTER);		
+		this.contentPane.add(playGroundContainer, BorderLayout.CENTER);
 		this.playGround.repaint();
 		
-		/*****************/
+		this.addHeaderContent();
+		/*****************/		
 		this.displayRefresher = new DisplayRefresher(this.playGround);		
 		/******************************************************************
 		 * 
 		 * WINDOW PROPERTIES
 		 * 
 		 ******************************************************************/		
-		this.setBounds(0,0,Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		
+		
+		//this.setBounds((int)r.getMinX(),(int)r.getMinY(), curveWindowSizeX, curveWindowSizeY);
+		this.setBounds(leftX, topY, curveWindowSizeX, curveWindowSizeY);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		//this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    //this.setAlwaysOnTop(true);
 	    this.setUndecorated(true);
 	    
@@ -151,26 +161,26 @@ public class CurveWindow extends JFrame {
 	    		}
 	    		int code = e.getKeyCode();	    		
 	    		
-	    		for (ListIterator<Control> iter = ctrl.listIterator(); iter.hasNext(); ) {
+	    		for (ListIterator<Control> iter = ctrlsToListen.listIterator(); iter.hasNext(); ) {
 	    			int i = iter.nextIndex();
 	    			Control obj = iter.next();
 	    			if (code == obj.getLeft()){
-	    				playGround.leftTurnTriggered(i);
+	    				playGround.leftTurnTriggered(playGround.getLocalPlayers().get(i));
 	    			}
 	    			else if (code == obj.getRight())
-	    				playGround.rightTurnTriggered(i);
+	    				playGround.rightTurnTriggered(playGround.getLocalPlayers().get(i));
 	    		}
 	    	}
 	    	@Override
 	    	public void keyReleased(KeyEvent e) {
 	    		int code = e.getKeyCode();
-	    		for (ListIterator<Control> iter = ctrl.listIterator(); iter.hasNext(); ) {
+	    		for (ListIterator<Control> iter = ctrlsToListen.listIterator(); iter.hasNext(); ) {
 	    			int i = iter.nextIndex();
 	    			Control obj = iter.next();
 	    			if (code == obj.getLeft())
-	    				playGround.leftTurnStopped(i);
+	    				playGround.leftTurnStopped(playGround.getLocalPlayers().get(i));
 	    			else if (code == obj.getRight())
-	    				playGround.rightTurnStopped(i);
+	    				playGround.rightTurnStopped(playGround.getLocalPlayers().get(i));
 	    		}
 	    	}
 	    });
@@ -192,45 +202,40 @@ public class CurveWindow extends JFrame {
 				CurveWindow.this.playGround.resumeEvent();
 				stopMenu.setEnabled(true);
 				resumeMenu.setEnabled(false);				
-			    r.mouseMove(0, menuBar.getHeight() + (namesPane.getHeight() >> 1));
+			    r.mouseMove((int)getBounds().getMinX(), (int)getBounds().getMinY() + menuBar.getHeight() + (namesPane.getHeight() >> 1));
 			    r.mousePress( InputEvent.BUTTON1_MASK );
 			}
 		});
 	}
 		
-	private void addPlayerNames(List<String> names, List<Color> colors) {		
+	private void addHeaderContent() {		
 		JLayeredPane namesWrapper = new JLayeredPane();
-		namesWrapper.setSize(Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT);		
-		namesWrapper.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT));
+		namesWrapper.setSize(this.curveWindowSizeX, GameController.PLAYER_STATUS_PANE_HEIGHT);		
+		namesWrapper.setPreferredSize(new Dimension(this.curveWindowSizeX, GameController.PLAYER_STATUS_PANE_HEIGHT));
 		
-		this.namesPane = new JPanel(new GridLayout(1, names.size()));
-		this.namesPane.setBounds(0, 0, Main.SCREEN_WIDTH, GameController.PLAYER_STATUS_PANE_HEIGHT);		
+		this.namesPane = new JPanel(new GridLayout(1, this.playGround.getAllPlayers().size()));
+		this.namesPane.setBounds(0, 0, this.curveWindowSizeX, GameController.PLAYER_STATUS_PANE_HEIGHT);		
 		
 		/***************************************************************
 		 * PROGRESS PANE - BAR 
 		 ****************************************************************/
 		this.generalProgressPane = new JPanel(new BorderLayout());
-		this.generalProgressPane.setBounds(0, GameController.PLAYER_STATUS_PANE_HEIGHT - GameController.PROGRESS_BAR_HEIGHT, Main.SCREEN_WIDTH, GameController.PROGRESS_BAR_HEIGHT);		
+		this.generalProgressPane.setBounds(0, GameController.PLAYER_STATUS_PANE_HEIGHT - GameController.PROGRESS_BAR_HEIGHT, this.curveWindowSizeX, GameController.PROGRESS_BAR_HEIGHT);		
 		
 		this.generalProgressBar = new JProgressBar();
 		this.generalProgressBar.setBackground(Colors.TRANSPARENT);
 		this.generalProgressBar.setForeground(Color.RED);
-		this.generalProgressBar.setPreferredSize(new Dimension(Main.SCREEN_WIDTH, GameController.PROGRESS_BAR_HEIGHT));		
+		this.generalProgressBar.setPreferredSize(new Dimension(this.curveWindowSizeX, GameController.PROGRESS_BAR_HEIGHT));		
 		this.generalProgressBar.setBorder(BorderFactory.createEmptyBorder());
 		this.generalProgressBar.setBorderPainted(false);
 		this.generalProgressBar.setMaximum(GameController.PROGRESS_BAR_STEPS);
 		this.generalProgressBar.setValue(0);		
 		this.generalProgressPane.add(this.generalProgressBar, BorderLayout.NORTH);	
 		
-		this.playerStatusPanes = new ArrayList<PlayerStatus	>();
-		ListIterator<String> iterNames  = names.listIterator();
-		ListIterator<Color> iterColors = colors.listIterator();
-		while(iterNames.hasNext()) {
-			String name = (String)iterNames.next();
-			Color color = (Color)iterColors.next();
-			PlayerStatus status = new PlayerStatus(name, color);
-			this.playerStatusPanes.add(status);
-			namesPane.add(status);
+		this.playerStatusPanes = new HashMap<String, PlayerStatus>();
+		for (Player p : this.playGround.getAllPlayers()) {
+			this.playerStatusPanes.put(p.getName(), p.getPlayerStatusPane());
+			namesPane.add(p.getPlayerStatusPane());
 		}
 		
 		namesWrapper.add(this.namesPane, JLayeredPane.DEFAULT_LAYER);
@@ -259,12 +264,12 @@ public class CurveWindow extends JFrame {
 		return displayRefresher;
 	}
 
-	public List<PlayerStatus> getPlayerStatusPanes() {
-		return playerStatusPanes;
+	public Map<String, PlayerStatus> getPlayerStatusPanes() {
+		return this.playerStatusPanes;
 	}
 
-	public List<Control> getCtrl() {
-		return ctrl;
+	public List<Control> getCtrlsToListen() {
+		return ctrlsToListen;
 	}
 
 	public JPanel getGeneralProgressPane() {
@@ -273,6 +278,18 @@ public class CurveWindow extends JFrame {
 	
 	public JProgressBar getGeneralProgressBar() {
 		return generalProgressBar;
+	}
+
+	public Map<String, Integer> getNamesScores() {
+		return namesScores;
+	}
+
+	public int getCurveWindowSizeX() {
+		return curveWindowSizeX;
+	}
+
+	public int getCurveWindowSizeY() {
+		return curveWindowSizeY;
 	}
 	
 }

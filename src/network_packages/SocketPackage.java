@@ -6,7 +6,10 @@ public class SocketPackage  implements Serializable {
 	private static final long serialVersionUID = 1;
 	
 	public static final int PACKAGE_HAND_SHAKE = 0;
-	public static final int PACKAGE_PRE_GAME = 1;
+	public static final int PACKAGE_BREAK_UP = 1;
+	public static final int PACKAGE_PRE_GAME = 2;
+	public static final int PACKAGE_READY_REQUEST = 3;
+	public static final int PACKAGE_SIGNAL_START_GAME = 4;
 	
 	private static int count = 0;
 	

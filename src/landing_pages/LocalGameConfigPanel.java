@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -26,6 +27,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import curve.Control;
+import curve.Player;
 import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;
@@ -65,14 +67,14 @@ public class LocalGameConfigPanel extends JPanel {
 	
 	protected JLabel start;
 	
-	public LocalGameConfigPanel(int width, int height) {
+	public LocalGameConfigPanel(int width, int height, Callable<Void> callBack) {
 		
 		this.rnd = new Random();
 		
 		this.setLayout(new BorderLayout());		
 		this.setSize(width, height);		
 		
-		addItems();
+		addItems(callBack);
 				
 	}
 	
@@ -80,7 +82,8 @@ public class LocalGameConfigPanel extends JPanel {
 		return rnd;
 	}
 
-	private void addItems() {
+	private void addItems(Callable<Void> callBack) {
+		Main.addBackPane(this, callBack);
 		
 		createSpeedSlider();
 		createAngleSlider();
@@ -95,7 +98,6 @@ public class LocalGameConfigPanel extends JPanel {
 		this.contentPane.add(localPlayersPane, BorderLayout.CENTER);
 		this.contentPane.add(buttonsPane,BorderLayout.SOUTH);
 		
-		Main.addBackPane(this);
 		this.add(this.contentPane, BorderLayout.CENTER);
 	}
 	
@@ -171,7 +173,7 @@ public class LocalGameConfigPanel extends JPanel {
 		
 	}
 	
-	private void createTopConfigPane() {
+	private void createTopConfigPane() {		
 		this.topConfigsPane = new JPanel();
 		topConfigsPane.setLayout(new GridLayout(2, 2));
 		topConfigsPane.add(this.speedLabel);
@@ -235,40 +237,11 @@ public class LocalGameConfigPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				start.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				
-				boolean error = false;
 				List<Control> ctrl = new ArrayList<Control>();
 				List<String> names = new ArrayList<String>();
 				List<Color> colors = new ArrayList<Color>();
 				
-				int i = 0;
-				for (Component c : localPlayersPaneContent.getComponents()) {
-					PlayerConfigRow ref = (PlayerConfigRow) c;
-					if (ref.getLeft() == -1 || ref.getRight() == -1 || ref.getLeft() == ref.getRight()) {
-						/*
-						error = true;
-						ErrorDialog dialog = new ErrorDialog("Curves must have proper controls!");
-						return;
-						*/
-						ctrl.add(new Control(65, 83));
-					} else {
-						ctrl.add(new Control(ref.getLeft(), ref.getRight()));
-					}
-					
-					names.add(ref.getName().length() > 0 ? ref.getName() : ("#player" + Integer.toString(++i)));
-					
-					/**
-					 * Color check
-					 */
-					if (colors.contains(ref.getColor())) {
-						error = true;
-						/*ErrorDialog dialog = */new ErrorDialog("Curves must have different colors!");
-						return;
-					} else {
-						colors.add(ref.getColor());
-					}
-				}
-				
-				if (error) {
+				if (!checkPlayersCorrectness(localPlayerConfigRows, ctrl, names, colors)) {
 					return;
 				}
 				
@@ -276,13 +249,40 @@ public class LocalGameConfigPanel extends JPanel {
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
-				CurveWindow curveWindow = new CurveWindow((int)playerCount.getValue(), ctrl, names, colors);	
-				/*CountDownModal cnt = */new CountDownModal(curveWindow, 1, null, null);
-				
-				
+				CurveWindow curveWindow = new CurveWindow(ctrl, names, colors, new ArrayList<String>(), new ArrayList<Color>());	
+				new CountDownModal(curveWindow, 1, null, null);
 			}
 		});
 	    
+	}
+	
+	protected boolean checkPlayersCorrectness(List<PlayerConfigRow> configRowList, List<Control> ctrl, List<String> names, List<Color> colors) {
+		int i = 0;
+		for (PlayerConfigRow row : configRowList) {
+			
+			if (row.getLeft() == -1 || row.getRight() == -1 || row.getLeft() == row.getRight()) {						
+				new ErrorDialog("Curves must have proper controls!");
+				return false;
+				//ctrl.add(new Control(65, 83));
+			} else {
+				ctrl.add(new Control(row.getLeft(), row.getRight()));
+			}
+			
+			
+			/**
+			 * Color check
+			 */
+			if (colors.contains(row.getColor()) || names.contains(row.getName())) {
+				new ErrorDialog("Colors and Names must be unique!");
+				return false;
+			} else {
+				colors.add(row.getColor());
+				names.add(row.getName().length() > 0 ? row.getName() : ("#player" + Integer.toString(++i)));
+				
+			}
+			
+		}
+		return true;
 	}
 	
 	
@@ -295,7 +295,7 @@ public class LocalGameConfigPanel extends JPanel {
 		return list;
 	}
 	
-	protected void addRemotePlayersToPanel(JPanel panel, List<TextFieldPlaceholder> playerRows) {
+	protected void addTextFieldListToPanel(JPanel panel, List<TextFieldPlaceholder> playerRows) {
 		panel.setLayout(new GridLayout(playerRows.size(), 1));
 		for(TextFieldPlaceholder textBox : playerRows) {
 			textBox.setEditable(false);
@@ -303,11 +303,13 @@ public class LocalGameConfigPanel extends JPanel {
 			textBox.setFocusable(false);
 			textBox.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1, true));
 			
-			JPanel player = new JPanel();
-			player.setBackground(GameController.PLAYGROUND_BACKGROUND);
-			player.add(textBox);
-			panel.add(player);
+			JPanel playerPanel = new JPanel();
+			playerPanel.setBackground(GameController.PLAYGROUND_BACKGROUND);
+			playerPanel.add(textBox);
+			panel.add(playerPanel);
 		}
+		panel.revalidate();
+		panel.repaint();
 	}
 	
 	protected void triggerTextFieldChange() {
@@ -345,6 +347,11 @@ public class LocalGameConfigPanel extends JPanel {
 		return localPlayersPaneContent;
 	}
 
+	public JPanel getButtonsPane() {
+		return buttonsPane;
+	}
+
+	
 	
 	
 }

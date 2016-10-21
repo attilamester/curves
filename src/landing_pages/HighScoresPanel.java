@@ -32,7 +32,7 @@ public class HighScoresPanel extends JPanel {
 	}
 	
 	private void addItems() {
-		Main.addBackPane(this);
+		Main.addBackPane(this, null);
 		
 		JPanel scorePanel = new JPanel();
 		scorePanel.setBorder(new EmptyBorder(5, 5, 5, 5));

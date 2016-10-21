@@ -5,6 +5,7 @@ import java.net.Socket;
 
 import generals.GameController;
 import network_packages.PreGameInfo;
+import network_packages.SignalStartGame;
 import network_packages.SocketPackage;
 
 public class GameClient {
@@ -33,11 +34,21 @@ public class GameClient {
 			// SocketPackage.PACKAGE_HAND_SHAKE));
 			break;
 
+		case SocketPackage.PACKAGE_BREAK_UP:
+			this.clientThread.stop();
+			this.gameController.getLandingWindow().getJoinGameConfigPanel().serverWasClosed();
+			break;
+
 		case SocketPackage.PACKAGE_PRE_GAME:
 			PreGameInfo packet = (PreGameInfo) obj;
 			this.gameController.getLandingWindow().getJoinGameConfigPanel()
-					.arrivedNewPlayerConfigs(packet.getClientID(), packet.getPlayers());
+				.arrivedNewPlayerConfigs(packet.getClientID(), packet.getPlayers());
 			break;
+		
+		case SocketPackage.PACKAGE_SIGNAL_START_GAME:
+			SignalStartGame signal = (SignalStartGame)obj;
+			this.gameController.getLandingWindow().getJoinGameConfigPanel()
+				.startGame(signal.getDefaultCurveAngle(), signal.getDefaultCurveSpeed(), signal.getNames(), signal.getColors());
 		}
 	}
 
@@ -54,5 +65,9 @@ public class GameClient {
 
 	public int getClientID() {
 		return this.clientThread.getClientID();
+	}
+
+	public void shutDown() {
+		this.clientThread.stop();
 	}
 }

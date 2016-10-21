@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -37,12 +38,12 @@ public class CountDownModal extends JDialog {
 		addItems(winner, round, color);
 
 		this.setSize(GameController.COUNT_DOWN_WIDTH, GameController.COUNT_DOWN_HEIGHT);
-		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
+		Rectangle r = curveWindow.getBounds();
+		this.setBounds((int)(r.getCenterX() - this.getWidth() / 2), (int)(r.getCenterY() - this.getHeight() / 2), this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
 		curveWindow.setAlwaysOnTop(false);
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
-		
 		startCountDown(round);
 	}
 	

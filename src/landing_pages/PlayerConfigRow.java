@@ -59,7 +59,8 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 			this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 1, true));
 			this.setPreferredSize(new Dimension(150, 25));
 			this.setOpaque(false);
-			this.setForeground(color);				
+			this.setForeground(color);
+			this.setDisabledTextColor(color);
 			this.setFont(new Font("Calibri", Font.ITALIC, 18));
 			
 		}
@@ -96,8 +97,9 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 		}
 		
 		public void setColor(Color color) {
-			color = color;
+			this.color = color;
 			this.setForeground(color);
+			this.setDisabledTextColor(color);
 		}
 
 		public Color getColor() {
@@ -266,7 +268,7 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 		}
 	}
 	
-	private TextFieldPlaceholder name;
+	private TextFieldPlaceholder nameTextBox;
 	private transient DetectControlButton leftCtrl;
 	private transient DetectControlButton rightCtrl;
 	private Color color;
@@ -277,7 +279,7 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 		
 		color = new Color(rnd.nextInt(200) + 50, rnd.nextInt(200) + 50, rnd.nextInt(200) + 50);
 		
-		name = new TextFieldPlaceholder("Player's name", color);			
+		nameTextBox = new TextFieldPlaceholder("Player's name", color);			
 		leftCtrl = new DetectControlButton(" LEFT", color);
 		rightCtrl = new DetectControlButton(" RIGHT", color);
 		
@@ -285,14 +287,14 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 		
 		setBackground(GameController.PLAYGROUND_BACKGROUND);
 		
-		add(name);
+		add(nameTextBox);
 		add(leftCtrl);
 		add(rightCtrl);
 		add(colorChooser);
 	}
 	
 	public String getName() {
-		return name.getText();
+		return nameTextBox.getText();
 	}
 	
 	public int getLeft() {
@@ -309,13 +311,19 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 	
 	public void setColor(Color color) {
 		this.color = color;
-		this.name.setColor(color);
+		this.nameTextBox.setColor(color);
 		this.leftCtrl.setColor(color);
 		this.rightCtrl.setColor(color);
 	}
 	
 	public TextFieldPlaceholder getTextFieldPlaceholder() {
-		return this.name;
+		return this.nameTextBox;
 	}
 	
+	public void setEnabled(boolean state) {
+		this.nameTextBox.setEnabled(state);
+		this.leftCtrl.setEnabled(state);
+		this.rightCtrl.setEnabled(state);
+		this.colorChooser.setEnabled(state);
+	}	
 }

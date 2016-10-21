@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -48,7 +49,10 @@ public class ErrorDialog extends JDialog {
 		pane.setBackground(GameController.PLAYGROUND_BACKGROUND);
 		this.getRootPane().setBorder(new LineBorder(Color.WHITE));
 		this.setSize(GameController.ERROR_MODAL_WIDTH, GameController.ERROR_MODAL_HEIGHT);
-		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
+		
+		Rectangle r = Main.getGameController().getLandingWindow().getBounds();
+		
+		this.setBounds((int)(r.getCenterX() - this.getWidth() / 2), (int)(r.getCenterY() - this.getHeight() / 2), this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
 		this.setAlwaysOnTop(true);
 		this.setModal(true);
