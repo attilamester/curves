@@ -80,10 +80,10 @@ public class CurveWindow extends JFrame {
 		contentPane.setLayout(new BorderLayout());
 		
 		Rectangle r = Main.getGameController().getLandingWindow().getBounds();
-		curveWindowSizeX = Main.SCREEN_WIDTH;
-		curveWindowSizeY = Main.SCREEN_HEIGHT;
-		int leftX =0;// (int)r.getMinX();
-		int topY  =0;// (int)r.getMinY();
+		curveWindowSizeX = 600;//Main.SCREEN_WIDTH;
+		curveWindowSizeY = 500;//Main.SCREEN_HEIGHT;
+		int leftX = (int)r.getMinX();
+		int topY  = (int)r.getMinY();
 		/******************************************************************
 		 * 
 		 * Menu bar

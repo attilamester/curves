@@ -362,12 +362,35 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		Main.getGameClient().respondToServer(new ReadyRequest(false));
 	}
 	
-	public void startGame(double curveAngle, double curveSpeed, List<String> names, List<Color> colors) {
+	public void startGame(double curveAngle, double curveSpeed, List<String> serverNames, List<Color> serverColors, List<String> otherNames, List<Color> otherColors) {
 		GameController.DEFAULT_CURVE_ANGLE = curveAngle;
 		GameController.DEFAULT_CURVE_SPEED = curveSpeed;
 		
-		//CurveWindow curveWindow = new CurveWindow(names.size(), localCtrls, names, colors);	
-		//new CountDownModal(curveWindow, 1, null, null);
+		List<String> remoteNames = new ArrayList<>();
+		List<Color> remoteColors = new ArrayList<>();
+		
+		remoteNames.addAll(serverNames);
+		remoteColors.addAll(serverColors);
+		for (String name : otherNames) {
+			if (!this.localNames.contains(name)) {
+				remoteNames.add(name);
+			}
+		}
+		for (Color col : otherColors) {
+			if (!this.localColors.contains(col)) {
+				remoteColors.add(col);
+			}
+		}
+		
+		for (String name : remoteNames) {
+			System.out.println(name);
+		}
+		for (Color col : remoteColors) {
+			System.out.println(col);
+		}
+		
+		CurveWindow curveWindow = new CurveWindow(localCtrls, localNames, localColors, remoteNames, remoteColors);	
+		new CountDownModal(curveWindow, 1, null, null);
 		
 	}
 	

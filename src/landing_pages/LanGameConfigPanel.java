@@ -74,7 +74,7 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 			Main.setGameServer(new GameServer(Main.getGameController(), GameServer.DEFAULT_SERVER_PORT));
 			Main.getGameServer().startServer();
 		} catch (Exception e) {
-
+				System.out.println("cannot");
 		}
 
 	}
@@ -242,9 +242,12 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				
 				for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
 					try {
+						System.out.println("SERVER   START!!!!!!!!!!!!!!");
 						clientHandler.writeToClient(new SignalStartGame(
 							GameController.DEFAULT_CURVE_ANGLE, GameController.DEFAULT_CURVE_SPEED, localNames, localColors, remoteNames, remoteColors));
-					} catch (IOException ex) {}
+					} catch (IOException ex) {
+						System.out.println("cound write start signal");
+					}
 				}
 				
 				CurveWindow curveWindow = new CurveWindow(ctrl, localNames, localColors, remoteNames, remoteColors);

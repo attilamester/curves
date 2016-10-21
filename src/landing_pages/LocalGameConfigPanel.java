@@ -27,7 +27,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import curve.Control;
-import curve.Player;
 import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;

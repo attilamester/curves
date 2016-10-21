@@ -40,15 +40,19 @@ public class GameClient {
 			break;
 
 		case SocketPackage.PACKAGE_PRE_GAME:
+			System.out.println("NA CLIEND");
 			PreGameInfo packet = (PreGameInfo) obj;
 			this.gameController.getLandingWindow().getJoinGameConfigPanel()
 				.arrivedNewPlayerConfigs(packet.getClientID(), packet.getPlayers());
 			break;
 		
 		case SocketPackage.PACKAGE_SIGNAL_START_GAME:
+			System.out.println("START!!!!!!!!!!!!!!");
 			SignalStartGame signal = (SignalStartGame)obj;
 			this.gameController.getLandingWindow().getJoinGameConfigPanel()
-				.startGame(signal.getDefaultCurveAngle(), signal.getDefaultCurveSpeed(), signal.getNames(), signal.getColors());
+				.startGame(signal.getDefaultCurveAngle(), signal.getDefaultCurveSpeed(), 
+					signal.getServerNames(), signal.getServerColors(),
+					signal.getOtherNames(), signal.getOtherColors());
 		}
 	}
 

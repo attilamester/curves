@@ -46,7 +46,7 @@ public class CurveController implements Runnable {
 					return;
 				}
 				
-				if(curve.isLeftPressed())
+				if(CurveController.this.curve.isLeftPressed())
 					curve.turnLeft();
 				else if(curve.isRightPressed())
 					curve.turnRight();

@@ -14,7 +14,7 @@ public class SignalStartGame extends SocketPackage {
 	private List<Color> otherColors;
 	
 	
-	public SignalStartGame(double defaultCurveAngle, double defaultCurveSpeed, List<String> serverNames, List<Color> serverColors, List<String> otherName, List<Color> otherColors) {
+	public SignalStartGame(double defaultCurveAngle, double defaultCurveSpeed, List<String> serverNames, List<Color> serverColors, List<String> otherNames, List<Color> otherColors) {
 		super(42, SocketPackage.PACKAGE_SIGNAL_START_GAME);
 		
 		this.defaultCurveAngle = defaultCurveAngle;
@@ -34,11 +34,11 @@ public class SignalStartGame extends SocketPackage {
 		return defaultCurveSpeed;
 	}
 
-	public List<String> getNames() {
+	public List<String> getServerNames() {
 		return serverNames;
 	}
 
-	public List<Color> getColors() {
+	public List<Color> getServerColors() {
 		return serverColors;
 	}
 
