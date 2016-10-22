@@ -40,14 +40,12 @@ public class GameClient {
 			break;
 
 		case SocketPackage.PACKAGE_PRE_GAME:
-			System.out.println("NA CLIEND");
 			PreGameInfo packet = (PreGameInfo) obj;
 			this.gameController.getLandingWindow().getJoinGameConfigPanel()
 				.arrivedNewPlayerConfigs(packet.getClientID(), packet.getPlayers());
 			break;
 		
 		case SocketPackage.PACKAGE_SIGNAL_START_GAME:
-			System.out.println("START!!!!!!!!!!!!!!");
 			SignalStartGame signal = (SignalStartGame)obj;
 			this.gameController.getLandingWindow().getJoinGameConfigPanel()
 				.startGame(signal.getDefaultCurveAngle(), signal.getDefaultCurveSpeed(), 
@@ -60,6 +58,9 @@ public class GameClient {
 		try {
 			this.clientThread.writeToServer(obj);
 		} catch (IOException e) {
+			System.out.println("Could not write to server:" + ((SocketPackage)obj).getType());
+			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 

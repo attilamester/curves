@@ -28,7 +28,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -63,7 +62,7 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 	private List<TextFieldPlaceholder> serverPlayers;
 	private List<TextFieldPlaceholder> otherClientsPlayers;
 	
-	private JSpinner subnetSpinner;
+	private List<IpSpinner> ipSpinners;
 	private JCheckBox readyCheckBox;
 	private boolean readyDeselectWasTriggered = false;
 	
@@ -71,6 +70,23 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 	List<String> localNames = new ArrayList<String>();
 	List<Color> localColors = new ArrayList<Color>();
 
+	class IpSpinner extends JSpinner {
+		private static final long serialVersionUID = 1;
+		public IpSpinner(int defValue) {
+			super(new SpinnerNumberModel(defValue, 0, 255, 1));
+			((JSpinner.DefaultEditor) this.getEditor()).getTextField().setEditable(false);
+			((JSpinner.DefaultEditor) this.getEditor()).getTextField().setForeground(Color.WHITE);
+			this.setBorder(BorderFactory.createEmptyBorder());
+			this.setPreferredSize(new Dimension(50, 25));
+			Component c = this.getEditor().getComponent(0);
+			c.setFont(new Font("Calibri", Font.BOLD, 18));
+			c.setBackground(Colors.MAIN_COLORS[1]);
+		}
+		public String getIp() {
+			return Integer.toString((Integer)super.getValue());
+		}
+	}
+	
 	public JoinGameConfigPanel(int width, int height) {
 		super(width, height, new Callable<Void>() {
 			@Override
@@ -88,9 +104,14 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		addComponentListener();
 	}
 	
+	
 	private void tryConnectToHost() {
 
-		String host = "192.168.0." + Integer.toString((Integer) this.subnetSpinner.getValue());
+		String host = 
+			ipSpinners.get(0).getIp() + "." +
+			ipSpinners.get(1).getIp() + "." +
+			ipSpinners.get(2).getIp() + "." +
+			ipSpinners.get(3).getIp();
 
 		LanIpTester ipTester = new LanIpTester(this, host);
 		new Thread(ipTester).start();
@@ -157,24 +178,17 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		title.setBackground(Colors.MAIN_COLORS[1]);
 		title.setForeground(Color.WHITE);
 
-		JPanel ipAddressPane = new JPanel(new GridLayout(1, 2));
+		JPanel ipAddressPane = new JPanel(new GridLayout(1, 4));
 		ipAddressPane.setBackground(Colors.MAIN_COLORS[1]);
-		JLabel ip_ = new JLabel("192.168.0.", JLabel.RIGHT);
-		ip_.setBackground(Colors.MAIN_COLORS[1]);
-		ip_.setForeground(Color.WHITE);
-
-		SpinnerModel subnetModel = new SpinnerNumberModel(100, 1, 255, 1);
-		this.subnetSpinner = new JSpinner(subnetModel);
-		((JSpinner.DefaultEditor) subnetSpinner.getEditor()).getTextField().setEditable(false);
-		((JSpinner.DefaultEditor) subnetSpinner.getEditor()).getTextField().setForeground(Color.WHITE);
-		subnetSpinner.setBorder(BorderFactory.createEmptyBorder());
-		subnetSpinner.setPreferredSize(new Dimension(50, 25));
-		Component c = subnetSpinner.getEditor().getComponent(0);
-		c.setFont(new Font("Calibri", Font.BOLD, 18));
-		c.setBackground(Colors.MAIN_COLORS[1]);
-
-		ipAddressPane.add(ip_);
-		ipAddressPane.add(subnetSpinner);
+		this.ipSpinners = new ArrayList<>();
+		this.ipSpinners.add(new IpSpinner(192));
+		this.ipSpinners.add(new IpSpinner(168));
+		this.ipSpinners.add(new IpSpinner(0));
+		this.ipSpinners.add(new IpSpinner(100));
+		
+		for (IpSpinner ip : this.ipSpinners) {
+			ipAddressPane.add(ip);
+		}
 
 		remotePlayersPaneHeader.add(title);
 		remotePlayersPaneHeader.add(ipAddressPane);
@@ -254,7 +268,9 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 
 	private void addConnectPane() {
 		remotePlayersPaneContent.removeAll();
-		subnetSpinner.setEnabled(true);
+		for (IpSpinner ip : this.ipSpinners) {
+			ip.setEnabled(true);
+		}
 		remotePlayersPaneContent.add(this.connectPane);
 		remotePlayersPaneContent.revalidate();
 		remotePlayersPaneContent.repaint();
@@ -277,7 +293,9 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 	}
 
 	private void addLoadingPane() {
-		subnetSpinner.setEnabled(false);
+		for (IpSpinner ip : this.ipSpinners) {
+			ip.setEnabled(false);
+		}
 		remotePlayersPaneContent.removeAll();
 		remotePlayersPaneContent.add(this.loadingPane);
 		remotePlayersPaneContent.revalidate();
@@ -380,13 +398,6 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 			if (!this.localColors.contains(col)) {
 				remoteColors.add(col);
 			}
-		}
-		
-		for (String name : remoteNames) {
-			System.out.println(name);
-		}
-		for (Color col : remoteColors) {
-			System.out.println(col);
 		}
 		
 		CurveWindow curveWindow = new CurveWindow(localCtrls, localNames, localColors, remoteNames, remoteColors);	

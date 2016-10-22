@@ -75,7 +75,7 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 			Main.setGameServer(new GameServer(Main.getGameController(), GameServer.DEFAULT_SERVER_PORT));
 			Main.getGameServer().startServer();
 		} catch (Exception e) {
-				System.out.println("cannot");
+			System.out.println("Cannot create game server");
 		}
 
 	}
@@ -239,15 +239,14 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				
 				GameController.finished = false;				
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
-				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
+				GameController.DEFAULT_CURVE_SPEED = 0.4;//speedSlider.getValue() / 100;
 				
 				for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
 					try {
-						System.out.println("SERVER   START!!!!!!!!!!!!!!");
 						clientHandler.writeToClient(new SignalStartGame(
 							GameController.DEFAULT_CURVE_ANGLE, GameController.DEFAULT_CURVE_SPEED, localNames, localColors, remoteNames, remoteColors));
 					} catch (IOException ex) {
-						System.out.println("cound write start signal");
+						System.out.println("Could not write start signal");
 					}
 				}
 				
@@ -271,13 +270,7 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 	public void arrivedNewPlayerConfigs(int clientID, List<TextFieldPlaceholder> players) {
 		synchronized (new Object()) {
 			
-			System.out.println("[S] Got list of " + players.size() + " from " + clientID);
-			for (TextFieldPlaceholder textBox : players) {
-				System.out.println(textBox.getText() + textBox.getColor());
-			}
-
 			if (!this.remotePlayers.containsKey(clientID)) {
-				System.out.println("itt ");
 				List<TextFieldPlaceholder> remotePlayersInfos = new ArrayList<>();
 				for (TextFieldPlaceholder textBox : players) {
 					remotePlayersInfos.add(textBox);

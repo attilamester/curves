@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Timer;
 
 import generals.GameController;
+import generals.Main;
 
 public class DisplayRefresher extends Thread {
 	
@@ -16,19 +17,51 @@ public class DisplayRefresher extends Thread {
 		this.playGround = playGround;
 		
 		delay = 5;
-		timer = new Timer(delay, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				if (GameController.finished) {
-					timer.stop();
-					return;
+		
+		if (Main.getGameClient() != null) {
+			timer = new Timer(delay, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					if (GameController.finished) {
+						timer.stop();
+						return;
+					}
+					DisplayRefresher.this.playGround.sendPlayersToServer();
+					DisplayRefresher.this.playGround.repaint();				
+					
 				}
-				
-				DisplayRefresher.this.playGround.repaint();				
-				
+			}); 
+		} else {
+			if (Main.getGameServer() != null) {
+				timer = new Timer(delay, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						
+						if (GameController.finished) {
+							timer.stop();
+							return;
+						}
+						DisplayRefresher.this.playGround.repaint();				
+						
+					}
+				}); 
+			} else {
+				timer = new Timer(delay, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						
+						if (GameController.finished) {
+							timer.stop();
+							return;
+						}
+						DisplayRefresher.this.playGround.repaint();				
+						
+					}
+				}); 
 			}
-		});
+		}
+		
 	}	
 	
 	@Override

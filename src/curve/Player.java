@@ -1,8 +1,6 @@
 package curve;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import curve_window.PlayerStatus;
@@ -18,7 +16,7 @@ public class Player implements Serializable {
 	private Color color;
 	private Curve curve;
 	private transient CurveController controller;
-	private Control control;
+	private transient Control control;
 	private boolean alive;
 	private PlayerStatus playerStatusPane;
 	
@@ -105,5 +103,24 @@ public class Player implements Serializable {
 
 	public Control getControl() {
 		return control;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)	return false;
+		if (obj == this)	return true;
+		if (!(obj instanceof Player))	return false;
+		Player p = (Player)obj;
+		return (this.name.equals(p.getName()) && this.color.getRGB() == p.getColor().getRGB());
+	}
+	
+	@Override
+	public String toString() {
+		return "Player: " + this.name + " - Color: " + this.color;
+	}
+	
+	public void updateState(Player p) {
+		this.setCurve(p.getCurve());
+		this.setAlive(p.isAlive());
 	}
 }

@@ -33,7 +33,7 @@ public class GameServer {
 	 * 
 	 */	
 	public synchronized void receivedFromClient(int clientID, Object obj) {
-		
+		System.out.println("SERVER GOT TYPE:" + ((SocketPackage)obj).getType());
 		switch (((SocketPackage)obj).getType()) {
 			case SocketPackage.PACKAGE_HAND_SHAKE:
 				this.respondToClient(clientID, new SocketPackage(clientID, SocketPackage.PACKAGE_HAND_SHAKE));

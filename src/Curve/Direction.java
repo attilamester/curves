@@ -1,6 +1,9 @@
 package curve;
 
-public class Direction {
+import java.io.Serializable;
+
+public class Direction implements Serializable {
+	private static final long serialVersionUID = 1;
 	
 	private double i;
 	private double j;

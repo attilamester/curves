@@ -1,7 +1,9 @@
 package curve;
 import java.awt.Color;
+import java.io.Serializable;
 
-public class Curve {
+public class Curve implements Serializable {
+	private static final long serialVersionUID = 1;
 	
 	private double x;
 	private double y;

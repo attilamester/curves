@@ -103,22 +103,6 @@ public class PlayGround extends JPanel {
 		this.deadPLayerCount = 0;
 
 		
-		System.out.println("Local names:");
-		for(String p : localNames) {
-			System.out.println(p);
-		}
-		for(Color c : localColors) {
-			System.out.println(c);
-		}
-		System.out.println("Remote names:");
-		for(String p : remoteNames) {
-			System.out.println(p);
-		}
-		for(Color c : remoteColors) {
-			System.out.println(c);
-		}
-		
-		
 		createPlayers(this.localPlayers, localNames, localColors);
 		createPlayers(this.remotePlayers, remoteNames, remoteColors);
 
@@ -190,10 +174,6 @@ public class PlayGround extends JPanel {
 			this.initPaint(g);
 
 		} else {
-			if (Main.getGameServer() == null) {
-				Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), this.localPlayers));
-			}
-			
 			
 			g.drawImage(this.backgroundLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
 			
@@ -789,7 +769,7 @@ public class PlayGround extends JPanel {
 		double x = randBetween(PADDING, this.playGroundSizeX - PADDING);
 		if (x >= (this.playGroundSizeX - GameController.COUNT_DOWN_WIDTH) / 2 - marginFromCountDown
 				&& x <= (this.playGroundSizeX + GameController.COUNT_DOWN_WIDTH) / 2 + marginFromCountDown) {
-			x += GameController.COUNT_DOWN_WIDTH;
+			//x += GameController.COUNT_DOWN_WIDTH;
 		}
 		return x;
 	}
@@ -799,7 +779,7 @@ public class PlayGround extends JPanel {
 		int marginFromCountDown = 20;
 		if (y >= (this.playGroundSizeY - GameController.COUNT_DOWN_HEIGHT) / 2 - marginFromCountDown
 				&& y <= (this.playGroundSizeY + GameController.COUNT_DOWN_HEIGHT) / 2 + marginFromCountDown) {
-			y += GameController.COUNT_DOWN_HEIGHT;
+			//y += GameController.COUNT_DOWN_HEIGHT;
 		}
 		return y;
 	}
@@ -873,15 +853,19 @@ public class PlayGround extends JPanel {
 	public void arrivedPlayerList(int clientID, PlayInfo info) {
 		synchronized (new Object()) {
 			List<Player> clientsPlayers = info.getPlayers();
-			for (Player p : this.remotePlayers) {
-				
-				for (Player pp : clientsPlayers) {
-					if (p.getId() == pp.getId()) {
-						p = pp;
+			for (ListIterator<Player> iter = this.remotePlayers.listIterator();
+				iter.hasNext();) {
+				Player p = iter.next();
+				for (Player pp : clientsPlayers) {					if (p.equals(pp)) {
+						p.updateState(pp);
 					}
 				}
 			}
 		}
 	}
 	
+	public void sendPlayersToServer() {
+		Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), this.localPlayers));
+	}
+
 }

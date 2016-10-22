@@ -5,6 +5,7 @@ import java.util.List;
 import curve.Player;
 
 public class PlayInfo extends SocketPackage {
+	private static final long serialVersionUID = 1;
 	
 	private List<Player> players;
 	
