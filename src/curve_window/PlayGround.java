@@ -38,6 +38,8 @@ import generals.Main;
 import modals.CountDownModal;
 import modals.EndGameModal;
 import network_packages.PlayInfo;
+import network_packages.SignalStartGame;
+import networking.ServerThread.ClientHandler;
 import power_up.PowerUp;
 import power_up.PowerUpLoader;
 
@@ -856,7 +858,8 @@ public class PlayGround extends JPanel {
 			for (ListIterator<Player> iter = this.remotePlayers.listIterator();
 				iter.hasNext();) {
 				Player p = iter.next();
-				for (Player pp : clientsPlayers) {					if (p.equals(pp)) {
+				for (Player pp : clientsPlayers) {					
+					if (p.equals(pp)) {
 						p.updateState(pp);
 					}
 				}
@@ -866,6 +869,17 @@ public class PlayGround extends JPanel {
 	
 	public void sendPlayersToServer() {
 		Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), this.localPlayers));
+	}
+	
+	public void sendPlayersToClients() {
+		for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
+			try {
+				clientHandler.writeToClient(new PlayInfo(0, this.localPlayers));
+			} catch (IOException ex) {
+				System.out.println("Could not write players to client");
+				ex.printStackTrace();
+			}
+		}
 	}
 
 }

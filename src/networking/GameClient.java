@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import generals.GameController;
+import network_packages.PlayInfo;
 import network_packages.PreGameInfo;
 import network_packages.SignalStartGame;
 import network_packages.SocketPackage;
@@ -51,7 +52,14 @@ public class GameClient {
 				.startGame(signal.getDefaultCurveAngle(), signal.getDefaultCurveSpeed(), 
 					signal.getServerNames(), signal.getServerColors(),
 					signal.getOtherNames(), signal.getOtherColors());
+			break;
+			
+		case SocketPackage.PACKAGE_PLAY_INFO:
+			this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(0, (PlayInfo)obj);
+			break;
+			
 		}
+		
 	}
 
 	public void respondToServer(Object obj) {

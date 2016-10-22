@@ -42,8 +42,8 @@ public class DisplayRefresher extends Thread {
 							timer.stop();
 							return;
 						}
-						DisplayRefresher.this.playGround.repaint();				
-						
+						DisplayRefresher.this.playGround.sendPlayersToClients();
+						DisplayRefresher.this.playGround.repaint();
 					}
 				}); 
 			} else {
