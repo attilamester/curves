@@ -72,7 +72,7 @@ public class CurveWindow extends JFrame {
 	
 	
 	
-	public CurveWindow (List<Control> ctrlsToListen, List<String> localNames, List<Color> localColors, List<String> remoteNames, List<Color> remoteColors) {
+	public CurveWindow (List<Control> ctrlsToListen, List<String> localNames, List<Color> localColors) {
 		super();
 		
 		contentPane = this.getContentPane();
@@ -121,7 +121,7 @@ public class CurveWindow extends JFrame {
 		playGroundContainer.setLayout(null);
 		playGroundContainer.setBackground(Color.BLACK);
 		
-		this.playGround = new PlayGround(this, localNames, localColors, remoteNames, remoteColors, curveWindowSizeX, curveWindowSizeY - GameController.MENU_HEIGHT - GameController.PLAYER_STATUS_PANE_HEIGHT);
+		this.playGround = new PlayGround(this, localNames, localColors, curveWindowSizeX, curveWindowSizeY - GameController.MENU_HEIGHT - GameController.PLAYER_STATUS_PANE_HEIGHT);
 		playGroundContainer.add(playGround);
 		this.contentPane.add(playGroundContainer, BorderLayout.CENTER);
 		this.playGround.repaint();
@@ -235,7 +235,7 @@ public class CurveWindow extends JFrame {
 		this.playerStatusPanes = new HashMap<String, PlayerStatus>();
 		for (Player p : this.playGround.getAllPlayers()) {
 			this.playerStatusPanes.put(p.getName(), p.getPlayerStatusPane());
-			namesPane.add(p.getPlayerStatusPane());
+			this.namesPane.add(p.getPlayerStatusPane());
 		}
 		
 		namesWrapper.add(this.namesPane, JLayeredPane.DEFAULT_LAYER);
@@ -291,6 +291,10 @@ public class CurveWindow extends JFrame {
 
 	public int getCurveWindowSizeY() {
 		return curveWindowSizeY;
+	}
+
+	public JPanel getNamesPane() {
+		return namesPane;
 	}
 	
 }

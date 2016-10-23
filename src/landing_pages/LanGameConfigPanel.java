@@ -28,7 +28,6 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import curve.Control;
-import curve.Player;
 import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;
@@ -241,16 +240,18 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = 0.4;//speedSlider.getValue() / 100;
 				
+				CurveWindow curveWindow = new CurveWindow(ctrl, localNames, localColors);
+
 				for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
 					try {
 						clientHandler.writeToClient(new SignalStartGame(
-							GameController.DEFAULT_CURVE_ANGLE, GameController.DEFAULT_CURVE_SPEED, localNames, localColors, remoteNames, remoteColors));
+							GameController.DEFAULT_CURVE_ANGLE, GameController.DEFAULT_CURVE_SPEED, curveWindow.getPlayGround().getLocalPlayers()));
 					} catch (IOException ex) {
 						System.out.println("Could not write start signal");
 					}
 				}
+
 				
-				CurveWindow curveWindow = new CurveWindow(ctrl, localNames, localColors, remoteNames, remoteColors);
 				Main.getGameController().setCurveWindow(curveWindow);
 				new CountDownModal(curveWindow, 1, null, null);
 			}

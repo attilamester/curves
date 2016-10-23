@@ -1,28 +1,22 @@
 package network_packages;
 
-import java.awt.Color;
 import java.util.List;
+
+import curve.Player;
 
 public class SignalStartGame extends SocketPackage {
 	private static final long serialVersionUID = 1;
 	
 	private double defaultCurveAngle;
 	private double defaultCurveSpeed;
-	private List<String> serverNames;
-	private List<Color> serverColors;
-	private List<String> otherNames;
-	private List<Color> otherColors;
+	private List<Player> players;
 	
-	
-	public SignalStartGame(double defaultCurveAngle, double defaultCurveSpeed, List<String> serverNames, List<Color> serverColors, List<String> otherNames, List<Color> otherColors) {
+	public SignalStartGame(double defaultCurveAngle, double defaultCurveSpeed, List<Player> players) {
 		super(42, SocketPackage.PACKAGE_SIGNAL_START_GAME);
 		
 		this.defaultCurveAngle = defaultCurveAngle;
 		this.defaultCurveSpeed = defaultCurveSpeed;
-		this.serverNames = serverNames;
-		this.serverColors = serverColors;
-		this.otherNames = otherNames;
-		this.otherColors = otherColors;
+		this.players = players;
 		
 	}
 
@@ -34,19 +28,8 @@ public class SignalStartGame extends SocketPackage {
 		return defaultCurveSpeed;
 	}
 
-	public List<String> getServerNames() {
-		return serverNames;
+	public List<Player> getPlayers() {
+		return players;
 	}
-
-	public List<Color> getServerColors() {
-		return serverColors;
-	}
-
-	public List<String> getOtherNames() {
-		return otherNames;
-	}
-
-	public List<Color> getOtherColors() {
-		return otherColors;
-	}
+	
 }

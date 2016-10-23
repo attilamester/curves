@@ -233,6 +233,10 @@ public class ServerThread implements Runnable {
 			return this.objectInputStream.readObject();
 		}
 
+		public int getClientID() {
+			return clientID;
+		}
+
 	}
 
 }

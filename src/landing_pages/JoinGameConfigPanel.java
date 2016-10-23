@@ -33,6 +33,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import curve.Control;
+import curve.Player;
 import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;
@@ -40,6 +41,7 @@ import generals.Main;
 import landing_pages.PlayerConfigRow.TextFieldPlaceholder;
 import modals.CountDownModal;
 import modals.ErrorDialog;
+import network_packages.PlayInfo;
 import network_packages.PreGameInfo;
 import network_packages.ReadyRequest;
 import network_packages.SocketPackage;
@@ -380,27 +382,18 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		Main.getGameClient().respondToServer(new ReadyRequest(false));
 	}
 	
-	public void startGame(double curveAngle, double curveSpeed, List<String> serverNames, List<Color> serverColors, List<String> otherNames, List<Color> otherColors) {
+	public void startGame(double curveAngle, double curveSpeed, List<Player> serverPlayers) {
 		GameController.DEFAULT_CURVE_ANGLE = curveAngle;
 		GameController.DEFAULT_CURVE_SPEED = curveSpeed;
+				
+		CurveWindow curveWindow = new CurveWindow(localCtrls, localNames, localColors);	
 		
-		List<String> remoteNames = new ArrayList<>();
-		List<Color> remoteColors = new ArrayList<>();
+		curveWindow.getPlayGround().arrivedPreGamePlayerList(0, serverPlayers);
 		
-		remoteNames.addAll(serverNames);
-		remoteColors.addAll(serverColors);
-		for (String name : otherNames) {
-			if (!this.localNames.contains(name)) {
-				remoteNames.add(name);
-			}
-		}
-		for (Color col : otherColors) {
-			if (!this.localColors.contains(col)) {
-				remoteColors.add(col);
-			}
-		}
 		
-		CurveWindow curveWindow = new CurveWindow(localCtrls, localNames, localColors, remoteNames, remoteColors);	
+		Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), curveWindow.getPlayGround().getLocalPlayers(), true));
+		
+		Main.getGameController().setCurveWindow(curveWindow);
 		new CountDownModal(curveWindow, 1, null, null);
 		
 	}

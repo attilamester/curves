@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -38,7 +39,6 @@ import generals.Main;
 import modals.CountDownModal;
 import modals.EndGameModal;
 import network_packages.PlayInfo;
-import network_packages.SignalStartGame;
 import networking.ServerThread.ClientHandler;
 import power_up.PowerUp;
 import power_up.PowerUpLoader;
@@ -72,7 +72,7 @@ public class PlayGround extends JPanel {
 	private List<Player> localPlayers;
 	private List<Player> remotePlayers;
 	private List<Player> allPlayers;
-	private final int ALL_PLAYER_COUNT;
+	private int ALL_PLAYER_COUNT;
 	private int deadPLayerCount;
 	
 	private int round;
@@ -84,7 +84,6 @@ public class PlayGround extends JPanel {
 	
 	public PlayGround(CurveWindow curveWindow,
 			List<String> localNames, List<Color> localColors,
-			List<String> remoteNames, List<Color> remoteColors,
 			int playGroundSizeX, int playGroundSizeY) {
 
 		this.playGroundSizeX = playGroundSizeX;
@@ -97,7 +96,7 @@ public class PlayGround extends JPanel {
 		
 		this.ALL_NAMES = new ArrayList<>();
 		this.ALL_NAMES.addAll(localNames);
-		this.ALL_NAMES.addAll(remoteNames);
+		//this.ALL_NAMES.addAll(remoteNames);
 		this.localPlayers = new ArrayList<>();
 		this.remotePlayers = new ArrayList<>();
 		this.allPlayers = new ArrayList<>();
@@ -106,10 +105,10 @@ public class PlayGround extends JPanel {
 
 		
 		createPlayers(this.localPlayers, localNames, localColors);
-		createPlayers(this.remotePlayers, remoteNames, remoteColors);
-
+		//createPlayers(this.remotePlayers, remoteNames, remoteColors);
+		
 		this.allPlayers.addAll(this.localPlayers);
-		this.allPlayers.addAll(this.remotePlayers);
+		//this.allPlayers.addAll(this.remotePlayers);
 		
 		setBorder(GameController.PLAYGROUND_BORDER_FACTORY);
 		this.setBounds(0, 0, playGroundSizeX, playGroundSizeY);
@@ -851,6 +850,33 @@ public class PlayGround extends JPanel {
 		this.isShrinking = isShrinking;
 	}
 	
+	private void preGameRepaint() {/*
+		for (Player player : this.remotePlayers) {
+			int r = player.getCurve().getRadius();
+			this.curvesLayer.getGr().setColor(player.getCurve().getColor());
+			this.curvesLayer.getGr().fillOval((int) player.getCurve().getX() - r, (int) player.getCurve().getY() - r, 2 * r, 2 * r);
+		}
+		this.getGraphics().drawImage(this.curvesLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);*/
+	}
+	
+	public void arrivedPreGamePlayerList(int clientID, List<Player> players) {
+		synchronized (new Object()) {
+			this.remotePlayers.addAll(players);
+			this.allPlayers.addAll(players);
+			//this.preGameRepaint();
+			
+			this.curveWindow.getNamesPane().setLayout(new GridLayout(1, this.allPlayers.size()));
+			for (Player p : players) {
+				this.ALL_NAMES.add(p.getName());
+				this.ALL_PLAYER_COUNT++;
+				this.curveWindow.getPlayerStatusPanes().put(p.getName(), p.getPlayerStatusPane());
+				this.curveWindow.getNamesPane().add(p.getPlayerStatusPane());
+			}
+			
+			this.curveWindow.revalidate();
+			this.curveWindow.repaint();
+		}
+	} 
 	
 	public void arrivedPlayerList(int clientID, PlayInfo info) {
 		synchronized (new Object()) {
@@ -868,13 +894,13 @@ public class PlayGround extends JPanel {
 	}
 	
 	public void sendPlayersToServer() {
-		Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), this.localPlayers));
+		Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), this.localPlayers, false));
 	}
 	
 	public void sendPlayersToClients() {
 		for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
 			try {
-				clientHandler.writeToClient(new PlayInfo(0, this.localPlayers));
+				clientHandler.writeToClient(new PlayInfo(0, this.localPlayers, false));
 			} catch (IOException ex) {
 				System.out.println("Could not write players to client");
 				ex.printStackTrace();

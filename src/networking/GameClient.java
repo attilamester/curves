@@ -43,30 +43,34 @@ public class GameClient {
 		case SocketPackage.PACKAGE_PRE_GAME:
 			PreGameInfo packet = (PreGameInfo) obj;
 			this.gameController.getLandingWindow().getJoinGameConfigPanel()
-				.arrivedNewPlayerConfigs(packet.getClientID(), packet.getPlayers());
+					.arrivedNewPlayerConfigs(packet.getClientID(), packet.getPlayers());
 			break;
-		
+
 		case SocketPackage.PACKAGE_SIGNAL_START_GAME:
-			SignalStartGame signal = (SignalStartGame)obj;
-			this.gameController.getLandingWindow().getJoinGameConfigPanel()
-				.startGame(signal.getDefaultCurveAngle(), signal.getDefaultCurveSpeed(), 
-					signal.getServerNames(), signal.getServerColors(),
-					signal.getOtherNames(), signal.getOtherColors());
+			SignalStartGame signal = (SignalStartGame) obj;
+			this.gameController.getLandingWindow().getJoinGameConfigPanel().startGame(signal.getDefaultCurveAngle(),
+					signal.getDefaultCurveSpeed(), signal.getPlayers());
 			break;
-			
+
 		case SocketPackage.PACKAGE_PLAY_INFO:
-			this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(0, (PlayInfo)obj);
-			break;
+			PlayInfo info = (PlayInfo)obj;
+			if (info.isPreGame()) {
+				this.gameController.getCurveWindow().getPlayGround().arrivedPreGamePlayerList(0, info.getPlayers());
+			} else {
+				this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(0, (PlayInfo) obj);
+			}
 			
+			break;
+
 		}
-		
+
 	}
 
 	public void respondToServer(Object obj) {
 		try {
 			this.clientThread.writeToServer(obj);
 		} catch (IOException e) {
-			System.out.println("Could not write to server:" + ((SocketPackage)obj).getType());
+			System.out.println("Could not write to server:" + ((SocketPackage) obj).getType());
 			e.printStackTrace();
 			System.exit(0);
 		}

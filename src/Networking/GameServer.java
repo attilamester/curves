@@ -7,6 +7,7 @@ import network_packages.PlayInfo;
 import network_packages.PreGameInfo;
 import network_packages.ReadyRequest;
 import network_packages.SocketPackage;
+import networking.ServerThread.ClientHandler;
 
 public class GameServer {
 
@@ -57,9 +58,24 @@ public class GameServer {
 				ReadyRequest request = (ReadyRequest)obj;
 				this.gameController.getLandingWindow().getLanGameConfigPanel().newReadyRequest(clientID, request.isReady());
 				break;
-			
+							
 			case SocketPackage.PACKAGE_PLAY_INFO:
-				this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(clientID, (PlayInfo)obj);
+				PlayInfo info = (PlayInfo)obj;				
+				if (info.isPreGame()) {
+					this.gameController.getCurveWindow().getPlayGround().arrivedPreGamePlayerList(clientID, info.getPlayers());
+					for (ClientHandler clientHandler : this.serverThread.getClients().values()) {
+						if (clientHandler.getClientID() != clientID) {
+							try {
+								clientHandler.writeToClient(new PlayInfo(0, info.getPlayers(), true));
+							} catch (IOException ex) {
+							}
+						}
+						
+					}
+				} else {
+					this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(clientID, info);
+				}
+				
 				break;
 				
 		}
