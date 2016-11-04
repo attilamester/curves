@@ -211,7 +211,7 @@ public class LocalGameConfigPanel extends JPanel {
 		this.buttonsPane = new JPanel();
 		buttonsPane.setBackground(Colors.BACK_PANE);
 		
-		this.start = new JLabel(new ImageIcon("images\\startBg.png"));
+		this.start = new JLabel(new ImageIcon(Main.class.getResource("/startBg.png")));
 		start.setBackground(new Color(0,0,0,0));
 		start.setOpaque(false);
 		
@@ -248,7 +248,7 @@ public class LocalGameConfigPanel extends JPanel {
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
-				CurveWindow curveWindow = new CurveWindow(ctrl, names, colors, new ArrayList<String>(), new ArrayList<Color>());	
+				CurveWindow curveWindow = new CurveWindow(ctrl, names, colors);	
 				new CountDownModal(curveWindow, 1, null, null);
 			}
 		});

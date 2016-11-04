@@ -10,7 +10,8 @@ public class SocketPackage  implements Serializable {
 	public static final int PACKAGE_PRE_GAME = 2;
 	public static final int PACKAGE_READY_REQUEST = 3;
 	public static final int PACKAGE_SIGNAL_START_GAME = 4;
-	public static final int PACKAGE_PLAY_INFO = 5;
+	public static final int PACKAGE_PLAY_INFO_PLAYERS = 5;
+	public static final int PACKAGE_PLAY_INFO_POWER_UP = 6;
 	
 	private static int count = 0;
 	

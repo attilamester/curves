@@ -3,7 +3,7 @@ package networking;
 import java.io.IOException;
 
 import generals.GameController;
-import network_packages.PlayInfo;
+import network_packages.PlayInfoPlayers;
 import network_packages.PreGameInfo;
 import network_packages.ReadyRequest;
 import network_packages.SocketPackage;
@@ -59,14 +59,14 @@ public class GameServer {
 				this.gameController.getLandingWindow().getLanGameConfigPanel().newReadyRequest(clientID, request.isReady());
 				break;
 							
-			case SocketPackage.PACKAGE_PLAY_INFO:
-				PlayInfo info = (PlayInfo)obj;				
+			case SocketPackage.PACKAGE_PLAY_INFO_PLAYERS:
+				PlayInfoPlayers info = (PlayInfoPlayers)obj;				
 				if (info.isPreGame()) {
 					this.gameController.getCurveWindow().getPlayGround().arrivedPreGamePlayerList(clientID, info.getPlayers());
 					for (ClientHandler clientHandler : this.serverThread.getClients().values()) {
 						if (clientHandler.getClientID() != clientID) {
 							try {
-								clientHandler.writeToClient(new PlayInfo(0, info.getPlayers(), true));
+								clientHandler.writeToClient(new PlayInfoPlayers(0, info.getPlayers(), true));
 							} catch (IOException ex) {
 							}
 						}

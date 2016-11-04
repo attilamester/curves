@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -12,13 +13,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -26,8 +25,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import curve.Player;
 import curve_window.CurveWindow;
-import curve_window.PlayerStatus;
 import generals.GameController;
 import generals.Main;
 
@@ -39,9 +38,9 @@ public class EndGameModal extends JDialog {
 	
 	private Color bg = new Color(38, 38, 38);
 	
-	public EndGameModal(CurveWindow curveWindow, Map<String, Integer> namesScores, Map<String, PlayerStatus> playerStatusPanes) {
+	public EndGameModal(CurveWindow curveWindow, List<Player> players/*Map<String, Integer> namesScores, Map<String, PlayerStatus> playerStatusPanes*/) {
 		contentPane = this.getContentPane();
-		contentPane.setLayout(new GridLayout(playerStatusPanes.size() + 4, 1));
+		contentPane.setLayout(new GridLayout(players.size() + 4, 1));
 		
 		this.curveWindow = curveWindow;
 		
@@ -49,17 +48,18 @@ public class EndGameModal extends JDialog {
 		contentPane.setBackground(bg);
 		
 		//Collections.sort(playerStatusPanes,  Collections.reverseOrder());
-		addItems(namesScores, playerStatusPanes);
+		addItems(players);
 		
-		this.setSize(GameController.COUNT_DOWN_WIDTH, playerStatusPanes.get(0).getHeight() * (playerStatusPanes.size() + 4));
-		this.setBounds(Main.SCREEN_WIDTH / 2 - this.getWidth() / 2, Main.SCREEN_HEIGHT / 2 - this.getHeight() / 2, this.getWidth(), this.getHeight());
+		Rectangle r = Main.getGameController().getCurveWindow().getBounds();
+		this.setSize(GameController.COUNT_DOWN_WIDTH, players.get(0).getPlayerStatusPane().getHeight() * (players.size() + 4));
+		this.setBounds((int)(r.getCenterX() - this.getWidth() / 2), (int)(r.getCenterY() - this.getHeight() / 2), this.getWidth(), this.getHeight());
 		this.setUndecorated(true);
 		
 		this.setAlwaysOnTop(true);
-		this.setVisible(true);	
+		this.setVisible(true);
 	}
 	
-	private void addItems(Map<String, Integer> namesScores, Map<String, PlayerStatus> playerStatusPanes) {
+	private void addItems(List<Player> players/*Map<String, Integer> namesScores, Map<String, PlayerStatus> playerStatusPanes*/) {
 		JLabel info = new JLabel("The game ended here :)", JLabel.CENTER);
 		info.setOpaque(false);
 		info.setForeground(Color.WHITE);
@@ -72,6 +72,7 @@ public class EndGameModal extends JDialog {
 		contentPane.add(info);
 		contentPane.add(info2);
 		
+		/*
 		List<Map.Entry<String, Integer>> orderedNamesScores =
 	            new LinkedList<Map.Entry<String, Integer>>(namesScores.entrySet());
         Collections.sort(orderedNamesScores, new Comparator<Map.Entry<String, Integer>>() {
@@ -84,6 +85,18 @@ public class EndGameModal extends JDialog {
 		for (ListIterator<Map.Entry<String, Integer>> iter = orderedNamesScores.listIterator(); iter.hasNext();) {
 			contentPane.add(playerStatusPanes.get(iter.next().getKey()));
 		}
+		*/
+		List<Player> orderedPlayers = new ArrayList<>(players);
+		Collections.sort(orderedPlayers, new Comparator<Player>() {
+			@Override
+			public int compare(Player p1, Player p2) {
+				return p1.getScore() - p2.getScore();
+			}
+		});
+		for (Player p : orderedPlayers) {
+			contentPane.add(p.getPlayerStatusPane());
+		}
+		
 		
 		JCheckBox check = new JCheckBox("Save this score");
 		check.setBackground(GameController.PLAYGROUND_BACKGROUND);
@@ -92,7 +105,7 @@ public class EndGameModal extends JDialog {
 		
 		contentPane.add(check);
 		
-		JLabel end = new JLabel(new ImageIcon("images\\endBg.png"));
+		JLabel end = new JLabel(new ImageIcon(this.getClass().getResource("/endBg.png")));
 		end.setSize(new Dimension(100, 50));
 		end.setBackground(new Color(0,0,0,0));
 		end.setOpaque(false);
@@ -103,14 +116,14 @@ public class EndGameModal extends JDialog {
 			public void mousePressed(MouseEvent e) {
 				dispose();
 				if (check.isSelected()) {
-					saveScore(orderedNamesScores);
+					saveScore(orderedPlayers);
 				}
 				curveWindow.dispose();
 			}
 		});
 	}
 	
-	private void saveScore(List<Map.Entry<String, Integer>> orderedNamesScores) {
+	private void saveScore(List<Player> orderedPlayers/*List<Map.Entry<String, Integer>> orderedNamesScores*/) {
 		File f = new File(GameController.SCORE_FILE_PATH);
 		if(!f.exists()) {
 			try {
@@ -125,9 +138,13 @@ public class EndGameModal extends JDialog {
 			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 			bw.write("\n" + dateFormat.format(new Date()) + "\n");
 			
-			for (ListIterator<Map.Entry<String, Integer>> iter = orderedNamesScores.listIterator(); iter.hasNext();) {
+			/*for (ListIterator<Map.Entry<String, Integer>> iter = orderedNamesScores.listIterator(); iter.hasNext();) {
 				Map.Entry<String, Integer> ref = iter.next();
 				String line = new String(ref.getKey() + " - " + ref.getValue()) + "\n";
+				bw.write(line);
+			}*/
+			for (Player p : orderedPlayers) {
+				String line = new String(p.getName() + " - " + p.getScore() + "\n");
 				bw.write(line);
 			}
 			

@@ -19,7 +19,6 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +37,7 @@ import generals.GameController;
 import generals.Main;
 import modals.CountDownModal;
 import modals.EndGameModal;
-import network_packages.PlayInfo;
+import network_packages.PlayInfoPlayers;
 import networking.ServerThread.ClientHandler;
 import power_up.PowerUp;
 import power_up.PowerUpLoader;
@@ -81,6 +80,7 @@ public class PlayGround extends JPanel {
 
 	private boolean noBorder = false;
 	
+	private List<PowerUp> powerUps;
 	
 	public PlayGround(CurveWindow curveWindow,
 			List<String> localNames, List<Color> localColors,
@@ -113,6 +113,7 @@ public class PlayGround extends JPanel {
 		setBorder(GameController.PLAYGROUND_BORDER_FACTORY);
 		this.setBounds(0, 0, playGroundSizeX, playGroundSizeY);
 		this.playgroundLoading = true;
+		
 	}
 
 	private void createPlayers(List<Player> players, List<String> names, List<Color> colors) {
@@ -155,7 +156,13 @@ public class PlayGround extends JPanel {
 				// this.getHeight(), null);
 				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
 				
-				this.powerUpLoader = new PowerUpLoader(this);
+				if (Main.getGameClient() == null) {
+					this.powerUpLoader = new PowerUpLoader(this);
+					this.powerUps = this.powerUpLoader.getPowerUps();
+				} else {
+					this.powerUps = new ArrayList<>();
+				}
+				
 			} else {
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
 				this.backgroundLayer.getGr().fillRect(0, 0, this.backgroundLayer.getImg().getWidth(),
@@ -305,7 +312,7 @@ public class PlayGround extends JPanel {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		g.drawImage(this.backgroundLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
-		System.out.println("initPaint");
+		//System.out.println("initPaint");
 		for (Player player : this.allPlayers) {
 			int r = player.getCurve().getRadius();
 			int color = player.getColor().getRGB();
@@ -313,7 +320,7 @@ public class PlayGround extends JPanel {
 			BufferedImage direction = null;
 			BufferedImage finalImg = null;
 			try {
-				direction = ImageIO.read(new File("images\\direction.png"));
+				direction = ImageIO.read(this.getClass().getResource("/direction.png"));
 			} catch (IOException e) {
 			}
 
@@ -425,7 +432,7 @@ public class PlayGround extends JPanel {
 			this.powerUpLoader.finishAllTasks();
 			
 			if (this.round == GameController.ROUND_COUNT) {
-				new EndGameModal(this.curveWindow, this.curveWindow.getNamesScores(), this.curveWindow.getPlayerStatusPanes());
+				new EndGameModal(this.curveWindow, this.allPlayers);
 			} else {
 				new CountDownModal(this.curveWindow, ++round, winner.getName(), winner.getColor());
 				
@@ -445,13 +452,6 @@ public class PlayGround extends JPanel {
 	}
 
 	private void startNewRound() {
-
-		// PowerUpLoader.action_erase(this.backgroundLayer);
-		// PowerUpLoader.action_erase(this.compressedLayer);
-		// this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
-		// this.backgroundLayer.getGr().fillRect(0, 0,
-		// this.backgroundLayer.getImg().getWidth(),
-		// this.backgroundLayer.getImg().getHeight());
 
 		this.playgroundLoading = true;
 		this.shrinkedX = 0;
@@ -660,7 +660,7 @@ public class PlayGround extends JPanel {
 			}
 		}
 		
-		for (ListIterator<PowerUp> iter = this.powerUpLoader.getPowerUps().listIterator(); iter.hasNext();) {
+		for (ListIterator<PowerUp> iter = this.powerUps.listIterator(); iter.hasNext();) {
 			PowerUp p = iter.next();
 			double dist = point_distance(curve.getX(), curve.getY(), p.getX(), p.getY());
 			if (dist <= PowerUp.POWERUP_RADIUS) {
@@ -715,6 +715,9 @@ public class PlayGround extends JPanel {
 	}
 
 	public void startGame() {
+		if (this.powerUpLoader != null)
+			this.powerUpLoader.start();
+		
 		for (Player pl : this.localPlayers) {
 			pl.getController().start();
 		}
@@ -849,16 +852,16 @@ public class PlayGround extends JPanel {
 	public void setShrinking(boolean isShrinking) {
 		this.isShrinking = isShrinking;
 	}
-	
-	private void preGameRepaint() {/*
+	/*
+	private void preGameRepaint() {
 		for (Player player : this.remotePlayers) {
 			int r = player.getCurve().getRadius();
 			this.curvesLayer.getGr().setColor(player.getCurve().getColor());
 			this.curvesLayer.getGr().fillOval((int) player.getCurve().getX() - r, (int) player.getCurve().getY() - r, 2 * r, 2 * r);
 		}
-		this.getGraphics().drawImage(this.curvesLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);*/
+		this.getGraphics().drawImage(this.curvesLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
 	}
-	
+	*/
 	public void arrivedPreGamePlayerList(int clientID, List<Player> players) {
 		synchronized (new Object()) {
 			this.remotePlayers.addAll(players);
@@ -878,7 +881,7 @@ public class PlayGround extends JPanel {
 		}
 	} 
 	
-	public void arrivedPlayerList(int clientID, PlayInfo info) {
+	public void arrivedPlayerList(int clientID, PlayInfoPlayers info) {
 		synchronized (new Object()) {
 			List<Player> clientsPlayers = info.getPlayers();
 			for (ListIterator<Player> iter = this.remotePlayers.listIterator();
@@ -893,14 +896,19 @@ public class PlayGround extends JPanel {
 		}
 	}
 	
+	public void arrivedPowerUp(PowerUp newPowerUp) {
+		this.powerUps.add(newPowerUp);
+		PowerUpLoader.drawPowerUpIcon(backgroundLayer, newPowerUp);		
+	}
+	
 	public void sendPlayersToServer() {
-		Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), this.localPlayers, false));
+		Main.getGameClient().respondToServer(new PlayInfoPlayers(Main.getGameClient().getClientID(), this.localPlayers, false));
 	}
 	
 	public void sendPlayersToClients() {
 		for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
 			try {
-				clientHandler.writeToClient(new PlayInfo(0, this.localPlayers, false));
+				clientHandler.writeToClient(new PlayInfoPlayers(0, this.localPlayers, false));
 			} catch (IOException ex) {
 				System.out.println("Could not write players to client");
 				ex.printStackTrace();

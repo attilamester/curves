@@ -166,16 +166,16 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 			if (code == -1) {					
 				return;
 			}
-			String baseDir = "images\\keys\\";
+			String baseDir = "/keys/";
 			String name = null;
 			try {
 				name = "key_" + code + ".png";
-				img = ImageIO.read(new File(baseDir + name));
+				img = ImageIO.read(this.getClass().getResource(baseDir + name));
 				
 				g.drawImage(img, 0, 0, 50, 25,  null);					
 			} catch (IOException ex) {
 				try {
-					img = ImageIO.read(new File(baseDir + "key_notfound.png"));
+					img = ImageIO.read(this.getClass().getResource(baseDir + "key_notfound.png"));
 					g.drawImage(img, 0, 0, 50, 25,  null);
 				} catch (IOException e) {}
 			}

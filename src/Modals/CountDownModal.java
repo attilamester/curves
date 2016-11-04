@@ -48,7 +48,7 @@ public class CountDownModal extends JDialog {
 	}
 	
 	private void addItems(String winner, int round, Color color) {
-		ImageIcon icon = new ImageIcon("images\\loading.gif");
+		ImageIcon icon = new ImageIcon(this.getClass().getResource("/loading.gif"));
 		JLabel loading = new JLabel(new ImageIcon( icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT) ));
 		JLabel roundLabel = new JLabel("Round " + Integer.toString(round) + " in ");
 		roundLabel.setOpaque(false);
@@ -98,11 +98,10 @@ public class CountDownModal extends JDialog {
 					count.stop();
 					setVisible(false);
 					dispose();
-					//curveWindow.setAlwaysOnTop(true);
+					curveWindow.setAlwaysOnTop(true);
 					curveWindow.getPlayGround().eraseArrows();					
 					if (round == 1) {
 						curveWindow.startGame();
-						curveWindow.getPlayGround().getPowerUpLoader().start();
 					}
 					else
 						curveWindow.restartGame();

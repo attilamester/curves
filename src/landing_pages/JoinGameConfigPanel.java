@@ -41,7 +41,7 @@ import generals.Main;
 import landing_pages.PlayerConfigRow.TextFieldPlaceholder;
 import modals.CountDownModal;
 import modals.ErrorDialog;
-import network_packages.PlayInfo;
+import network_packages.PlayInfoPlayers;
 import network_packages.PreGameInfo;
 import network_packages.ReadyRequest;
 import network_packages.SocketPackage;
@@ -282,7 +282,7 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		loadingPane = new JPanel(new BorderLayout());
 		loadingPane.setOpaque(false);
 
-		ImageIcon icon = new ImageIcon("images\\loading.gif");
+		ImageIcon icon = new ImageIcon(this.getClass().getResource("/loading.gif"));
 		JLabel loading = new JLabel(new ImageIcon(icon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT)));
 
 		JLabel loadingLabel = new JLabel("Searching for host ...", JLabel.CENTER);
@@ -391,7 +391,7 @@ public class JoinGameConfigPanel extends LocalGameConfigPanel {
 		curveWindow.getPlayGround().arrivedPreGamePlayerList(0, serverPlayers);
 		
 		
-		Main.getGameClient().respondToServer(new PlayInfo(Main.getGameClient().getClientID(), curveWindow.getPlayGround().getLocalPlayers(), true));
+		Main.getGameClient().respondToServer(new PlayInfoPlayers(Main.getGameClient().getClientID(), curveWindow.getPlayGround().getLocalPlayers(), true));
 		
 		Main.getGameController().setCurveWindow(curveWindow);
 		new CountDownModal(curveWindow, 1, null, null);

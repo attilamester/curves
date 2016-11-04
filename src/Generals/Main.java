@@ -10,8 +10,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.Callable;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,7 +26,6 @@ import javax.swing.JPanel;
 
 import networking.GameClient;
 import networking.GameServer;
-
 
 public class Main {
 	
@@ -47,7 +53,7 @@ public class Main {
 	}
 	
 	public static void addBackPane(JPanel panel, Callable<Void> func) {
-		JLabel back = new JLabel(new ImageIcon("images\\back.png"));		
+		JLabel back = new JLabel(new ImageIcon(Main.class.getResource("/back.png")));		
 		back.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -118,11 +124,11 @@ public class Main {
 	 ************************************************************************/
 	
 	public static synchronized void playSound(final String url) {
-		/*
+		
 		  new Thread(new Runnable() {
 		    public void run() {
-		      try {
-		    	  File audioFile = new File(".\\sounds\\a.mp3");
+		      try {/*
+		    	  File audioFile = new File("//sounds//a.mp3");
 		    	  
 		    	  AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
 		    	  AudioFormat format = audioStream.getFormat();
@@ -132,12 +138,34 @@ public class Main {
 		    	  
 		    	  audioClip.open(audioStream);
 		    	  audioClip.start();
-		      } catch (Exception e) {
-		        System.err.println(e.getMessage());
-		        System.err.println(e.getStackTrace());
+		    	  
+		    	  
+		    	  */
+		    	 
+		    	  /*
+		    	  Clip clip = AudioSystem.getClip();
+		          AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+		            Main.class.getResourceAsStream("/a.mp3"));
+		          clip.open(inputStream);
+		          clip.start();
+		          */
+		    	  
+		    	  URL url = this.getClass().getClassLoader().getResource("/impact.wav");
+		          AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+		          // Get a sound clip resource.
+		          Clip clip = AudioSystem.getClip();
+		          // Open audio clip and load samples from the audio input stream.
+		          clip.open(audioIn);
+		          clip.start();
+		      } catch (UnsupportedAudioFileException e) {
+		          e.printStackTrace();
+		      } catch (IOException e) {
+		         e.printStackTrace();
+		      } catch (LineUnavailableException e) {
+		         e.printStackTrace();
 		      }
 		    }
-		  }).start();*/
+		  }).start();
 		}
 	
 	private static GameController game = null;
@@ -147,6 +175,7 @@ public class Main {
 	public static void main(String[] args) {
 		
 		game = new GameController();
+		//Main.playSound("");
 		
 	}
 

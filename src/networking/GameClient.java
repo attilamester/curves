@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import generals.GameController;
-import network_packages.PlayInfo;
+import network_packages.PlayInfoPlayers;
+import network_packages.PlayInfoPowerUp;
 import network_packages.PreGameInfo;
 import network_packages.SignalStartGame;
 import network_packages.SocketPackage;
@@ -52,16 +53,21 @@ public class GameClient {
 					signal.getDefaultCurveSpeed(), signal.getPlayers());
 			break;
 
-		case SocketPackage.PACKAGE_PLAY_INFO:
-			PlayInfo info = (PlayInfo)obj;
+		case SocketPackage.PACKAGE_PLAY_INFO_PLAYERS:
+			PlayInfoPlayers info = (PlayInfoPlayers)obj;
 			if (info.isPreGame()) {
 				this.gameController.getCurveWindow().getPlayGround().arrivedPreGamePlayerList(0, info.getPlayers());
 			} else {
-				this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(0, (PlayInfo) obj);
+				this.gameController.getCurveWindow().getPlayGround().arrivedPlayerList(0, (PlayInfoPlayers) obj);
 			}
 			
 			break;
-
+		
+		case SocketPackage.PACKAGE_PLAY_INFO_POWER_UP:
+			PlayInfoPowerUp powerUpWrapper = (PlayInfoPowerUp)obj;
+			this.gameController.getCurveWindow().getPlayGround().arrivedPowerUp(powerUpWrapper.getNewPowerUp());
+			
+			break;
 		}
 
 	}

@@ -1,6 +1,9 @@
 package power_up;
 
-public class PowerUp {
+import java.io.Serializable;
+
+public class PowerUp implements Serializable {
+	private static final long serialVersionUID = 1;
 	
 	private String name;
 	private int x;

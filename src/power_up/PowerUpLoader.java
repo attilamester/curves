@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +20,9 @@ import curve.Player;
 import curve_window.ImageLayer;
 import curve_window.PlayGround;
 import generals.GameController;
+import generals.Main;
+import network_packages.PlayInfoPowerUp;
+import networking.ServerThread.ClientHandler;
 
 public class PowerUpLoader {
 	
@@ -79,9 +81,11 @@ public class PowerUpLoader {
 				timer.setDelay(delay);
 				
 				PowerUp newPower = createPowerUp();
-				powerUps.add(newPower);
 				
-				drawPowerUpIcon(newPower);
+				powerUps.add(newPower);				
+				PowerUpLoader.drawPowerUpIcon(backgroundLayer, newPower);
+				
+				broadCastPowerUp(newPower);
 			}
 		});
 		
@@ -92,13 +96,13 @@ public class PowerUpLoader {
 		this.timer.start();
 	}
 	
-	public void drawPowerUpIcon(PowerUp powerup) {		
+	public static void drawPowerUpIcon(ImageLayer backgroundLayer, PowerUp powerup) {		
 		BufferedImage icon =  null;		
 		try {
-			icon = ImageIO.read(new File("images\\powerups\\" + powerup.getName()));						
+			icon = ImageIO.read(PowerUpLoader.class.getResource("/powerups/" + powerup.getName()));						
 		} catch (IOException e) { return; }
 		
-		this.backgroundLayer.getGr().drawImage(icon, powerup.getX() - PowerUp.POWERUP_RADIUS, powerup.getY() - PowerUp.POWERUP_RADIUS, null);
+		backgroundLayer.getGr().drawImage(icon, powerup.getX() - PowerUp.POWERUP_RADIUS, powerup.getY() - PowerUp.POWERUP_RADIUS, null);
 	}
 	
 	private PowerUp createPowerUp() {
@@ -107,7 +111,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE - shrinkX) + PowerUp.POWERUP_SIZE / 2 + shrinkX;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE - shrinkY)+ PowerUp.POWERUP_SIZE / 2 + shrinkY;
 		
-		int index = 0;
+		int index = 5;
 		if (index == 0)
 			index = rnd.nextInt(POWERUP_COUNT);
 		return new PowerUp(POWERUP_NAMES[index], x, y);
@@ -143,7 +147,7 @@ public class PowerUpLoader {
 	public void reDrawPowerUps() {
 		for (ListIterator<PowerUp> iter = this.powerUps.listIterator(); iter.hasNext();) {
 			PowerUp p = iter.next();
-			this.drawPowerUpIcon(p);
+			PowerUpLoader.drawPowerUpIcon(backgroundLayer, p);
 		}		
 	}
 	/*************************************************************************************************************
@@ -254,6 +258,8 @@ public class PowerUpLoader {
 		
 		int i = 0;
 		for (Player p : pl.getAllPlayers()) {
+			if (p.isDead())
+				continue;
 			p.getCurve().setDirection(players.get(i).getCurve().getDirection());
 			p.getCurve().setX(players.get(i).getCurve().getX());
 			p.getCurve().setY(players.get(i).getCurve().getY());
@@ -386,6 +392,21 @@ public class PowerUpLoader {
 		});
 		task.start();
 		this.powerUpTasks.add(task);
+	}
+	
+	private void broadCastPowerUp(PowerUp newPowerUp) {
+		if (Main.getGameServer() == null) {
+			return;
+		}
+		System.out.println("server casting powerup");
+		for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
+			try {
+				System.out.println("server casting powerup to ONE");
+				clientHandler.writeToClient(new PlayInfoPowerUp(newPowerUp));
+			} catch (IOException ex) {
+				System.out.println("Could not broadcast powerup");
+			}
+		}
 	}
 	
 }

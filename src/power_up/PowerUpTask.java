@@ -110,7 +110,7 @@ public class PowerUpTask {
 						return;
 					}
 					progressBar.setValue(++personalProgressValue);
-				}				
+				}
 			}
 		});		
 	}
@@ -160,6 +160,7 @@ public class PowerUpTask {
 				}				
 			}
 		} else {
+			PowerUpTask.generalStarted = false;
 			generalTimer.stop();
 			generalProgressBar.setValue(0);
 			curveWindow.repaint();

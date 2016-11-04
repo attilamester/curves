@@ -18,7 +18,7 @@ public class GameController {
 	 * 
 	 ************************************************************************/
 	public static boolean finished;
-	public static int ROUND_COUNT = 15;
+	public static int ROUND_COUNT = 10;
 	
 	public static final int MENU_HEIGHT = 20;
 	public static final int PLAYER_STATUS_PANE_HEIGHT = 30;

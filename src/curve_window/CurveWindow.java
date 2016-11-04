@@ -141,7 +141,7 @@ public class CurveWindow extends JFrame {
 		this.setResizable(false);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		//this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	    //this.setAlwaysOnTop(true);
+	    this.setAlwaysOnTop(true);
 	    this.setUndecorated(true);
 	    
 	 	this.setVisible(true);	    
