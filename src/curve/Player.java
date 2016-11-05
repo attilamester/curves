@@ -20,6 +20,10 @@ public class Player implements Serializable {
 	private boolean alive;
 	private PlayerStatus playerStatusPane;
 	
+	public Player(Player p) {
+		this(p.getName(), p.getColor(), new Curve(p.getCurve()), p.getControl());
+	}
+	
 	public Player(String name, Color color, Curve curve, Control control) {
 		this.id = Player.ID_COUNT++;
 		this.name = name;
@@ -122,5 +126,6 @@ public class Player implements Serializable {
 	public void updateState(Player p) {
 		this.setCurve(p.getCurve());
 		this.setAlive(p.isAlive());
+		this.setController(new CurveController(this.curve));
 	}
 }

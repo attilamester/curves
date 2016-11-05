@@ -245,26 +245,29 @@ public class PowerUpLoader {
 	
 	public void action_swapCurves(PlayGround pl) {
 		
-		List<Player> players = new ArrayList<>();
+		List<Player> currentPlayers = new ArrayList<>();
+		List<Player> newPlayers = new ArrayList<>();
 		
 		for (Player p : pl.getAllPlayers()) {
 			if (p.isDead())
 				continue;
-			players.add(p);
+			currentPlayers.add(p);
+			newPlayers.add(new Player(p));
 		}
 		
-		Collections.shuffle(players);
-		action_fly(pl, players);
+		action_fly(pl, currentPlayers);
+		Collections.shuffle(newPlayers);
 		
 		int i = 0;
 		for (Player p : pl.getAllPlayers()) {
 			if (p.isDead())
 				continue;
-			p.getCurve().setDirection(players.get(i).getCurve().getDirection());
-			p.getCurve().setX(players.get(i).getCurve().getX());
-			p.getCurve().setY(players.get(i).getCurve().getY());
+			p.getCurve().setDirection(newPlayers.get(i).getCurve().getDirection());
+			p.getCurve().setX(newPlayers.get(i).getCurve().getX());
+			p.getCurve().setY(newPlayers.get(i).getCurve().getY());
 			++i;
 		}
+		
 	}
 	
 	public void action_erase(PlayGround pl) {

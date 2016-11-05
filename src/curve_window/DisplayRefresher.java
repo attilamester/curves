@@ -27,8 +27,8 @@ public class DisplayRefresher extends Thread {
 						timer.stop();
 						return;
 					}
-					DisplayRefresher.this.playGround.sendPlayersToServer();
-					DisplayRefresher.this.playGround.repaint();				
+					//DisplayRefresher.this.playGround.sendPlayersToServer();
+					DisplayRefresher.this.playGround.repaint();
 					
 				}
 			}); 
@@ -42,7 +42,7 @@ public class DisplayRefresher extends Thread {
 							timer.stop();
 							return;
 						}
-						DisplayRefresher.this.playGround.sendPlayersToClients();
+						//DisplayRefresher.this.playGround.sendPlayersToClients();
 						DisplayRefresher.this.playGround.repaint();
 					}
 				}); 

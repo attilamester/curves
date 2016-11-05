@@ -3,11 +3,13 @@ package networking;
 import java.io.IOException;
 import java.net.Socket;
 
+import curve.Player;
 import generals.GameController;
 import network_packages.PlayInfoPlayers;
 import network_packages.PlayInfoPowerUp;
 import network_packages.PreGameInfo;
 import network_packages.SignalStartGame;
+import network_packages.SignalTurn;
 import network_packages.SocketPackage;
 
 public class GameClient {
@@ -52,7 +54,35 @@ public class GameClient {
 			this.gameController.getLandingWindow().getJoinGameConfigPanel().startGame(signal.getDefaultCurveAngle(),
 					signal.getDefaultCurveSpeed(), signal.getPlayers());
 			break;
-
+			
+		case SocketPackage.PACKAGE_SIGNAL_PAUSE_GAME:
+			this.gameController.getCurveWindow().getPlayGround().stopEvent();
+			break;
+		case SocketPackage.PACKAGE_SIGNAL_RESUME_GAME:
+			this.gameController.getCurveWindow().getPlayGround().resumeEvent();
+			break;
+			
+		case SocketPackage.PACKAGE_SIGNAL_TURN:
+			SignalTurn sign = (SignalTurn)obj;
+			Player player = null;
+			for (Player p : this.gameController.getCurveWindow().getPlayGround().getAllPlayers()) {
+				if (p.getColor().equals(sign.getPlayer().getColor())) {
+					player = p;
+				}
+			}
+			
+			switch (sign.getSignalType()) {
+			case SignalTurn.SIGNAL_LEFT_TRIGGERED:
+				this.gameController.getCurveWindow().getPlayGround().leftTurnTriggered(player); break;
+			case SignalTurn.SIGNAL_RIGHT_TRIGGERED:
+				this.gameController.getCurveWindow().getPlayGround().rightTurnTriggered(player); break;
+			case SignalTurn.SIGNAL_LEFT_STOPPED:
+				this.gameController.getCurveWindow().getPlayGround().leftTurnStopped(player); break;
+			case SignalTurn.SIGNAL_RIGHT_STOPPED:
+				this.gameController.getCurveWindow().getPlayGround().rightTurnStopped(player); break;
+			}
+			
+			break;
 		case SocketPackage.PACKAGE_PLAY_INFO_PLAYERS:
 			PlayInfoPlayers info = (PlayInfoPlayers)obj;
 			if (info.isPreGame()) {

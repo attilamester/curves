@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import curve.Curve;
+import curve.CurveController;
 import curve.Direction;
 import curve.Player;
 import generals.GameController;
@@ -38,6 +39,7 @@ import generals.Main;
 import modals.CountDownModal;
 import modals.EndGameModal;
 import network_packages.PlayInfoPlayers;
+import network_packages.SignalTurn;
 import networking.ServerThread.ClientHandler;
 import power_up.PowerUp;
 import power_up.PowerUpLoader;
@@ -156,12 +158,12 @@ public class PlayGround extends JPanel {
 				// this.getHeight(), null);
 				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
 				
-				if (Main.getGameClient() == null) {
+				//if (Main.getGameClient() == null) {
 					this.powerUpLoader = new PowerUpLoader(this);
 					this.powerUps = this.powerUpLoader.getPowerUps();
-				} else {
+				/*} else {
 					this.powerUps = new ArrayList<>();
-				}
+				}*/
 				
 			} else {
 				this.backgroundLayer.getGr().setColor(GameController.PLAYGROUND_BACKGROUND);
@@ -184,9 +186,9 @@ public class PlayGround extends JPanel {
 		} else {
 			
 			g.drawImage(this.backgroundLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
-			
-			for(Player player : this.localPlayers) {
-				
+
+			for(Player player : this.allPlayers) {
+
 				int x = (int) player.getCurve().getX();
 				int y = (int) player.getCurve().getY();
 				int r = player.getCurve().getRadius();
@@ -269,6 +271,7 @@ public class PlayGround extends JPanel {
 			}
 			
 			/** Paint other curves' head */
+			/*
 			for (Player player : this.remotePlayers) {
 				Curve curve = player.getCurve();
 				int x = (int) curve.getX();
@@ -282,7 +285,7 @@ public class PlayGround extends JPanel {
 					curvesLayer.getGr().fillOval(x - r, y - r, r << 1, r << 1);
 				}
 			}
-			
+			*/
 			g.drawImage(curvesLayer.getImg(), -(this.shrinkedX >> 1), -(this.shrinkedY >> 1), null);
 			this.compressedLayer.getGr().drawImage(curvesLayer.getImg(), 0, 0, null);
 			
@@ -400,6 +403,7 @@ public class PlayGround extends JPanel {
 			return;
 		}
 		
+		
 		Main.playSound("impact.mp3");
 		player.setAlive(false);
 
@@ -428,7 +432,7 @@ public class PlayGround extends JPanel {
 			this.curveWindow.getDisplayRefresher().stopRefresher();
 			GameController.finished = true;
 
-			this.powerUpLoader.clearPowerUps();				
+			this.powerUpLoader.clearPowerUps();
 			this.powerUpLoader.finishAllTasks();
 			
 			if (this.round == GameController.ROUND_COUNT) {
@@ -437,11 +441,11 @@ public class PlayGround extends JPanel {
 				new CountDownModal(this.curveWindow, ++round, winner.getName(), winner.getColor());
 				
 				this.deadPLayerCount = 0;
-
+				PlayGround.this.startNewRound();
+				
 				Timer timer = new Timer(2000, new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						PlayGround.this.startNewRound();
 						PlayGround.this.repaint();
 					}
 				});
@@ -473,8 +477,14 @@ public class PlayGround extends JPanel {
 			p.getCurve().initData(createCoordinate_X(), createCoordinate_Y(), GameController.DEFAULT_THICK,
 					GameController.DEFAULT_CURVE_ANGLE, p.getColor(), dir);
 			p.setAlive(true);
-
 		}
+		
+		if (Main.getGameServer() != null) {
+			this.sendPlayersToClients();
+		} else if (Main.getGameClient() != null) {
+			this.sendPlayersToServer();
+		}
+		
 	}
 
 	/***************************************************************************************************************************************************************
@@ -715,31 +725,31 @@ public class PlayGround extends JPanel {
 	}
 
 	public void startGame() {
-		if (this.powerUpLoader != null)
-			this.powerUpLoader.start();
+		//if (this.powerUpLoader != null)
+			//this.powerUpLoader.start();
 		
-		for (Player pl : this.localPlayers) {
-			pl.getController().start();
+		for (Player pl : this.allPlayers) {
+			pl.getController().start();			
 		}
 	}
 
 	public void restartGame() {
 		this.deadPLayerCount = 0;
 		
-		for (Player pl : this.localPlayers) {
+		for (Player pl : this.allPlayers) {
 			pl.getController().restart();
 		}
 	}
 	
 	public void stopEvent() {
-		for (Player pl : this.localPlayers) {
+		for (Player pl : this.allPlayers) {
 			pl.getController().stop();
 		}
 		//this.curveWindow.getDisplayRefresher().stopRefresher();
 	}
 	
 	public void resumeEvent() {
-		for (Player pl : this.localPlayers) {
+		for (Player pl : this.allPlayers) {
 			if (pl.isAlive()) {
 				pl.getController().restart();
 			}
@@ -870,6 +880,8 @@ public class PlayGround extends JPanel {
 			
 			this.curveWindow.getNamesPane().setLayout(new GridLayout(1, this.allPlayers.size()));
 			for (Player p : players) {
+				p.setController(new CurveController(p.getCurve()));
+				
 				this.ALL_NAMES.add(p.getName());
 				this.ALL_PLAYER_COUNT++;
 				this.curveWindow.getPlayerStatusPanes().put(p.getName(), p.getPlayerStatusPane());
@@ -878,6 +890,7 @@ public class PlayGround extends JPanel {
 			
 			this.curveWindow.revalidate();
 			this.curveWindow.repaint();
+			
 		}
 	} 
 	

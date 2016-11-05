@@ -2,10 +2,14 @@ package networking;
 
 import java.io.IOException;
 
+import curve.Player;
 import generals.GameController;
+import generals.Main;
 import network_packages.PlayInfoPlayers;
 import network_packages.PreGameInfo;
 import network_packages.ReadyRequest;
+import network_packages.SignalStartGame;
+import network_packages.SignalTurn;
 import network_packages.SocketPackage;
 import networking.ServerThread.ClientHandler;
 
@@ -58,7 +62,36 @@ public class GameServer {
 				ReadyRequest request = (ReadyRequest)obj;
 				this.gameController.getLandingWindow().getLanGameConfigPanel().newReadyRequest(clientID, request.isReady());
 				break;
-							
+			
+			case SocketPackage.PACKAGE_SIGNAL_PAUSE_GAME:
+				this.gameController.getCurveWindow().getPlayGround().stopEvent();
+				break;
+			case SocketPackage.PACKAGE_SIGNAL_RESUME_GAME:
+				this.gameController.getCurveWindow().getPlayGround().resumeEvent();
+				break;
+				
+			case SocketPackage.PACKAGE_SIGNAL_TURN:
+				SignalTurn sign = (SignalTurn)obj;
+				Player player = null;
+				for (Player p : this.gameController.getCurveWindow().getPlayGround().getAllPlayers()) {
+					if (p.getColor().equals(sign.getPlayer().getColor())) {
+						player = p;
+					}
+				}
+				
+				switch (sign.getSignalType()) {
+				case SignalTurn.SIGNAL_LEFT_TRIGGERED:
+					this.gameController.getCurveWindow().getPlayGround().leftTurnTriggered(player); break;
+				case SignalTurn.SIGNAL_RIGHT_TRIGGERED:
+					this.gameController.getCurveWindow().getPlayGround().rightTurnTriggered(player); break;
+				case SignalTurn.SIGNAL_LEFT_STOPPED:
+					this.gameController.getCurveWindow().getPlayGround().leftTurnStopped(player); break;
+				case SignalTurn.SIGNAL_RIGHT_STOPPED:
+					this.gameController.getCurveWindow().getPlayGround().rightTurnStopped(player); break;
+				}
+				
+				break;
+				
 			case SocketPackage.PACKAGE_PLAY_INFO_PLAYERS:
 				PlayInfoPlayers info = (PlayInfoPlayers)obj;				
 				if (info.isPreGame()) {
@@ -85,6 +118,16 @@ public class GameServer {
 		try {
 			this.serverThread.getClients().get(clientID).writeToClient(o);
 		} catch (IOException e) {}
+	}
+	
+	public void writeToAllClients(Object o) {
+		for (ClientHandler clientHandler : this.serverThread.getClients().values()) {
+			try {
+				clientHandler.writeToClient(o);
+			} catch (IOException ex) {
+				System.out.println("COULD NOT WRITE TO CLIENT - AT BROADCASTING");
+			}
+		}
 	}
 	
 	public ServerThread getServerThread() {

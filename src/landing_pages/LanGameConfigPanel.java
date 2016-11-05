@@ -238,18 +238,12 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				
 				GameController.finished = false;				
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
-				GameController.DEFAULT_CURVE_SPEED = 0.4;//speedSlider.getValue() / 100;
+				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
 				CurveWindow curveWindow = new CurveWindow(ctrl, localNames, localColors);
 
-				for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
-					try {
-						clientHandler.writeToClient(new SignalStartGame(
+				Main.getGameServer().writeToAllClients(new SignalStartGame(
 							GameController.DEFAULT_CURVE_ANGLE, GameController.DEFAULT_CURVE_SPEED, curveWindow.getPlayGround().getLocalPlayers()));
-					} catch (IOException ex) {
-						System.out.println("Could not write start signal");
-					}
-				}
 
 				
 				Main.getGameController().setCurveWindow(curveWindow);
@@ -260,12 +254,7 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 	}
 
 	public void shareServerPlayersToClients() {
-		for (ClientHandler clientHandler : Main.getGameServer().getServerThread().getClients().values()) {
-			try {
-				clientHandler.writeToClient(new PreGameInfo(0, collectTextFields()));
-			} catch (IOException ex) {
-			}
-		}
+		Main.getGameServer().writeToAllClients(new PreGameInfo(0, collectTextFields()));
 	}
 
 	public void arrivedNewPlayerConfigs(int clientID, List<TextFieldPlaceholder> players) {

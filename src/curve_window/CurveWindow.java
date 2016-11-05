@@ -33,6 +33,9 @@ import curve.Player;
 import generals.Colors;
 import generals.GameController;
 import generals.Main;
+import network_packages.SignalPauseGame;
+import network_packages.SignalResumeGame;
+import network_packages.SignalTurn;
 
 public class CurveWindow extends JFrame {
 	
@@ -80,7 +83,7 @@ public class CurveWindow extends JFrame {
 		contentPane.setLayout(new BorderLayout());
 		
 		Rectangle r = Main.getGameController().getLandingWindow().getBounds();
-		curveWindowSizeX = 600;//Main.SCREEN_WIDTH;
+		curveWindowSizeX = 500;//Main.SCREEN_WIDTH;
 		curveWindowSizeY = 500;//Main.SCREEN_HEIGHT;
 		int leftX = (int)r.getMinX();
 		int topY  = (int)r.getMinY();
@@ -166,9 +169,22 @@ public class CurveWindow extends JFrame {
 	    			Control obj = iter.next();
 	    			if (code == obj.getLeft()){
 	    				playGround.leftTurnTriggered(playGround.getLocalPlayers().get(i));
+	    				
+	    				if (Main.getGameServer() != null) {
+	    					Main.getGameServer().writeToAllClients(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_LEFT_TRIGGERED));
+	    				} else if (Main.getGameClient() != null) {
+	    					Main.getGameClient().respondToServer(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_LEFT_TRIGGERED));
+	    				}
 	    			}
-	    			else if (code == obj.getRight())
+	    			else if (code == obj.getRight()) {
 	    				playGround.rightTurnTriggered(playGround.getLocalPlayers().get(i));
+	    				
+	    				if (Main.getGameServer() != null) {
+	    					Main.getGameServer().writeToAllClients(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_RIGHT_TRIGGERED));
+	    				} else if (Main.getGameClient() != null) {
+	    					Main.getGameClient().respondToServer(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_RIGHT_TRIGGERED));
+	    				}
+	    			}
 	    		}
 	    	}
 	    	@Override
@@ -177,10 +193,24 @@ public class CurveWindow extends JFrame {
 	    		for (ListIterator<Control> iter = ctrlsToListen.listIterator(); iter.hasNext(); ) {
 	    			int i = iter.nextIndex();
 	    			Control obj = iter.next();
-	    			if (code == obj.getLeft())
+	    			if (code == obj.getLeft()) {
 	    				playGround.leftTurnStopped(playGround.getLocalPlayers().get(i));
-	    			else if (code == obj.getRight())
+	    				
+	    				if (Main.getGameServer() != null) {
+	    					Main.getGameServer().writeToAllClients(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_LEFT_STOPPED));
+	    				} else if (Main.getGameClient() != null) {
+	    					Main.getGameClient().respondToServer(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_LEFT_STOPPED));
+	    				}
+	    			}
+	    			else if (code == obj.getRight()) {
 	    				playGround.rightTurnStopped(playGround.getLocalPlayers().get(i));
+	    				
+	    				if (Main.getGameServer() != null) {
+	    					Main.getGameServer().writeToAllClients(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_RIGHT_STOPPED));
+	    				} else if (Main.getGameClient() != null) {
+	    					Main.getGameClient().respondToServer(new SignalTurn(playGround.getLocalPlayers().get(i), SignalTurn.SIGNAL_RIGHT_STOPPED));
+	    				}
+	    			}
 	    		}
 	    	}
 	    });
@@ -190,6 +220,12 @@ public class CurveWindow extends JFrame {
 		this.stopMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				if (Main.getGameServer() != null) {
+					Main.getGameServer().writeToAllClients(new SignalPauseGame());
+				} else if (Main.getGameClient() != null) {
+					Main.getGameClient().respondToServer(new SignalPauseGame());
+				}
+				
 				CurveWindow.this.playGround.stopEvent();
 				stopMenu.setEnabled(false);
 				resumeMenu.setEnabled(true);
@@ -199,6 +235,12 @@ public class CurveWindow extends JFrame {
 		this.resumeMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				if (Main.getGameServer() != null) {
+					Main.getGameServer().writeToAllClients(new SignalResumeGame());
+				} else if (Main.getGameClient() != null) {
+					Main.getGameClient().respondToServer(new SignalResumeGame());
+				}
+				
 				CurveWindow.this.playGround.resumeEvent();
 				stopMenu.setEnabled(true);
 				resumeMenu.setEnabled(false);				

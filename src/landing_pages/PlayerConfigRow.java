@@ -173,7 +173,7 @@ public class PlayerConfigRow extends JPanel implements Serializable {
 				img = ImageIO.read(this.getClass().getResource(baseDir + name));
 				
 				g.drawImage(img, 0, 0, 50, 25,  null);					
-			} catch (IOException ex) {
+			} catch (IOException | IllegalArgumentException ex) {
 				try {
 					img = ImageIO.read(this.getClass().getResource(baseDir + "key_notfound.png"));
 					g.drawImage(img, 0, 0, 50, 25,  null);

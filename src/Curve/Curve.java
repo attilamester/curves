@@ -28,6 +28,10 @@ public class Curve implements Serializable {
 	
 	private int circleNumber;
 	
+	public Curve (Curve curve) {
+		this(curve.getX(), curve.getY(), curve.getRadius(), curve.getTurnAngle(), new Color(curve.getColor().getRGB()), curve.getDirection());
+	}
+	
 	public Curve (double x, double y, int radius, double turnAngle, Color color, Direction direction) {
 		this.direction = new Direction(0, 0);
 		this.initData(x, y, radius, turnAngle, color, direction);

@@ -45,7 +45,7 @@ public class PowerUpTask {
 	public PowerUpTask (CurveWindow curveWindow, int time, boolean PERSONAL, List<Player> players) {
 		this.curveWindow = curveWindow;
 		
-		this.players = players;
+		this.players = new ArrayList<>(players);
 		
 		this.duration = time;
 		this.PERSONAL = PERSONAL;

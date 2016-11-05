@@ -1,13 +1,16 @@
 package curve;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.util.Random;
 
 import javax.swing.Timer;
 
 import generals.GameController;
 
-public class CurveController implements Runnable {
+@SuppressWarnings("unused")
+public class CurveController implements Serializable, Runnable {
+	private static final long serialVersionUID = 1L;
 	
 	private volatile Thread control;
 	private volatile boolean suspended;
@@ -45,6 +48,7 @@ public class CurveController implements Runnable {
 					timer.stop();
 					return;
 				}
+				
 				
 				if(CurveController.this.curve.isLeftPressed())
 					curve.turnLeft();
