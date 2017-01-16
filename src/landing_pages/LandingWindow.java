@@ -39,9 +39,7 @@ public class LandingWindow extends JFrame {
 	private JoinGameConfigPanel joinGamePanel;
 	private HighScoresPanel highScoresPanel;
 	
-	
-	private Color settingColor;
-	
+		
 	public LandingWindow() {
 		super("Get the hang of it!");
 		

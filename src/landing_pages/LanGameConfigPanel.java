@@ -28,17 +28,13 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import curve.Control;
-import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;
 import generals.Main;
 import landing_pages.PlayerConfigRow.TextFieldPlaceholder;
-import modals.CountDownModal;
 import modals.ErrorDialog;
 import network_packages.PreGameInfo;
-import network_packages.SignalStartGame;
 import networking.GameServer;
-import networking.ServerThread.ClientHandler;
 
 public class LanGameConfigPanel extends LocalGameConfigPanel {
 	private static final long serialVersionUID = 1;

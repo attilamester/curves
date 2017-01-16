@@ -4,11 +4,9 @@ import java.io.IOException;
 
 import curve.Player;
 import generals.GameController;
-import generals.Main;
 import network_packages.PlayInfoPlayers;
 import network_packages.PreGameInfo;
 import network_packages.ReadyRequest;
-import network_packages.SignalStartGame;
 import network_packages.SignalTurn;
 import network_packages.SocketPackage;
 import networking.ServerThread.ClientHandler;

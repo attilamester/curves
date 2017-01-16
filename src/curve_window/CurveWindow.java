@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
@@ -82,7 +81,7 @@ public class CurveWindow extends JFrame {
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setLayout(new BorderLayout());
 		
-		Rectangle r = Main.getGameController().getLandingWindow().getBounds();
+		//Rectangle r = Main.getGameController().getLandingWindow().getBounds();
 		curveWindowSizeX = Main.SCREEN_WIDTH;
 		curveWindowSizeY = Main.SCREEN_HEIGHT;
 		int leftX = 0;//(int)r.getMinX();
