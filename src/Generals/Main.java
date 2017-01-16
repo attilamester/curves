@@ -127,7 +127,8 @@ public class Main {
 		
 		  new Thread(new Runnable() {
 		    public void run() {
-		      try {/*
+		      /*
+		    	try {/*
 		    	  File audioFile = new File("//sounds//a.mp3");
 		    	  
 		    	  AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
@@ -140,15 +141,12 @@ public class Main {
 		    	  audioClip.start();
 		    	  
 		    	  
-		    	  */
-		    	 
-		    	  /*
 		    	  Clip clip = AudioSystem.getClip();
 		          AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-		            Main.class.getResourceAsStream("/a.mp3"));
+		          Main.class.getResourceAsStream("/a.mp3"));
 		          clip.open(inputStream);
 		          clip.start();
-		          */
+		          
 		    	  
 		    	  URL url = this.getClass().getClassLoader().getResource("/impact.wav");
 		          AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
@@ -164,6 +162,7 @@ public class Main {
 		      } catch (LineUnavailableException e) {
 		         e.printStackTrace();
 		      }
+		      */
 		    }
 		  }).start();
 		}
@@ -175,7 +174,6 @@ public class Main {
 	public static void main(String[] args) {
 		
 		game = new GameController();
-		//Main.playSound("");
 		
 	}
 

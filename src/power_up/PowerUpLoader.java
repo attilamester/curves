@@ -111,7 +111,7 @@ public class PowerUpLoader {
 		int x = rnd.nextInt(this.backgroundLayer.getImg().getWidth() - PowerUp.POWERUP_SIZE - shrinkX) + PowerUp.POWERUP_SIZE / 2 + shrinkX;
 		int y = rnd.nextInt(this.backgroundLayer.getImg().getHeight() - PowerUp.POWERUP_SIZE - shrinkY)+ PowerUp.POWERUP_SIZE / 2 + shrinkY;
 		
-		int index = 5;
+		int index = 0;
 		if (index == 0)
 			index = rnd.nextInt(POWERUP_COUNT);
 		return new PowerUp(POWERUP_NAMES[index], x, y);

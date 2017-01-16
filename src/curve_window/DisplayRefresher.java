@@ -67,16 +67,6 @@ public class DisplayRefresher extends Thread {
 	@Override
 	public void run() {
 		timer.start();
-		/*while (!GameController.finished) {
-			/*
-			playGround.repaint();
-			
-			try {
-				Thread.sleep(5);
-			} catch(InterruptedException e) {}
-			
-			timer.start();
-		}*/
 	}
 	
 	public void stopRefresher() {

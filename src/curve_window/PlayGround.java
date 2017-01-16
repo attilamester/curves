@@ -545,6 +545,7 @@ public class PlayGround extends JPanel {
 		return false;
 
 		/*
+		 * Commenting this out will fasten up code, no need to check 12 points on a circle, as it's so tiny. It's enough to check 2 points on the side
 		 * 
 		 * int alpha = 30; int limit = 30; int nr = limit / alpha;
 		 * AffineTransform rot =
@@ -725,8 +726,8 @@ public class PlayGround extends JPanel {
 	}
 
 	public void startGame() {
-		//if (this.powerUpLoader != null)
-			//this.powerUpLoader.start();
+		if (this.powerUpLoader != null)
+			this.powerUpLoader.start();
 		
 		for (Player pl : this.allPlayers) {
 			pl.getController().start();			
@@ -783,7 +784,7 @@ public class PlayGround extends JPanel {
 		double x = randBetween(PADDING, this.playGroundSizeX - PADDING);
 		if (x >= (this.playGroundSizeX - GameController.COUNT_DOWN_WIDTH) / 2 - marginFromCountDown
 				&& x <= (this.playGroundSizeX + GameController.COUNT_DOWN_WIDTH) / 2 + marginFromCountDown) {
-			//x += GameController.COUNT_DOWN_WIDTH;
+			x += GameController.COUNT_DOWN_WIDTH;
 		}
 		return x;
 	}
@@ -793,7 +794,7 @@ public class PlayGround extends JPanel {
 		int marginFromCountDown = 20;
 		if (y >= (this.playGroundSizeY - GameController.COUNT_DOWN_HEIGHT) / 2 - marginFromCountDown
 				&& y <= (this.playGroundSizeY + GameController.COUNT_DOWN_HEIGHT) / 2 + marginFromCountDown) {
-			//y += GameController.COUNT_DOWN_HEIGHT;
+			y += GameController.COUNT_DOWN_HEIGHT;
 		}
 		return y;
 	}

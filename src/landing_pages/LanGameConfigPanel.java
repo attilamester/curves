@@ -235,7 +235,15 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 					remoteColors.add(color);
 				}
 				
+				/***********************************
+				 * 
+				 * GAME CAN BE STARTED
+				 * 
+				 ***********************************/
+				new ErrorDialog("Not fully implemented, Sorry");
+				return;
 				
+				/*
 				GameController.finished = false;				
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
@@ -248,6 +256,8 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				
 				Main.getGameController().setCurveWindow(curveWindow);
 				new CountDownModal(curveWindow, 1, null, null);
+				
+				*/
 			}
 		});
 

@@ -14,6 +14,7 @@ import javax.swing.border.LineBorder;
 
 import generals.Colors;
 import generals.Main;
+import modals.ErrorDialog;
 
 public class LandingWindow extends JFrame {
 	
@@ -38,6 +39,8 @@ public class LandingWindow extends JFrame {
 	private JoinGameConfigPanel joinGamePanel;
 	private HighScoresPanel highScoresPanel;
 	
+	
+	private Color settingColor;
 	
 	public LandingWindow() {
 		super("Get the hang of it!");
@@ -124,6 +127,14 @@ public class LandingWindow extends JFrame {
 				LandingWindow.this.setContentPane(highScoresPanel);
 				contentPane.revalidate();
 				contentPane.repaint();
+			}
+		});
+		
+		this.settings.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				new ErrorDialog("No particular setting to display!");
+				settings.setBackground(settings.getBackground().darker());
 			}
 		});
 	}
