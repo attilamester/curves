@@ -103,7 +103,7 @@ public class LocalGameConfigPanel extends JPanel {
 	private void createSpeedSlider() {
 		Color bg = Colors.MAIN_COLORS[0];
 		
-		this.speedSlider = new JSlider(JSlider.HORIZONTAL, 1, 500, 175);
+		this.speedSlider = new JSlider(JSlider.HORIZONTAL, 1, 500, 150);
 		speedSlider.setBackground(bg);
 		
 		speedLabel = new JLabel("Curve speed:");
@@ -244,9 +244,9 @@ public class LocalGameConfigPanel extends JPanel {
 					return;
 				}
 				
-				GameController.finished = false;				
+				GameController.finished = false;
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
-				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
+				GameController.DEFAULT_CURVE_SPEED = (double)speedSlider.getValue() / 100;
 				
 				CurveWindow curveWindow = new CurveWindow(ctrl, names, colors);
 				Main.getGameController().setCurveWindow(curveWindow);

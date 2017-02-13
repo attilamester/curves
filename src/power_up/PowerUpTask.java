@@ -45,13 +45,13 @@ public class PowerUpTask {
 	public PowerUpTask (CurveWindow curveWindow, int time, boolean PERSONAL, List<Player> players) {
 		this.curveWindow = curveWindow;
 		
-		this.players = new ArrayList<>(players);
 		
 		this.duration = time;
 		this.PERSONAL = PERSONAL;
 		this.state = PowerUpTask.PROGRESS;
 		
 		if (PERSONAL) {
+			this.players = new ArrayList<>(players);
 			createPersonalLoadingBar();
 		} else {
 			createCommonLoadingBar();

@@ -153,8 +153,7 @@ public class PlayGround extends JPanel {
 				this.backgroundLayer = new ImageLayer(this.getWidth(), this.getHeight(),
 						GameController.PLAYGROUND_BACKGROUND, BufferedImage.TYPE_INT_ARGB);
 				this.curvesLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_ARGB);
-				// this.extrasLayer = new ImageLayer(this.getWidth(),
-				// this.getHeight(), null);
+				
 				this.timeLayer = new ImageLayer(this.getWidth(), this.getHeight(), null, BufferedImage.TYPE_INT_RGB);
 				
 				//if (Main.getGameClient() == null) {

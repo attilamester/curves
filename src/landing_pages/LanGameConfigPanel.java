@@ -28,12 +28,15 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import curve.Control;
+import curve_window.CurveWindow;
 import generals.Colors;
 import generals.GameController;
 import generals.Main;
 import landing_pages.PlayerConfigRow.TextFieldPlaceholder;
+import modals.CountDownModal;
 import modals.ErrorDialog;
 import network_packages.PreGameInfo;
+import network_packages.SignalStartGame;
 import networking.GameServer;
 
 public class LanGameConfigPanel extends LocalGameConfigPanel {
@@ -236,11 +239,8 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				 * GAME CAN BE STARTED
 				 * 
 				 ***********************************/
-				new ErrorDialog("Not fully implemented, Sorry");
-				return;
 				
-				/*
-				GameController.finished = false;				
+				GameController.finished = false;
 				GameController.DEFAULT_CURVE_ANGLE = angleSlider.getValue() / 10;
 				GameController.DEFAULT_CURVE_SPEED = speedSlider.getValue() / 100;
 				
@@ -253,7 +253,7 @@ public class LanGameConfigPanel extends LocalGameConfigPanel {
 				Main.getGameController().setCurveWindow(curveWindow);
 				new CountDownModal(curveWindow, 1, null, null);
 				
-				*/
+				
 			}
 		});
 
